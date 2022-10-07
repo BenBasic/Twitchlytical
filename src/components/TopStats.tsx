@@ -19,9 +19,13 @@ import { amber, deepPurple, blue, green } from '@mui/material/colors';
 // Defining object containing ranked property color values 
 const topColors = {
     best: amber[700],
+    bestDark: amber[900],
     great: deepPurple[500],
+    greatDark: deepPurple[900],
     good: blue[700],
+    goodDark: blue[900],
     ok: green[700],
+    okDark: green[900],
 };
 
 // Setting the Game type to a set of expected properties and their expected value types
@@ -32,6 +36,12 @@ type Game = {
     image?: string;
 };
 
+// Setting the CardColor type to a set of expected properties and their expected value types
+type CardColor = {
+    primary: string;
+    secondary: string;
+};
+
 const styles = {
     card: {
         borderRadius: 16,
@@ -40,8 +50,14 @@ const styles = {
     },
     cardContent: {
         borderRadius: 16,
-        color: 'white',
+        color: 'black',
         //backgroundColor: 'white',
+    },
+    cardTitle: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        paddingTop: '.5rem',
+        paddingBottom: '.5rem',
     },
     media: {
         height: 0,
@@ -49,14 +65,18 @@ const styles = {
         marginTop: '30'
     },
     views: {
-        marginTop: '2rem',
+        color: 'white',
+        borderRadius: 16,
+        paddingTop: '.5rem',
+        paddingBottom: '.5rem',
+        marginTop: '1rem',
     }
 };
 
-// Assigning GameCardProps interfact for passing values into CustomCard component
+// Assigning GameCardProps interface for passing values into CustomCard component
 interface GameCardProps {
     gameInfo: Game;
-    color: string;
+    color: CardColor;
 };
 
 
@@ -75,21 +95,29 @@ const CustomCard: React.FC<GameCardProps> = (props) => {
 
                 <CardContent
                     sx={{
-                        backgroundColor: props.color
+                        backgroundColor: props.color.primary,
+                        textAlign: 'center'
                     }}
                 >
 
-                    <Typography variant={'h5'}>
+                    <Typography style={styles.cardTitle} variant={'h5'}>
                         {props.gameInfo.name}
                     </Typography>
 
-                    <Typography style={styles.views}>
-                        Average Weekly Views
-                    </Typography>
+                    <Container style={styles.views}
+                        sx={{
+                            backgroundColor: props.color.secondary,
+                        }}
+                    >
+                        <Typography>
+                            Average Weekly Views
+                        </Typography>
 
-                    <Typography>
-                        {props.gameInfo.views}
-                    </Typography>
+                        <Typography variant={'h6'}>
+                            {props.gameInfo.views}
+                        </Typography>
+                    </Container>
+
 
                 </CardContent>
             </Card>
@@ -173,15 +201,19 @@ const TopStats: React.FC = () => {
 
         <Container maxWidth="sm" className='topGamesContainer'>
 
+            <Typography variant={'h4'} textAlign='center'>
+                Most Popular Games
+            </Typography>
+
             {topGames.map((game, index) => (
                 <CustomCard gameInfo={game} key={index}
                 color={ index === 0 ?
-                    topColors.best :
+                    {primary: topColors.best, secondary: topColors.bestDark} :
                     index > 0 && index < 3 ?
-                    topColors.great :
+                    {primary: topColors.great, secondary: topColors.greatDark} :
                     index > 2 && index < 7 ?
-                    topColors.good :
-                    topColors.ok
+                    {primary: topColors.good, secondary: topColors.goodDark} :
+                    {primary: topColors.ok, secondary: topColors.okDark}
                 }
                 ></CustomCard>
             ))}
