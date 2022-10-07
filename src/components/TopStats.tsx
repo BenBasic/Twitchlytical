@@ -12,7 +12,17 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 
+// Importing colors from Material UI
+import { amber, deepPurple, blue, green } from '@mui/material/colors';
 
+
+// Defining object containing ranked property color values 
+const topColors = {
+    best: amber[700],
+    great: deepPurple[500],
+    good: blue[700],
+    ok: green[700],
+};
 
 // Setting the Game type to a set of expected properties and their expected value types
 type Game = {
@@ -30,8 +40,8 @@ const styles = {
     },
     cardContent: {
         borderRadius: 16,
-        color: 'black',
-        backgroundColor: 'white',
+        color: 'white',
+        //backgroundColor: 'white',
     },
     media: {
         height: 0,
@@ -43,8 +53,14 @@ const styles = {
     }
 };
 
+// Assigning GameCardProps interfact for passing values into CustomCard component
+interface GameCardProps {
+    gameInfo: Game;
+    color: string;
+};
 
-const CustomCard = (gameInfo: Game) => {
+
+const CustomCard: React.FC<GameCardProps> = (props) => {
     return (
         <CardActionArea style={styles.card}
             sx={{
@@ -55,12 +71,16 @@ const CustomCard = (gameInfo: Game) => {
 
             <Card style={styles.cardContent}>
 
-                <CardMedia style={styles.media} image={gameInfo.image} />
+                <CardMedia style={styles.media} image={props.gameInfo.image} />
 
-                <CardContent>
+                <CardContent
+                    sx={{
+                        backgroundColor: props.color
+                    }}
+                >
 
                     <Typography variant={'h5'}>
-                        {gameInfo.name}
+                        {props.gameInfo.name}
                     </Typography>
 
                     <Typography style={styles.views}>
@@ -68,7 +88,7 @@ const CustomCard = (gameInfo: Game) => {
                     </Typography>
 
                     <Typography>
-                        {gameInfo.views}
+                        {props.gameInfo.views}
                     </Typography>
 
                 </CardContent>
@@ -97,10 +117,56 @@ const TopStats: React.FC = () => {
             views: 3100,
             image: "https://howlongtobeat.com/games/Fallout_New_Vegas.jpg",
         },
-    ]
+        {
+            name: "Minecraft",
+            views: 4680,
+            image: "https://www.mobygames.com/images/covers/l/672322-minecraft-playstation-4-front-cover.jpg",
+        },
+        {
+            name: "Xcom 2",
+            views: 20003,
+            image: "https://www.mobygames.com/images/covers/l/425882-xcom-2-war-of-the-chosen-playstation-4-front-cover.jpg",
+        },
+        {
+            name: "Portal 2",
+            views: 302,
+            image: "http://s01.riotpixels.net/data/b5/cf/b5cfe10d-7290-4bcb-a89d-e5d0e07b89f4.jpg/cover.portal-2.1024x1024.2014-04-24.1116.jpg",
+        },
+        {
+            name: "Sid Meier's Civilization VI",
+            views: 72301,
+            image: "https://steamuserimages-a.akamaihd.net/ugc/1802025626651923540/962EB4599F3C3E318491A62AEB3604876AFBE87D/",
+        },
+        {
+            name: "Pavlov VR",
+            views: 135,
+            image: "https://cdna.artstation.com/p/assets/images/images/022/303/284/large/david-sheep-pavlov-01.jpg?1574894810",
+        },
+        {
+            name: "Fall Guys",
+            views: 6300,
+            image: "https://www.mobygames.com/images/covers/l/676144-fall-guys-ultimate-knockout-playstation-4-front-cover.png",
+        },
+        {
+            name: "Compound",
+            views: 30005,
+            image: "https://thumbnails.pcgamingwiki.com/5/55/New_cover.png/300px-New_cover.png",
+        },
+    ];
+
+    // Comparator function which will sort reviews by date
+    function Comparator(a:Game, b:Game) {
+        if (a.views < b.views) return 1;
+        if (a.views > b.views) return -1;
+        return 0;
+    };
+    
+    // Assigning the array of data to sort by value of views from highest to lowest
+    testData = testData.sort(Comparator);
 
     // Assigning the topGames state, currently uses the Game type and sets initial state to the values in testData
     const [topGames, setTopGames] = useState<Game[]>(testData);
+
 
 
     return (
@@ -108,7 +174,16 @@ const TopStats: React.FC = () => {
         <Container maxWidth="sm" className='topGamesContainer'>
 
             {topGames.map((game, index) => (
-                <CustomCard {...game} key={index}></CustomCard>
+                <CustomCard gameInfo={game} key={index}
+                color={ index === 0 ?
+                    topColors.best :
+                    index > 0 && index < 3 ?
+                    topColors.great :
+                    index > 2 && index < 7 ?
+                    topColors.good :
+                    topColors.ok
+                }
+                ></CustomCard>
             ))}
 
         </Container>
