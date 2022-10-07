@@ -6,7 +6,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar';
 
-// Importing the Game type for use within the Comparator function
+// Importing the Stats type for use within the Comparator function
 import { Stats } from './TypesAndInterfaces';
 
 // Importing the RankCard component for use within the return of TopStats
@@ -31,7 +31,7 @@ const topColors = {
 
 const TopStats: React.FC = () => {
 
-    // Let of test data using an array of the Game type, this is only used for display testing purposes for now
+    // Let of test data using an array of the Stats type, this is only used for display testing purposes for now
     let testData: Stats[] = [
         {
             name: "Overwatch",
@@ -86,7 +86,7 @@ const TopStats: React.FC = () => {
     ];
 
 
-    // Let of test data using an array of the Game type, this is only used for display testing purposes for now
+    // Let of test data using an array of the Stats type, this is only used for display testing purposes for now
     let testDataStreamers: Stats[] = [
         {
             name: "MOISTCR1TIKAL",
@@ -152,10 +152,10 @@ const TopStats: React.FC = () => {
     testData = testData.sort(Comparator);
     testDataStreamers = testDataStreamers.sort(Comparator);
 
-    // Assigning the topGames state, currently uses the Game type and sets initial state to the values in testData
+    // Assigning the topGames state, currently uses the Stats type and sets initial state to the values in testData
     const [topGames, setTopGames] = useState<Stats[]>(testData);
 
-    // Assigning the topGames state, currently uses the Game type and sets initial state to the values in testData
+    // Assigning the topStreamers state, currently uses the Stats type and sets initial state to the values in testDataSteamers
     const [topStreamers, setTopStreamers] = useState<Stats[]>(testDataStreamers);
 
 

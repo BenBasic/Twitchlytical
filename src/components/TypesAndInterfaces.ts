@@ -1,4 +1,4 @@
-// Setting the Game type to a set of expected properties and their expected value types
+// Setting the Stats type to a set of expected properties and their expected value types
 export type Stats = {
     name: string;
     views: number;
@@ -12,7 +12,7 @@ export type CardColor = {
     secondary: string;
 };
 
-// Assigning GameCardProps interface for passing values into RankCard component
+// Assigning StatCardProps interface for passing values into RankCard component
 export interface StatCardProps {
     statInfo: Stats;
     color: CardColor;
