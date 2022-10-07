@@ -6,20 +6,20 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar';
 
+// Importing the Game type for use within the Comparator function
+import { Stats } from './TypesAndInterfaces';
 
-import CardActionArea from '@mui/material/CardActionArea';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
+// Importing the RankCard component for use within the return of TopStats
+import RankCard from './RankCard';
 
 // Importing colors from Material UI
-import { amber, deepPurple, blue, green } from '@mui/material/colors';
+import { amber, orange, deepPurple, blue, green } from '@mui/material/colors';
 
 
 // Defining object containing ranked property color values 
 const topColors = {
     best: amber[700],
-    bestDark: amber[900],
+    bestDark: orange[900],
     great: deepPurple[500],
     greatDark: deepPurple[900],
     good: blue[700],
@@ -28,108 +28,11 @@ const topColors = {
     okDark: green[900],
 };
 
-// Setting the Game type to a set of expected properties and their expected value types
-type Game = {
-    name: string;
-    views: number;
-    trending?: boolean;
-    image?: string;
-};
-
-// Setting the CardColor type to a set of expected properties and their expected value types
-type CardColor = {
-    primary: string;
-    secondary: string;
-};
-
-const styles = {
-    card: {
-        borderRadius: 16,
-        marginTop: '2rem',
-        transition: '0.2s',
-    },
-    cardContent: {
-        borderRadius: 16,
-        color: 'black',
-        //backgroundColor: 'white',
-    },
-    cardTitle: {
-        backgroundColor: 'white',
-        borderRadius: 16,
-        paddingTop: '.5rem',
-        paddingBottom: '.5rem',
-    },
-    media: {
-        height: 0,
-        paddingTop: '100%', // 16:9,
-        marginTop: '30'
-    },
-    views: {
-        color: 'white',
-        borderRadius: 16,
-        paddingTop: '.5rem',
-        paddingBottom: '.5rem',
-        marginTop: '1rem',
-    }
-};
-
-// Assigning GameCardProps interface for passing values into CustomCard component
-interface GameCardProps {
-    gameInfo: Game;
-    color: CardColor;
-};
-
-
-const CustomCard: React.FC<GameCardProps> = (props) => {
-    return (
-        <CardActionArea style={styles.card}
-            sx={{
-                '&:hover': {
-                    transform: 'scale(1.1)',
-                }
-            }}>
-
-            <Card style={styles.cardContent}>
-
-                <CardMedia style={styles.media} image={props.gameInfo.image} />
-
-                <CardContent
-                    sx={{
-                        backgroundColor: props.color.primary,
-                        textAlign: 'center'
-                    }}
-                >
-
-                    <Typography style={styles.cardTitle} variant={'h5'}>
-                        {props.gameInfo.name}
-                    </Typography>
-
-                    <Container style={styles.views}
-                        sx={{
-                            backgroundColor: props.color.secondary,
-                        }}
-                    >
-                        <Typography>
-                            Average Weekly Views
-                        </Typography>
-
-                        <Typography variant={'h6'}>
-                            {props.gameInfo.views}
-                        </Typography>
-                    </Container>
-
-
-                </CardContent>
-            </Card>
-        </CardActionArea>
-    );
-};
-
 
 const TopStats: React.FC = () => {
 
     // Let of test data using an array of the Game type, this is only used for display testing purposes for now
-    let testData: Game[] = [
+    let testData: Stats[] = [
         {
             name: "Overwatch",
             views: 103040,
@@ -182,8 +85,64 @@ const TopStats: React.FC = () => {
         },
     ];
 
-    // Comparator function which will sort reviews by date
-    function Comparator(a:Game, b:Game) {
+
+    // Let of test data using an array of the Game type, this is only used for display testing purposes for now
+    let testDataStreamers: Stats[] = [
+        {
+            name: "MOISTCR1TIKAL",
+            views: 103040,
+            image: "https://cdn1.dotesports.com/wp-content/uploads/2020/11/15213949/Charlie-Penguinz0.png",
+        },
+        {
+            name: "Emiru",
+            views: 24500,
+            image: "https://yt3.ggpht.com/ytc/AMLnZu-8R7HpB66AznXoaDb5sQFpD4DXbCyqnDncT_yMFw=s900-c-k-c0x00ffffff-no-rj",
+        },
+        {
+            name: "Pokimane",
+            views: 3100,
+            image: "https://upload.wikimedia.org/wikipedia/commons/1/10/Pokimane_2019.png",
+        },
+        {
+            name: "IronMouse",
+            views: 4680,
+            image: "https://wegotthiscovered.com/wp-content/uploads/2022/04/FLtfwy3WQAIDTJW.jpg",
+        },
+        {
+            name: "CDawgVA",
+            views: 20003,
+            image: "https://pbs.twimg.com/profile_images/1528374271407378434/cngzQWHr_400x400.jpg",
+        },
+        {
+            name: "Mori Calliope",
+            views: 302,
+            image: "https://yt3.ggpht.com/8B_T08sx8R7XVi5Mwx_l9sjQm5FGWGspeujSvVDvd80Zyr-3VvVTRGVLOnBrqNRxZp6ZeXAV=s900-c-k-c0x00ffffff-no-rj",
+        },
+        {
+            name: "Gawr Gura",
+            views: 72301,
+            image: "https://yt3.ggpht.com/uMUat6yJL2_Sk6Wg2-yn0fSIqUr_D6aKVNVoWbgeZ8N-edT5QJAusk4PI8nmPgT_DxFDTyl8=s900-c-k-c0x00ffffff-no-rj",
+        },
+        {
+            name: "Trash Taste",
+            views: 135,
+            image: "https://yt3.ggpht.com/ytc/AMLnZu_ftgC9BGqAjjTQBtT6w9lMWgfQzihCQ5MmnlE=s900-c-k-c0x00ffffff-no-rj",
+        },
+        {
+            name: "Lugwig",
+            views: 6300,
+            image: "https://www.svg.com/img/gallery/ludwig-makes-a-surprising-claim-about-amouranth/intro-1624629959.jpg",
+        },
+        {
+            name: "Joe Bartolozzi",
+            views: 30005,
+            image: "https://yt3.ggpht.com/MbrQnkNF6nHK8xDmMvJ0AckDshGXT1OSQnuAWYsOIWBczy_5Fy5w4yVWdL1YBTe5AmxDpmPY=s900-c-k-c0x00ffffff-no-rj",
+        },
+    ];
+
+
+    // Comparator function which will sort cards by views highest to lowest
+    function Comparator(a:Stats, b:Stats) {
         if (a.views < b.views) return 1;
         if (a.views > b.views) return -1;
         return 0;
@@ -191,9 +150,13 @@ const TopStats: React.FC = () => {
     
     // Assigning the array of data to sort by value of views from highest to lowest
     testData = testData.sort(Comparator);
+    testDataStreamers = testDataStreamers.sort(Comparator);
 
     // Assigning the topGames state, currently uses the Game type and sets initial state to the values in testData
-    const [topGames, setTopGames] = useState<Game[]>(testData);
+    const [topGames, setTopGames] = useState<Stats[]>(testData);
+
+    // Assigning the topGames state, currently uses the Game type and sets initial state to the values in testData
+    const [topStreamers, setTopStreamers] = useState<Stats[]>(testDataStreamers);
 
 
 
@@ -201,22 +164,56 @@ const TopStats: React.FC = () => {
 
         <Container maxWidth="sm" className='topGamesContainer'>
 
-            <Typography variant={'h4'} textAlign='center'>
-                Most Popular Games
+            <Typography variant={'h4'} textAlign='center' marginBottom={'1rem'}>
+                Most Popular
             </Typography>
 
-            {topGames.map((game, index) => (
-                <CustomCard gameInfo={game} key={index}
-                color={ index === 0 ?
-                    {primary: topColors.best, secondary: topColors.bestDark} :
-                    index > 0 && index < 3 ?
-                    {primary: topColors.great, secondary: topColors.greatDark} :
-                    index > 2 && index < 7 ?
-                    {primary: topColors.good, secondary: topColors.goodDark} :
-                    {primary: topColors.ok, secondary: topColors.okDark}
-                }
-                ></CustomCard>
-            ))}
+            <Grid container spacing={2}>
+
+                <Grid item xs={6}>
+
+                    <Typography variant={'h4'} textAlign='center'>
+                        Games
+                    </Typography>
+
+                    {topGames.map((game, index) => (
+                        <RankCard statInfo={game} key={index}
+                        color={ index === 0 ?
+                            {primary: topColors.best, secondary: topColors.bestDark} :
+                            index > 0 && index < 3 ?
+                            {primary: topColors.great, secondary: topColors.greatDark} :
+                            index > 2 && index < 7 ?
+                            {primary: topColors.good, secondary: topColors.goodDark} :
+                            {primary: topColors.ok, secondary: topColors.okDark}
+                        }
+                        ></RankCard>
+                    ))}
+
+                </Grid>
+
+
+                <Grid item xs={6}>
+
+                    <Typography variant={'h4'} textAlign='center'>
+                        Streamers
+                    </Typography>
+
+                    {topStreamers.map((streamer, index) => (
+                        <RankCard statInfo={streamer} key={index}
+                        color={ index === 0 ?
+                            {primary: topColors.best, secondary: topColors.bestDark} :
+                            index > 0 && index < 3 ?
+                            {primary: topColors.great, secondary: topColors.greatDark} :
+                            index > 2 && index < 7 ?
+                            {primary: topColors.good, secondary: topColors.goodDark} :
+                            {primary: topColors.ok, secondary: topColors.okDark}
+                        }
+                        ></RankCard>
+                    ))}
+
+                </Grid>
+
+            </Grid>
 
         </Container>
 
