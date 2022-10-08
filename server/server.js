@@ -1,3 +1,46 @@
+// Twitch API code below -------------------
+
+require('dotenv').config();
+
+const fetch = (...args) =>
+  import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
+
+const getToken = async () => {
+	const tokenResponse = await fetch(
+		`https://id.twitch.tv/oauth2/token?client_id=${process.env.CLIENT_ID}&client_secret=${process.env.CLIENT_SECRET}&grant_type=client_credentials`,
+		{
+			method: "POST",
+		}
+	);
+
+	const tokenJson = await tokenResponse.json();
+	const token = tokenJson.access_token;
+
+	return token;
+};
+
+const getData = async () => {
+	const url = process.env.GET_GAMES
+	const token = await getToken();
+
+	console.log(`token is ${token}`)
+
+
+	const res = await fetch(url, {
+		method: "GET",
+		headers: {
+			"client-id": process.env.CLIENT_ID,
+			"Authorization": `Bearer ${token}`,
+		}
+	})
+	let twitch_data = await res.json();
+	
+	console.log(twitch_data);
+}
+
+getData();
+
 const express = require("express");
 const path = require("path");
 const { ApolloServer } = require("apollo-server-express");
