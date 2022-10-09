@@ -20,8 +20,8 @@ const getToken = async () => {
 	return token;
 };
 
-const getData = async () => {
-	const url = process.env.GET_GAMES
+const getData = async (reqUrl) => {
+	const url = reqUrl
 	const token = await getToken();
 
 	console.log(`token is ${token}`)
@@ -37,9 +37,135 @@ const getData = async () => {
 	let twitch_data = await res.json();
 	
 	console.log(twitch_data);
+
+	return twitch_data;
 }
 
-getData();
+// Top games
+getData(process.env.GET_GAMES);
+
+// Top streams
+getData(process.env.GET_STREAMS);
+
+// Gets videos (currently testing with videos for Overwatch 2, sorting by views)
+getData(process.env.GET_VIDEOS + '?sort=views&game_id=515025')
+
+// Collects desired properties from the GET_VIDEOS response and creates a new array of objects (testing purposes)
+const getDataProperty = async (reqUrl) => {
+
+	const resData = await getData(reqUrl);
+	const resDataProp = resData?.data;
+	let resArray = [];
+
+
+	for (var key in resDataProp) {
+		if (resDataProp.hasOwnProperty(key)) {
+
+			const nestedResData = resDataProp[key];
+
+			const dataObject = {
+				id: nestedResData.id,
+				streamid: nestedResData.stream_id,
+				userid: nestedResData.user_id,
+				username: nestedResData.user_name,
+				title: nestedResData.title,
+				views: nestedResData.view_count,
+			};
+
+			resArray.push(dataObject)
+		}
+	}
+
+	console.log("RESULT ARRAY -----------")
+	console.log(resArray)
+
+};
+
+getDataProperty(process.env.GET_VIDEOS + '?sort=views&game_id=515025');
+
+
+getData(process.env.GET_STREAMS + '?game_id=515025');
+
+// This function will gather the total viewers of a game and add them to a total sum
+const countTotalViews = async (reqUrl) => {
+
+	// Page set to 0 by default, will increment to higher values as it cycles through paginations on the api
+	let page = 0;
+	// stopSearch set to false by default, will set to true once viewer counts fetches are lower than specified in for loop
+	let stopSearch = false;
+	// Setting viewArray to an empty array, will have viewer values pushed into it when api call occurs
+	let viewArray = [];
+	// viewTotal set to 0 by default, will have its value changed once all viewer amounts are added up for total value
+	let viewTotal = 0;
+	// paginationValue set to nothing, will be assigned to pagination value when needed for further pages to cycle through from api
+	let paginationValue;
+	// resData set to nothing, will be assigned a fetch function based on if pagination value is required or not
+	let resData;
+
+	// While stopSearch is false, data will be gathered from api until triggered to stop
+	while (stopSearch === false) {
+
+		/* If the fetch is past the 1st page of the api call, it will fetch using a url with the
+		pagination value included to continue to next page */
+		if (page >= 1) {
+			resData = await getData(reqUrl + '&after=' + paginationValue);
+		}
+
+		// If the fetching the 1st page of the api call, it will fetch with the base url
+		if (page === 0) {
+			resData = await getData(reqUrl);
+		}
+		
+		// Assigning to the value of the data array of objects from the api call
+		const resDataProp = resData?.data;
+	
+		// If the search hasnt been triggered to stop yet, then the viewer values will be collected and added up for total
+		if (stopSearch === false) {
+	
+			// Cycles through all objects from the api response
+			for (var key in resDataProp) {
+				// Checks if the object from the response contains any properties
+				if (resDataProp.hasOwnProperty(key)) {
+		
+					// Assigning the value of the viewers the stream currently has
+					const viewCount = resDataProp[key].viewer_count;
+		
+					// If the viewer amount is less than or equal to specified value, stop from continuing to next page of data
+					if (viewCount <= 5) {
+						stopSearch = true;
+					} else {
+						// Add viewer amount from stream to total viewer value
+						viewTotal += viewCount;
+						// REMOVE LATER! Used for testing to see how many streams that have had viewer value gathered
+						viewArray.push(viewCount)
+					};
+				};
+			};
+	
+		} else {
+			console.log ("SEARCH STOPPED");
+		};
+
+		// Incriment page value by 1
+		page++;
+		// Assigning new pagination value to assign new start point for data collected on next page of api response
+		paginationValue = resData?.pagination.cursor;
+		console.log("Pagination is")
+		console.log(paginationValue)
+	}
+
+	console.log("VIEW ARRAY -----------")
+	console.log(viewArray)
+	console.log("VIEW TOTAL -----------")
+	console.log(viewTotal)
+
+};
+
+// Grabbing viewer amount of all streams for Overwatch 2, 100 items at a time
+countTotalViews(process.env.GET_STREAMS + '?game_id=515025&first=100')
+
+
+// Twitch API code above -------------------
 
 const express = require("express");
 const path = require("path");
