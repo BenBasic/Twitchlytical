@@ -125,12 +125,18 @@ const countTotalViews = async (reqUrl) => {
 	let stopSearch = false;
 	// Setting viewArray to an empty array, will have viewer values pushed into it when api call occurs
 	let viewArray = [];
+	// Setting userIdArray to an empty array, will have user_id values pushed into it when api call occurs
+	let userIdArray = [];
+	// Setting duplicateArray to an empty array, will have detected duplicate user_id values pushed into it when api call occurs
+	let duplicateArray = [];
 	// viewTotal set to 0 by default, will have its value changed once all viewer amounts are added up for total value
 	let viewTotal = 0;
 	// paginationValue set to nothing, will be assigned to pagination value when needed for further pages to cycle through from api
 	let paginationValue;
 	// resData set to nothing, will be assigned a fetch function based on if pagination value is required or not
 	let resData;
+	// Assigning viewLimit to the value desired for the api to stop checking for streams (ex: stop checking when streams with 5 viewers are detected)
+	let viewLimit = 0;
 
 	// While stopSearch is false, data will be gathered from api until triggered to stop
 	while (stopSearch === false) {
@@ -138,12 +144,12 @@ const countTotalViews = async (reqUrl) => {
 		/* If the fetch is past the 1st page of the api call, it will fetch using a url with the
 		pagination value included to continue to next page */
 		if (page >= 1) {
-			resData = await getData(reqUrl + '&after=' + paginationValue);
+			resData = await getData(reqUrl + '&after=' + paginationValue + '&first=100');
 		}
 
 		// If the fetching the 1st page of the api call, it will fetch with the base url
 		if (page === 0) {
-			resData = await getData(reqUrl);
+			resData = await getData(reqUrl + '&first=100');
 		}
 		
 		// Assigning to the value of the data array of objects from the api call
@@ -159,15 +165,52 @@ const countTotalViews = async (reqUrl) => {
 		
 					// Assigning the value of the viewers the stream currently has
 					const viewCount = resDataProp[key].viewer_count;
-		
-					// If the viewer amount is less than or equal to specified value, stop from continuing to next page of data
-					if (viewCount <= 5) {
-						stopSearch = true;
+
+					// Assigning the value of the streamers user_id (will be used for matching id checks to prevent duplicate results)
+					const userId = resDataProp[key].user_id;
+
+					// Checks if user_id already has been fetched from api call, prevents same streamer from having duplicates
+					if(!userIdArray.includes(userId)) {
+						// Pushes the user_id into the userIdArray, allowing it to be referenced in case there are duplicate results
+						userIdArray.push(userId);
+
+						// If the viewer amount is less than or equal to specified value, stop from continuing to next page of data
+						if (viewCount <= viewLimit) {
+							// Assigning consts to check if there are at least 2 values in the viewArray, used for preventing false stopSearch due to api sorting errors
+							const firstIndex = viewArray?.[0];
+							const secondIndex = viewArray?.[1];
+
+							// If the response from the api has less than 100 streams, stop the search because there are no more paginations to look for
+							if (resDataProp.length < 100) {
+								// Tells the function to stop searching for additional paginations in api call
+								stopSearch = true;
+
+							  // If there are at least 2 values in the viewArray, their values will be checked to avoid false stopSearch triggering
+							} else if (firstIndex !== undefined && secondIndex !== undefined) {
+								// Assigning consts to the last and second last values in the viewArray (2 most recent)
+								const last = viewArray[viewArray.length - 1];
+								const secondLast = viewArray[viewArray.length - 2];
+
+								// If the last 2 viewer_count values were less or equal to the specified viewLimit, then stop the search
+								if (last <= viewLimit && secondLast <= viewLimit) {
+									// Tells the function to stop searching for additional paginations in api call
+									stopSearch = true;
+								};
+							};
+
+							// Add viewer amount from stream to total viewer value
+							viewTotal += viewCount;
+							// Used for testing to see how many streams that have had viewer value gathered
+							viewArray.push(viewCount)
+
+						} else {
+							// Add viewer amount from stream to total viewer value
+							viewTotal += viewCount;
+							// Used for testing to see how many streams that have had viewer value gathered
+							viewArray.push(viewCount)
+						};
 					} else {
-						// Add viewer amount from stream to total viewer value
-						viewTotal += viewCount;
-						// REMOVE LATER! Used for testing to see how many streams that have had viewer value gathered
-						viewArray.push(viewCount)
+						duplicateArray.push(userId);
 					};
 				};
 			};
@@ -179,20 +222,26 @@ const countTotalViews = async (reqUrl) => {
 		// Incriment page value by 1
 		page++;
 		// Assigning new pagination value to assign new start point for data collected on next page of api response
-		paginationValue = resData?.pagination.cursor;
+		paginationValue = resData?.pagination?.cursor;
 		console.log("Pagination is")
 		console.log(paginationValue)
-	}
+	};
 
 	console.log("VIEW ARRAY -----------")
 	console.log(viewArray)
 	console.log("VIEW TOTAL -----------")
 	console.log(viewTotal)
+	console.log("REGULAR IDS DETECTED -----------")
+	console.log(userIdArray)
+	console.log("DUPLICATE IDS DETECTED -----------")
+	console.log(duplicateArray)
 
 };
 
-// Grabbing viewer amount of all streams for Overwatch 2, 100 items at a time
-countTotalViews(process.env.GET_STREAMS + '?game_id=515025&first=100')
+//getData(process.env.GET_STREAMS + '?game_id=515025&first=5')
+
+// Grabbing viewer amount of all streams for Overwatch 2, 100 items at a time (FIRST 100 NOW IN FUNCTION)
+countTotalViews(process.env.GET_STREAMS + '?game_id=515025')
 
 // Gathing a user by login name (aka their username)
 getData(process.env.GET_USERS + '?login=pokimane');
@@ -269,6 +318,12 @@ const getTopClipsAll = async (gameUrl, clipUrl, date) => {
 }
 
 getTopClipsAll(process.env.GET_GAMES, process.env.GET_CLIPS, 'week')
+
+//getData(process.env.GET_GAMES + '?first=100');
+
+
+
+
 
 
 
