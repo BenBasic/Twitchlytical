@@ -157,6 +157,15 @@ const countTotalViews = async (reqUrl) => {
 	
 		// If the search hasnt been triggered to stop yet, then the viewer values will be collected and added up for total
 		if (stopSearch === false) {
+
+			/* Checks if response is less than 100 items and if viewArray is less than 100 items,
+			if only using a length check for resDataProp then stop will falsely trigger when api has
+			inconsistent behaviour showing paginations with less than 100 items despite having more results
+			*/
+			if (resDataProp.length < 100 && viewArray?.length <= 100) {
+				// Tells the function to stop searching for additional paginations in api call
+				stopSearch = true;
+			}
 	
 			// Cycles through all objects from the api response
 			for (var key in resDataProp) {
@@ -179,22 +188,26 @@ const countTotalViews = async (reqUrl) => {
 							// Assigning consts to check if there are at least 2 values in the viewArray, used for preventing false stopSearch due to api sorting errors
 							const firstIndex = viewArray?.[0];
 							const secondIndex = viewArray?.[1];
+							console.log("TRIGGER1")
 
 							// If the response from the api has less than 100 streams, stop the search because there are no more paginations to look for
 							if (resDataProp.length < 100) {
 								// Tells the function to stop searching for additional paginations in api call
 								stopSearch = true;
+								console.log("TRIGGER2")
 
 							  // If there are at least 2 values in the viewArray, their values will be checked to avoid false stopSearch triggering
 							} else if (firstIndex !== undefined && secondIndex !== undefined) {
 								// Assigning consts to the last and second last values in the viewArray (2 most recent)
 								const last = viewArray[viewArray.length - 1];
 								const secondLast = viewArray[viewArray.length - 2];
+								console.log("TRIGGER3")
 
 								// If the last 2 viewer_count values were less or equal to the specified viewLimit, then stop the search
 								if (last <= viewLimit && secondLast <= viewLimit) {
 									// Tells the function to stop searching for additional paginations in api call
 									stopSearch = true;
+									console.log("TRIGGER4")
 								};
 							};
 
@@ -219,8 +232,14 @@ const countTotalViews = async (reqUrl) => {
 			console.log ("SEARCH STOPPED");
 		};
 
+		console.log("RESPROP LENGTH IS !!!!!")
+		console.log(resDataProp.length)
+
+
 		// Incriment page value by 1
 		page++;
+
+
 		// Assigning new pagination value to assign new start point for data collected on next page of api response
 		paginationValue = resData?.pagination?.cursor;
 		console.log("Pagination is")
@@ -242,6 +261,9 @@ const countTotalViews = async (reqUrl) => {
 
 // Grabbing viewer amount of all streams for Overwatch 2, 100 items at a time (FIRST 100 NOW IN FUNCTION)
 countTotalViews(process.env.GET_STREAMS + '?game_id=515025')
+
+//getData('https://api.twitch.tv/helix/games?name=Call of Duty: Modern Warfare II')
+//countTotalViews(process.env.GET_STREAMS + '?game_id=1678052513')
 
 // Gathing a user by login name (aka their username)
 getData(process.env.GET_USERS + '?login=pokimane');
