@@ -41,6 +41,36 @@ const getData = async (reqUrl) => {
 	return twitch_data;
 }
 
+/* Function gathers the requested date value which can be used for date related requests for api calls
+For example, if week is specified, it will get last weeks date, which can then be used to
+pass in that date value to get the top clips from last week in an api call
+*/
+function calculateDate(time) {
+	const now = new Date();
+	let value;
+	
+	switch(time) {
+		case 'day':
+			value = 1;
+			break;
+		case 'week':
+		  	value = 7;
+		  	break;
+		case 'month':
+		  	value = 30;
+		  	break;
+		case 'year':
+			value = 365;
+			break;
+		default:
+		  	value = 0;
+			break;
+	}
+	
+	const newDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - value).toISOString();
+	return newDate;
+}
+
 // Top games
 getData(process.env.GET_GAMES);
 
@@ -163,6 +193,83 @@ const countTotalViews = async (reqUrl) => {
 
 // Grabbing viewer amount of all streams for Overwatch 2, 100 items at a time
 countTotalViews(process.env.GET_STREAMS + '?game_id=515025&first=100')
+
+// Gathing a user by login name (aka their username)
+getData(process.env.GET_USERS + '?login=pokimane');
+
+// Gathering the clips from a user (need to use id as broadcaster_id, cant use username)
+// Seems to get top clips of all time by default
+// Can use started_at and ended_at for date ranges of clips, will sort by views
+// started_at will get clips from 1 week AFTER by default, ex: Oct 1 will gather Oct 1-7
+// started_at/ended_at MUST USE RFC 3339 format for dates to work
+getData(process.env.GET_CLIPS + '?broadcaster_id=44445592' + '&started_at=2022-10-02T15:00:00Z');
+
+
+
+// This function will gather Top Clips from top games based on specified last day, week, month, year, or all time
+const getTopClipsAll = async (gameUrl, clipUrl, date) => {
+
+	// Assigning value passed into date, options can be: all, day, week, month, or year
+	let useDate = date;
+
+	if (useDate === "day" || useDate === "week" || useDate === "month" || useDate === "year") {
+		useDate = '&started_at=' + calculateDate(useDate);
+	} else {
+		useDate = '';
+	}
+	console.log("USE DATE IS -----------------------------")
+	console.log(useDate)
+
+	// Assigning clipsArray to an empty array, will become populated with clips data after Clips api call
+	let clipsArray = [];
+
+	// Making api call to find the top games on Twitch
+	const resData = await getData(gameUrl);
+
+	// Assigning to the value of the data array of objects from the api call
+	const resDataProp = resData?.data;
+
+	// Cycles through all games from the api response
+	for (var key in resDataProp) {
+		// Checks if the object from the response contains any properties
+		if (resDataProp.hasOwnProperty(key)) {
+
+			// Assigning the value of the id for the game
+			const gameId = resDataProp[key].id;
+
+			// Making api call to find top clips for each game
+			const resTopClips = await getData(clipUrl + '?game_id=' + gameId + useDate);
+
+			// Assigning to the data array of objects from the api repsonse (contains clips)
+			const resTopClipsData = resTopClips?.data;
+
+			/* Cycles through the clips from the response to push each object into the clipsArray
+			This will prevent the array from being an array of arrays containing objects, which is not needed
+			as only the objects are desired, no need to have different arrays
+			*/
+			for (let i = 0; i < resTopClipsData.length; i++) {
+				clipsArray.push(resTopClipsData[i]);
+			}
+
+		};
+	};
+
+	// Comparator function which will sort clips by view_count highest to lowest
+	function Comparator(a, b) {
+		if (a.view_count < b.view_count) return 1;
+		if (a.view_count > b.view_count) return -1;
+		return 0;
+	};
+
+	// Sorting clips by view_count highest to lowest
+	clipsArray = clipsArray.sort(Comparator);
+	
+	console.log(clipsArray);
+
+}
+
+getTopClipsAll(process.env.GET_GAMES, process.env.GET_CLIPS, 'week')
+
 
 
 // Twitch API code above -------------------
