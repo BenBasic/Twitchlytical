@@ -54,12 +54,11 @@ const typeDefs = gql`
 		vod_offset: Int
 	}
 	type Query {
-		Broadcasters: [Broadcaster]
-		Broadcaster(_id: ID): Broadcaster
+		Broadcaster: [Broadcaster]
+		getBroadcaster(_id: ID): Broadcaster
 		Games: [Game]
-		Game(_id: ID): Game
+		getGame(_id: ID): Game
 		Clips: [Clips]
-		getGame: [Game]
 		getStream: [Stream]
 	}
 `;
