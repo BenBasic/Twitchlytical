@@ -5,8 +5,17 @@ const BroadcasterSchema = new Schema({
 		type: String,
 		required: true,
 	},
+	description: {
+		type: String,
+	},
+	profile_image_url: {
+		type: String,
+	},
+	view_count: {
+		type: Number,
+	},
 });
 
-const Post = model("Broadcaster", broadcasterSchema);
+const Broadcaster = model("Broadcaster", BroadcasterSchema);
 
 module.exports = Broadcaster;
