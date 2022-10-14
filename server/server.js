@@ -1,11 +1,13 @@
 // Twitch API code below -------------------
 
+// Importing required dotenv and node-fetch packages
 require('dotenv').config();
 
 const fetch = (...args) =>
   import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 
+// Generates token to be used for fetching data from the twitch api
 const getToken = async () => {
 	const tokenResponse = await fetch(
 		`https://id.twitch.tv/oauth2/token?client_id=${process.env.CLIENT_ID}&client_secret=${process.env.CLIENT_SECRET}&grant_type=client_credentials`,
@@ -14,12 +16,15 @@ const getToken = async () => {
 		}
 	);
 
+	// Grabbing the access_token from the returned json
 	const tokenJson = await tokenResponse.json();
 	const token = tokenJson.access_token;
 
+	// Returning the token to be referenced in api calls
 	return token;
 };
 
+// Function which can perform all get fetches to the api (GET_GAMES, GET_STREAMS, etc)
 const getData = async (reqUrl) => {
 	const url = reqUrl
 	const token = await getToken();
@@ -36,6 +41,7 @@ const getData = async (reqUrl) => {
 	})
 	let twitch_data = await res.json();
 	
+	// Use this to keep track of all data being fetched during calls, if its annoying then just comment it out
 	console.log(twitch_data);
 
 	return twitch_data;
@@ -80,41 +86,9 @@ function calculateDate(time) {
 // // Gets videos (currently testing with videos for Overwatch 2, sorting by views)
 // getData(process.env.GET_VIDEOS + '?sort=views&game_id=515025')
 
-// // Collects desired properties from the GET_VIDEOS response and creates a new array of objects (testing purposes)
-// const getDataProperty = async (reqUrl) => {
-
-// 	const resData = await getData(reqUrl);
-// 	const resDataProp = resData?.data;
-// 	let resArray = [];
-
-
-// 	for (var key in resDataProp) {
-// 		if (resDataProp.hasOwnProperty(key)) {
-
-// 			const nestedResData = resDataProp[key];
-
-// 			const dataObject = {
-// 				id: nestedResData.id,
-// 				streamid: nestedResData.stream_id,
-// 				userid: nestedResData.user_id,
-// 				username: nestedResData.user_name,
-// 				title: nestedResData.title,
-// 				views: nestedResData.view_count,
-// 			};
-
-// 			resArray.push(dataObject)
-// 		}
-// 	}
-
-// 	console.log("RESULT ARRAY -----------")
-// 	console.log(resArray)
-
-// };
-
-// getDataProperty(process.env.GET_VIDEOS + '?sort=views&game_id=515025');
-
-
 // getData(process.env.GET_STREAMS + '?game_id=515025');
+
+
 
 /* This function will gather the total viewers of a game and add them to a total sum
 Can pass GET_STREAMS into reqUrl + game_id for specific game, if no game_id is provided then 
@@ -152,13 +126,23 @@ const countTotalViews = async (reqUrl) => {
 		/* If the fetch is past the 1st page of the api call, it will fetch using a url with the
 		pagination value included to continue to next page */
 		if (page >= 1) {
-			resData = await getData(reqUrl + '&after=' + paginationValue + '&first=100');
-		}
+			// Checks if a any parameters have been passed into reqUrl, if not then use ? instead of & for api call to prevent error
+			if (reqUrl === process.env.GET_STREAMS) {
+				resData = await getData(reqUrl + '?after=' + paginationValue + '&first=100');
+			} else {
+				resData = await getData(reqUrl + '&after=' + paginationValue + '&first=100');
+			};
+		};
 
 		// If the fetching the 1st page of the api call, it will fetch with the base url
 		if (page === 0) {
-			resData = await getData(reqUrl + '&first=100');
-		}
+			// Checks if a any parameters have been passed into reqUrl, if not then use ? instead of & for api call to prevent error
+			if (reqUrl === process.env.GET_STREAMS) {
+				resData = await getData(reqUrl + '?first=100');
+			} else {
+				resData = await getData(reqUrl + '&first=100');
+			};
+		};
 		
 		// Assigning to the value of the data array of objects from the api call
 		const resDataProp = resData?.data;
@@ -261,6 +245,7 @@ const countTotalViews = async (reqUrl) => {
 							viewArray.push(viewCount)
 						};
 					} else {
+						// If the user has already shown up in the api call, dont add them to the total and detect it as a duplicate
 						duplicateArray.push(userId);
 					};
 				};
@@ -284,28 +269,17 @@ const countTotalViews = async (reqUrl) => {
 		console.log(paginationValue)
 	};
 
+	// Assigning results to empty array, will have desired results pushed into it
 	let results = [];
 
+	// Pushing the total views, the games with their own total views, and all users from the api call into results array
 	results.push(viewTotal, allGames, allUserInfo);
 
-	// console.log("VIEW ARRAY -----------")
-	// console.log(viewArray)
-	// console.log("VIEW TOTAL -----------")
-	// console.log(viewTotal)
-	// console.log("REGULAR IDS DETECTED -----------")
-	// console.log(userIdArray)
-	// console.log("DUPLICATE IDS DETECTED -----------")
-	// console.log(duplicateArray)
-	// console.log("ALL GAMES IS -----------")
-	// console.log(allGames)
-	// console.log("ALL USER INFO IS -----------")
-	// console.log(allUserInfo)
-
-	// console.log(results);
-
+	// Returning the results array for use in other functions
 	return results;
 
 };
+
 
 
 /* This function with gather all users from the countTotalViews function and then make
@@ -319,8 +293,8 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 	Index 1: Object containing game_id with total view value
 	Index 2: User info array of objects
 	*/
-	// Using single game id for testing purposes (Modern Warfare 2)
-	const usableData = await countTotalViews(reqStreamUrl + '?game_id=1678052513');
+	// Using single game id for testing purposes (Modern Warfare 2) ?game_id=1678052513
+	const usableData = await countTotalViews(reqStreamUrl);
 
 	// Assigning users to the array of userInfo objects
 	const users = usableData?.[2]
@@ -379,65 +353,43 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 	console.log(userList);
 	console.log(userListArray);
 
-	// Calling api to get user data from the userListArray
-	const getMoreUserData = await getData(reqUserUrl + userListArray[0]);
+	// Cycles through all users in the userListArray and adds key value pairs from the api call
+	for (let i = 0; i < userListArray.length; i++) {
+		// Calling api to get user data from the userListArray
+		const getMoreUserData = await getData(reqUserUrl + userListArray[i]);
 
-	// Assigning resUserData to the data object from the api response
-	const resUserData = getMoreUserData?.data;
+		// Assigning resUserData to the data object from the api response
+		const resUserData = getMoreUserData?.data;
 
-	console.log("resUserData IS !!!!!!!!!!!")
-	console.log(resUserData);
+		console.log("resUserData IS !!!!!!!!!!!")
+		console.log(resUserData);
 
-	// Cycling through each object in the api response and adding new key value pairs to users array of objects
-	for (var key in resUserData) {
-		// Checks if the object from the response contains any properties
-		if (resUserData.hasOwnProperty(key)) {
+		// Cycling through each object in the api response and adding new key value pairs to users array of objects
+		for (var key in resUserData) {
+			// Checks if the object from the response contains any properties
+			if (resUserData.hasOwnProperty(key)) {
 
-			// Finding the matching id values between the user array and the api response
-			let findMatchingId = users.find(obj => obj.id === resUserData[key].id);
+				// Finding the matching id values between the user array and the api response
+				let findMatchingId = users.find(obj => obj.id === resUserData[key].id);
 
-			// Assigning new key value pairs to the matching user object
-			findMatchingId.displayName = resUserData[key].display_name;
-			findMatchingId.broadcasterType = resUserData[key].broadcaster_type;
-			findMatchingId.userDescription = resUserData[key].description;
-			findMatchingId.profileImage = resUserData[key].profile_image_url;
-			findMatchingId.totalViews = resUserData[key].view_count;
-			findMatchingId.creationDate = resUserData[key].created_at;
+				// Assigning new key value pairs to the matching user object
+				findMatchingId.displayName = resUserData[key].display_name;
+				findMatchingId.broadcasterType = resUserData[key].broadcaster_type;
+				findMatchingId.userDescription = resUserData[key].description;
+				findMatchingId.profileImage = resUserData[key].profile_image_url;
+				findMatchingId.totalViews = resUserData[key].view_count;
+				findMatchingId.creationDate = resUserData[key].created_at;
 
+			};
 		};
 	};
 
-	console.log("NEW USER INFO CHECK ????????????")
-	console.log(users);
-
+	// Returning the updated data for use in other functions, now with the new key value pairs for users
+	return usableData;
 
 };
 
 getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
-
-//getData(process.env.GET_GAMES_ALL + '?id=515025&id=1678052513')
-
-
-
-//getData(process.env.GET_GAMES)
-
-//getData(process.env.GET_STREAMS + '?game_id=515025&first=5')
-
-// // Grabbing viewer amount of all streams for Overwatch 2, 100 items at a time (FIRST 100 NOW IN FUNCTION)
-//countTotalViews(process.env.GET_STREAMS + '?game_id=515025')
-
-//getData('https://api.twitch.tv/helix/games?name=Call of Duty: Modern Warfare II')
-//countTotalViews(process.env.GET_STREAMS + '?game_id=1678052513')
-
-// // Gathing a user by login name (aka their username)
-//getData(process.env.GET_USERS + '?login=xqc');
-
-// // Gathering the clips from a user (need to use id as broadcaster_id, cant use username)
-// // Seems to get top clips of all time by default
-// // Can use started_at and ended_at for date ranges of clips, will sort by views
-// // started_at will get clips from 1 week AFTER by default, ex: Oct 1 will gather Oct 1-7
-// // started_at/ended_at MUST USE RFC 3339 format for dates to work
-// getData(process.env.GET_CLIPS + '?broadcaster_id=44445592' + '&started_at=2022-10-02T15:00:00Z');
 
 
 
@@ -507,16 +459,24 @@ const getTopClipsAll = async (gameUrl, clipUrl, date) => {
 
 //getData(process.env.GET_GAMES + '?first=100');
 
+//getData('https://api.twitch.tv/helix/games?name=Call of Duty: Modern Warfare II')
+//countTotalViews(process.env.GET_STREAMS + '?game_id=1678052513')
+
+// // Gathing a user by login name (aka their username)
+//getData(process.env.GET_USERS + '?login=xqc');
+
+// // Gathering the clips from a user (need to use id as broadcaster_id, cant use username)
+// // Seems to get top clips of all time by default
+// // Can use started_at and ended_at for date ranges of clips, will sort by views
+// // started_at will get clips from 1 week AFTER by default, ex: Oct 1 will gather Oct 1-7
+// // started_at/ended_at MUST USE RFC 3339 format for dates to work
+// getData(process.env.GET_CLIPS + '?broadcaster_id=44445592' + '&started_at=2022-10-02T15:00:00Z');
+
 // Getting follow count from streamer, first is set to 1 because we dont need info from users following, just total
 //getData(process.env.GET_FOLLOWS + '?to_id=44445592&first=1')
 
 // Can get top streams currently live by doing get streams but without specifying a game id
 //getData(process.env.GET_STREAMS)
-
-
-
-
-
 
 
 
