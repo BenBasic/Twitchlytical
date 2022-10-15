@@ -10,10 +10,12 @@
 		"apollo-server-express": "^3.10.0",
 		"cookie-parser": "~1.4.4",
 		"debug": "~2.6.9",
+		"dotenv": "^16.0.3",
 		"express": "~4.17.1",
 		"graphql": "^16.5.0",
 		"mongoose": "^6.5.0",
 		"morgan": "~1.9.1",
+		"node-fetch": "^3.2.10",
 		"nodemon": "^2.0.19"
 	}
 }
