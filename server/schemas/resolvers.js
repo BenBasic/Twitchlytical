@@ -42,6 +42,23 @@ const resolvers = {
 
         },
 
+		addBroadcasterData: async (parent, { broadcasterData }) => {
+            const broadcaster = await Broadcaster.findOne({ user_id: broadcasterData.user_id });
+
+            if (!broadcaster) {
+				const newBroadcaster = await Broadcaster.create(broadcasterData);
+				return newBroadcaster;
+			} else {
+				await broadcaster.update({
+					description: broadcasterData.description,
+					profile_image_url: broadcasterData.profile_image_url,
+					view_count: broadcasterData.view_count,
+					total_views: broadcasterData.total_views,
+				}, { new: true });
+				return broadcaster;
+			};
+		},
+
 		addArchiveData: async (parent, { archiveData }) => {
 			const newArchive = await ArchiveData.create(archiveData);
 
@@ -51,8 +68,18 @@ const resolvers = {
 				{ new: true }
 			);
 
+			const broadcaster = await Broadcaster.updateOne(
+				{ user_id: archiveData.user_id },
+				{ $addToSet: { archive: newArchive._id } },
+				{ new: true }
+			);
+
 			if (!game) {
 				console.log("No game exists")
+			};
+
+			if (!broadcaster) {
+				console.log("No broadcaster exists")
 			};
 
 			return game;

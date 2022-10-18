@@ -4,10 +4,27 @@ const typeDefs = gql`
 	scalar Date
 	type Broadcaster {
 		_id: ID
+		user_id: String
 		name: String
 		description: String
+		language: String
 		profile_image_url: String
 		view_count: Int
+		total_views: Int
+		broadcaster_type: String
+		createdAt: Date
+		archive: [ArchiveData]
+	}
+	input BroadcasterInput {
+		user_id: String
+		name: String
+		description: String
+		language: String
+		profile_image_url: String
+		view_count: Int
+		total_views: Int
+		broadcaster_type: String
+		createdAt: Date
 	}
 	type Game {
 		_id: ID
@@ -85,6 +102,7 @@ const typeDefs = gql`
 
 	type Mutation {
 		addGame(gameData: GameInput!): Game
+		addBroadcasterData(broadcasterData: BroadcasterInput!): Broadcaster
 		addArchiveData(archiveData: ArchiveDataInput!): ArchiveData
 	}
 
