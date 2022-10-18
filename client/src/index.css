@@ -15,3 +15,7 @@ code {
 .topGamesContainer {
   background-color: gray;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
