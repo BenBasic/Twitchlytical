@@ -14,7 +14,27 @@ const typeDefs = gql`
 		name: String
 		box_art_url: String
 		view_count: Int
-		# dateData: [DateData]
+		archive: [ArchiveData]
+	}
+	input GameInput {
+		_id: ID
+		name: String
+		box_art_url: String
+		view_count: Int
+	}
+	type ArchiveData {
+		_id: ID
+		createdAt: Date
+		user_id: String
+		game_id: String
+		stream_id: String
+		view_count: Int
+	}
+	input ArchiveDataInput {
+		user_id: String
+		game_id: String
+		stream_id: String
+		view_count: Int
 	}
 	type Stream {
 		_id: ID
@@ -53,6 +73,7 @@ const typeDefs = gql`
 		duration: String
 		vod_offset: Int
 	}
+
 	type Query {
 		Broadcaster: [Broadcaster]
 		getBroadcaster(_id: ID): Broadcaster
@@ -61,5 +82,11 @@ const typeDefs = gql`
 		Clips: [Clips]
 		getStream: [Stream]
 	}
+
+	type Mutation {
+		addGame(gameData: GameInput!): Game
+		addArchiveData(archiveData: ArchiveDataInput!): ArchiveData
+	}
+
 `;
 module.exports = typeDefs;

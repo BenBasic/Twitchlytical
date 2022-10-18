@@ -120,6 +120,17 @@ const countTotalViews = async (reqUrl) => {
 	// Assigning allUserInfo to an empty object, will become populated with user related key and value pairs when api call occurs
 	let allUserInfo = [];
 
+	const ADD_GAME = `
+		mutation AddGame($gameData: GameInput!) {
+			addGame(gameData: $gameData) {
+				_id
+				name
+				box_art_url
+				view_count
+			}
+		}
+	`
+
 	// While stopSearch is false, data will be gathered from api until triggered to stop
 	while (stopSearch === false) {
 
@@ -175,6 +186,8 @@ const countTotalViews = async (reqUrl) => {
 					const userId = resDataProp[key].user_id;
 					// Assigning the value of the games game_id (will be used to create and update keys in the allGames object)
 					const gameId = resDataProp[key].game_id;
+
+					const gameName = resDataProp[key].game_name;
 			
 
 					// Checks if user_id already has been fetched from api call, prevents same streamer from having duplicates
@@ -206,9 +219,9 @@ const countTotalViews = async (reqUrl) => {
 						first detected stream that is streaming the game
 						*/
 						if (allGames.hasOwnProperty(`${gameId}`)) {
-							allGames[`${gameId}`] = allGames[`${gameId}`] + viewCount
+							allGames[`${gameId}`].liveViews = allGames[`${gameId}`].liveViews + viewCount
 						} else {
-							const gameKeyValue = {[`${gameId}`]: viewCount}
+							const gameKeyValue = {[`${gameId}`]: {liveViews: viewCount, name: gameName}}
 							allGames = {...allGames, ...gameKeyValue};
 						}
 
@@ -275,10 +288,84 @@ const countTotalViews = async (reqUrl) => {
 	// Pushing the total views, the games with their own total views, and all users from the api call into results array
 	results.push(viewTotal, allGames, allUserInfo);
 
+	// Cycles through all objects from the api response
+	for (var key in allGames) {
+		// Checks if the object from the response contains any properties
+		if (allGames.hasOwnProperty(key)) {
+
+			const variables = {
+				gameData: {
+					_id: key,
+					name: allGames[key].name,
+					//box_art_url: "test3.333.com",
+					view_count: allGames[key].liveViews
+				},
+				archiveData: {
+					game_id: key,
+					view_count: allGames[key].liveViews
+				},
+			}
+
+			console.log("Variables is")
+			console.log(variables)
+			console.log("Stringify is")
+			//console.log(JSON.stringify({ADD_GAME, variables}))
+
+			const addToDB = await fetch('http://localhost:3001/graphql', {
+				method: 'post',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					query: `
+						mutation Mutation($gameData: GameInput!, $archiveData: ArchiveDataInput!) {
+							addGame(gameData: $gameData) {
+							_id
+							name
+							box_art_url
+							view_count
+							archive {
+								_id
+								createdAt
+								user_id
+								game_id
+								stream_id
+								view_count
+							}
+							}
+							addArchiveData(archiveData: $archiveData) {
+							_id
+							createdAt
+							user_id
+							game_id
+							stream_id
+							view_count
+							}
+						}
+					`,
+					variables
+				})
+			})
+			.then(response => response.json())
+			.then(data => {
+				return data
+			})
+			.catch((e) => {
+				console.log(e)
+			})
+			console.log("ADDTODB IS")
+			console.log(addToDB)
+		}
+	}
+
+	console.log(results)
+
 	// Returning the results array for use in other functions
 	return results;
 
 };
+
+countTotalViews(process.env.GET_STREAMS + '?game_id=1678052513');
 
 
 
@@ -389,7 +476,7 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 
 };
 
-getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
+//getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
 
 
 

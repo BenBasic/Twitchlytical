@@ -3,6 +3,7 @@ const { Broadcaster } = require("../models");
 const { Game } = require("../models");
 const { Stream } = require("../models");
 const { Clips } = require("../models");
+const { ArchiveData } = require("../models");
 const { totalData } = require("../models");
 
 const resolvers = {
@@ -25,6 +26,39 @@ const resolvers = {
 		getStream: async (parent, { _id }) => {
 			return Stream.find();
 		},
+	},
+	Mutation: {
+
+        addGame: async (parent, { gameData }) => {
+            const game = await Game.findOne({ _id: gameData._id });
+
+            if (!game) {
+				const newGame = await Game.create(gameData);
+				return newGame;
+			} else {
+				await game.update({ view_count: gameData.view_count }, { new: true });
+				return game;
+			};
+
+        },
+
+		addArchiveData: async (parent, { archiveData }) => {
+			const newArchive = await ArchiveData.create(archiveData);
+
+			const game = await Game.updateOne(
+				{ _id: archiveData.game_id },
+				{ $addToSet: { archive: newArchive._id } },
+				{ new: true }
+			);
+
+			if (!game) {
+				console.log("No game exists")
+			};
+
+			return game;
+		},
+
+
 	},
 };
 
