@@ -37,11 +37,14 @@ const getData = async (reqUrl) => {
 		headers: {
 			"client-id": process.env.CLIENT_ID,
 			"Authorization": `Bearer ${token}`,
+			'Accept': 'application/json',
+			'Content-Type': 'application/json',
 		}
 	})
 	let twitch_data = await res.json();
 	
 	// Use this to keep track of all data being fetched during calls, if its annoying then just comment it out
+	console.log("Twitch Data is -------")
 	console.log(twitch_data);
 
 	return twitch_data;
@@ -156,7 +159,9 @@ const countTotalViews = async (reqUrl) => {
 		pagination value included to continue to next page */
 		if (page >= 1) {
 			// Checks if a any parameters have been passed into reqUrl, if not then use ? instead of & for api call to prevent error
-			if (reqUrl === process.env.GET_STREAMS) {
+			if (paginationValue === undefined) {
+				stopSearch = true;
+			} else if (reqUrl === process.env.GET_STREAMS) {
 				resData = await getData(reqUrl + '?after=' + paginationValue + '&first=100');
 			} else {
 				resData = await getData(reqUrl + '&after=' + paginationValue + '&first=100');
@@ -363,7 +368,7 @@ const countTotalViews = async (reqUrl) => {
 
 
 			// Calling postData function to add/update games and game related archive data to the MongoDB database
-			postData(`http://localhost:3001/graphql`, queryPost, variables);
+			await postData(`http://localhost:3001/graphql`, queryPost, variables);
 
 		};
 	};
@@ -420,7 +425,7 @@ const countTotalViews = async (reqUrl) => {
 	`;
 
 	// Calling postData function to add/update TopData and TopData related archive data to the MongoDB database
-	postData(`http://localhost:3001/graphql`, queryUpdateTotals, totalUpdateVariables);
+	await postData(`http://localhost:3001/graphql`, queryUpdateTotals, totalUpdateVariables);
 
 	// console.log(results);
 
@@ -429,8 +434,17 @@ const countTotalViews = async (reqUrl) => {
 
 };
 // Testing, checks Modern Warfare 2
-countTotalViews(process.env.GET_STREAMS + '?game_id=1678052513');
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// WHEN USING NO GAMES PASSED IN IT WILL NOT ADD AN ARCHIVE TO TOTALDATA FOR SOME REASON?
+
+// USING 1 GAME WORKS, 2 WORKS AS WELL, NEED TO TEST IF THERES A CUTOFF POINT
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+countTotalViews(process.env.GET_STREAMS);
 
 
 /* This function with gather all users from the countTotalViews function and then make
