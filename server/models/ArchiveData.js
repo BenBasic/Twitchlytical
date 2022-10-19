@@ -15,9 +15,18 @@ const archiveDataSchema = new Schema(
         stream_id: {
             type: String,
         },
-        view_count: {
-            type: Number
+        total_id: {
+            type: String,
         },
+        view_count: {
+            type: Number,
+        },
+        totalChannels: {
+            type: Number,
+        },
+		totalGames: {
+            type: Number,
+        }
     }
 );
 

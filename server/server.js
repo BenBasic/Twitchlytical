@@ -72,6 +72,7 @@ const postData = async (reqUrl, reqQuery, reqVariables) => {
 	})
 	console.log("DB UPDATE IS");
 	console.log(dbUpdate);
+	//return dbUpdate;
 };
 
 
@@ -187,9 +188,13 @@ const countTotalViews = async (reqUrl) => {
 			that there arent more streams to show
 			*/
 
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 			// NEED TO ADD CHECK FOR IF resData.data IS EMPTY WITH NOTHING IN IT, doing resDataProp === undefined check
 			// seems to cause early triggers to stop due to resData.data being undefined for reasons Im
 			// unsure of, might be due to needing more time to load? Need to look into this
+
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 			if (resDataProp.length < 100 && viewArray?.length <= 100 && viewArray[viewArray.length - 1] < 100) {
 				// Tells the function to stop searching for additional paginations in api call
@@ -360,17 +365,71 @@ const countTotalViews = async (reqUrl) => {
 			// Calling postData function to add/update games and game related archive data to the MongoDB database
 			postData(`http://localhost:3001/graphql`, queryPost, variables);
 
-		}
-	}
+		};
+	};
 
-	console.log(results)
+	// Assigning to the amount of games that were gathered from the call
+	let allGamesLength = Object.keys(allGames).length;
+
+	// Defining variables to pass in to add/update TopData and TopData related archive data
+	const totalUpdateVariables = {
+		totalData: {
+			_id: "634f0ecf284e10863dd12ca2",
+			totalViewers: viewTotal,
+			totalChannels: allUserInfo.length,
+			totalGames: allGamesLength,
+		},
+		date: calculateDate('week'),
+		archiveData: {
+			total_id: "634f0ecf284e10863dd12ca2",
+			view_count: viewTotal,
+			totalChannels: allUserInfo.length,
+			totalGames: allGamesLength,
+		}
+	};
+
+	// Defining the query to pass in, this will perform the updateTotalData and addArchiveData mutations
+	const queryUpdateTotals = `
+		mutation Mutation($totalData: TotalDataInput!, $date: String, $archiveData: ArchiveDataInput!) {
+			updateTotalData(totalData: $totalData, date: $date) {
+			_id
+			totalViewers
+			avgTotalViewers
+			totalChannels
+			avgTotalChannels
+			totalGames
+			avgTotalGames
+			archive {
+				_id
+				createdAt
+				total_id
+				view_count
+				totalChannels
+				totalGames
+			}
+			}
+			addArchiveData(archiveData: $archiveData) {
+			_id
+			createdAt
+			total_id
+			view_count
+			totalChannels
+			totalGames
+			}
+		}
+	`;
+
+	// Calling postData function to add/update TopData and TopData related archive data to the MongoDB database
+	postData(`http://localhost:3001/graphql`, queryUpdateTotals, totalUpdateVariables);
+
+	// console.log(results);
 
 	// Returning the results array for use in other functions
 	return results;
 
 };
-
-//countTotalViews(process.env.GET_STREAMS + '?game_id=1678052513');
+// Testing, checks Modern Warfare 2
+countTotalViews(process.env.GET_STREAMS + '?game_id=1678052513');
 
 
 
@@ -411,25 +470,37 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 			// Assigning userId to the id key in the object
 			const userId = users[key].id;
 
-			// Checks if user_ids are in the userList, will change string added based on that for correct api call
-			if (userList === '?') {
-				userList = userList + 'id=' + userId
+			const userViews = users[key].views;
+
+			// If user has live views lower than 5 then it will remove the user from users to save Database storage
+			if (userViews > 5) {
+				
+				// Checks if user_ids are in the userList, will change string added based on that for correct api call
+				if (userList === '?') {
+					userList = userList + 'id=' + userId
+				} else {
+					userList = userList + '&id=' + userId
+				}
+
+				// Increases count by 1
+				count ++
+
+				/* If 100 user_ids are added to the userList then push it into the userListArray,
+				then reset counter and userList to default values. This is done so only 100 user_ids are
+				used in one api call because that is the maximum allowed
+				*/
+				if (count === 100) {
+					userListArray.push(userList);
+					userList = '?';
+					count = 0;
+				}
+
 			} else {
-				userList = userList + '&id=' + userId
+				// Removes user from users, makes less api calls and stores less users to save database storage
+				users.splice(key, 1);
 			}
 
-			// Increases count by 1
-			count ++
 
-			/* If 100 user_ids are added to the userList then push it into the userListArray,
-			then reset counter and userList to default values. This is done so only 100 user_ids are
-			used in one api call because that is the maximum allowed
-			*/
-			if (count === 100) {
-				userListArray.push(userList);
-				userList = '?';
-				count = 0;
-			}
 		};
 	};
 
@@ -541,9 +612,9 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 };
 //getData(process.env.GET_GAMES_ALL + '?name=Battleborn') //game_id is game_id=460998
 
-// BE CAREFUL USING THIS! TOOK ME NEARLY 40 MINUTES TO FINISH THIS WHEN SEARCHING ALL STREAMS
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
+
+//getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
+
 
 
 

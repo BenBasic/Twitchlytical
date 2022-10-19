@@ -4,19 +4,28 @@ const totalDataSchema = new Schema({
 	totalViewers: {
 		type: Number,
 	},
+	avgTotalViewers: {
+		type: Number,
+	},
 	totalChannels: {
 		type: Number,
 	},
-	totalStreams: {
+	avgTotalChannels: {
 		type: Number,
 	},
-	concurrentStreams: {
+	totalGames: {
 		type: Number,
 	},
-	concurrentViewers: {
+	avgTotalGames: {
 		type: Number,
 	},
+	archive: [
+		{
+			type: Schema.Types.ObjectId,
+			ref: "ArchiveData",
+		},
+	],
 });
-const totalData = model("totalData", totalDataSchema);
+const totalData = model("TotalData", totalDataSchema);
 
 module.exports = totalData;

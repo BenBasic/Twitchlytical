@@ -45,13 +45,19 @@ const typeDefs = gql`
 		user_id: String
 		game_id: String
 		stream_id: String
+		total_id: String
 		view_count: Int
+		totalChannels: Int
+		totalGames: Int
 	}
 	input ArchiveDataInput {
 		user_id: String
 		game_id: String
 		stream_id: String
+		total_id: String
 		view_count: Int
+		totalChannels: Int
+		totalGames: Int
 	}
 	type Stream {
 		_id: ID
@@ -66,12 +72,24 @@ const typeDefs = gql`
 		started_at: String
 		language: String
 	}
-	type totalData {
+	type TotalData {
+		_id: ID
 		totalViewers: Int
-		totalStreams: Int
-		concurrentStreams: Int
-		concurrentViewers: Int
+		avgTotalViewers: Int
 		totalChannels: Int
+		avgTotalChannels: Int
+		totalGames: Int
+		avgTotalGames: Int
+		archive: [ArchiveData]
+	}
+	input TotalDataInput {
+		_id: ID
+		totalViewers: Int
+		avgTotalViewers: Int
+		totalChannels: Int
+		avgTotalChannels: Int
+		totalGames: Int
+		avgTotalGames: Int
 	}
 
 	type Clips {
@@ -104,6 +122,7 @@ const typeDefs = gql`
 		addGame(gameData: GameInput!): Game
 		addBroadcasterData(broadcasterData: BroadcasterInput!): Broadcaster
 		addArchiveData(archiveData: ArchiveDataInput!): ArchiveData
+		updateTotalData(totalData: TotalDataInput!, date: String): TotalData
 	}
 
 `;
