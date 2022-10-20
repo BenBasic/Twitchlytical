@@ -25,6 +25,7 @@ const getToken = async () => {
 };
 
 // Function which can perform all get fetches to the api (GET_GAMES, GET_STREAMS, etc)
+// NOTE!!! Without accept and content-type being set to application/json it will cause errors that breaks api calls and database posts
 const getData = async (reqUrl) => {
 	const url = reqUrl
 	const token = await getToken();
@@ -158,9 +159,11 @@ const countTotalViews = async (reqUrl) => {
 		/* If the fetch is past the 1st page of the api call, it will fetch using a url with the
 		pagination value included to continue to next page */
 		if (page >= 1) {
-			// Checks if a any parameters have been passed into reqUrl, if not then use ? instead of & for api call to prevent error
+			
+			// Checks if pagination has no value and stops the search if thats the case. This prevents errors which prevent posting to the database
 			if (paginationValue === undefined) {
 				stopSearch = true;
+			// Checks if a any parameters have been passed into reqUrl, if not then use ? instead of & for api call to prevent error
 			} else if (reqUrl === process.env.GET_STREAMS) {
 				resData = await getData(reqUrl + '?after=' + paginationValue + '&first=100');
 			} else {
@@ -433,18 +436,9 @@ const countTotalViews = async (reqUrl) => {
 	return results;
 
 };
+
 // Testing, checks Modern Warfare 2
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-// WHEN USING NO GAMES PASSED IN IT WILL NOT ADD AN ARCHIVE TO TOTALDATA FOR SOME REASON?
-
-// USING 1 GAME WORKS, 2 WORKS AS WELL, NEED TO TEST IF THERES A CUTOFF POINT
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-countTotalViews(process.env.GET_STREAMS);
+//countTotalViews(process.env.GET_STREAMS);
 
 
 /* This function with gather all users from the countTotalViews function and then make
@@ -627,7 +621,7 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 //getData(process.env.GET_GAMES_ALL + '?name=Battleborn') //game_id is game_id=460998
 
 
-//getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
+getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
 
 
 
