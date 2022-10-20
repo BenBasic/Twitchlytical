@@ -14,12 +14,12 @@ const GameSchema = new Schema({
 	view_count: {
 		type: Number,
 	},
-	// dateData: [
-	// 	{
-	// 		type: Schema.Types.ObjectId,
-	// 		ref: "DateData",
-	// 	},
-	// ],
+	archive: [
+		{
+			type: Schema.Types.ObjectId,
+			ref: "ArchiveData",
+		},
+	],
 });
 
 const Game = model("Game", GameSchema);

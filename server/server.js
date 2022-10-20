@@ -25,6 +25,7 @@ const getToken = async () => {
 };
 
 // Function which can perform all get fetches to the api (GET_GAMES, GET_STREAMS, etc)
+// NOTE!!! Without accept and content-type being set to application/json it will cause errors that breaks api calls and database posts
 const getData = async (reqUrl) => {
 	const url = reqUrl
 	const token = await getToken();
@@ -37,15 +38,47 @@ const getData = async (reqUrl) => {
 		headers: {
 			"client-id": process.env.CLIENT_ID,
 			"Authorization": `Bearer ${token}`,
+			'Accept': 'application/json',
+			'Content-Type': 'application/json',
 		}
 	})
 	let twitch_data = await res.json();
 	
 	// Use this to keep track of all data being fetched during calls, if its annoying then just comment it out
+	console.log("Twitch Data is -------")
 	console.log(twitch_data);
 
 	return twitch_data;
-}
+};
+
+// Function which can perform all post fetches to the MongoDB server (Adding/Updating games, broadcasters, etc)
+const postData = async (reqUrl, reqQuery, reqVariables) => {
+	const url = reqUrl;
+	const mutation = reqQuery;
+	const variables = reqVariables;
+
+	const dbUpdate = await fetch(url, {
+		method: 'post',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			query: mutation,
+			variables
+		})
+	})
+	.then(response => response.json())
+	.then(data => {
+		return data
+	})
+	.catch((e) => {
+		console.log(e)
+	})
+	console.log("DB UPDATE IS");
+	console.log(dbUpdate);
+	//return dbUpdate;
+};
+
 
 /* Function gathers the requested date value which can be used for date related requests for api calls
 For example, if week is specified, it will get last weeks date, which can then be used to
@@ -75,7 +108,7 @@ function calculateDate(time) {
 	
 	const newDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - value).toISOString();
 	return newDate;
-}
+};
 
 // // Top games
 // getData(process.env.GET_GAMES);
@@ -126,8 +159,12 @@ const countTotalViews = async (reqUrl) => {
 		/* If the fetch is past the 1st page of the api call, it will fetch using a url with the
 		pagination value included to continue to next page */
 		if (page >= 1) {
+			
+			// Checks if pagination has no value and stops the search if thats the case. This prevents errors which prevent posting to the database
+			if (paginationValue === undefined) {
+				stopSearch = true;
 			// Checks if a any parameters have been passed into reqUrl, if not then use ? instead of & for api call to prevent error
-			if (reqUrl === process.env.GET_STREAMS) {
+			} else if (reqUrl === process.env.GET_STREAMS) {
 				resData = await getData(reqUrl + '?after=' + paginationValue + '&first=100');
 			} else {
 				resData = await getData(reqUrl + '&after=' + paginationValue + '&first=100');
@@ -158,6 +195,15 @@ const countTotalViews = async (reqUrl) => {
 			the last stream collected has a higher view than the value its checking then its incredibly unlikely
 			that there arent more streams to show
 			*/
+
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+			// NEED TO ADD CHECK FOR IF resData.data IS EMPTY WITH NOTHING IN IT, doing resDataProp === undefined check
+			// seems to cause early triggers to stop due to resData.data being undefined for reasons Im
+			// unsure of, might be due to needing more time to load? Need to look into this
+
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 			if (resDataProp.length < 100 && viewArray?.length <= 100 && viewArray[viewArray.length - 1] < 100) {
 				// Tells the function to stop searching for additional paginations in api call
 				stopSearch = true;
@@ -175,6 +221,8 @@ const countTotalViews = async (reqUrl) => {
 					const userId = resDataProp[key].user_id;
 					// Assigning the value of the games game_id (will be used to create and update keys in the allGames object)
 					const gameId = resDataProp[key].game_id;
+
+					const gameName = resDataProp[key].game_name;
 			
 
 					// Checks if user_id already has been fetched from api call, prevents same streamer from having duplicates
@@ -206,9 +254,9 @@ const countTotalViews = async (reqUrl) => {
 						first detected stream that is streaming the game
 						*/
 						if (allGames.hasOwnProperty(`${gameId}`)) {
-							allGames[`${gameId}`] = allGames[`${gameId}`] + viewCount
+							allGames[`${gameId}`].liveViews = allGames[`${gameId}`].liveViews + viewCount
 						} else {
-							const gameKeyValue = {[`${gameId}`]: viewCount}
+							const gameKeyValue = {[`${gameId}`]: {liveViews: viewCount, name: gameName}}
 							allGames = {...allGames, ...gameKeyValue};
 						}
 
@@ -275,11 +323,122 @@ const countTotalViews = async (reqUrl) => {
 	// Pushing the total views, the games with their own total views, and all users from the api call into results array
 	results.push(viewTotal, allGames, allUserInfo);
 
+	// Cycles through all objects from the api response
+	for (var key in allGames) {
+		// Checks if the object from the response contains any properties
+		if (allGames.hasOwnProperty(key)) {
+
+			// Defining variables to pass in to add/update games and game related archive data
+			const variables = {
+				gameData: {
+					_id: key,
+					name: allGames[key].name,
+					view_count: allGames[key].liveViews
+				},
+				archiveData: {
+					game_id: key,
+					view_count: allGames[key].liveViews
+				},
+			};
+
+			// Defining the query to pass in, this will perform the addGame and addArchiveData mutations
+			const queryPost = `
+				mutation Mutation($gameData: GameInput!, $archiveData: ArchiveDataInput!) {
+					addGame(gameData: $gameData) {
+					_id
+					name
+					box_art_url
+					view_count
+					archive {
+						_id
+						createdAt
+						user_id
+						game_id
+						stream_id
+						view_count
+					}
+					}
+					addArchiveData(archiveData: $archiveData) {
+					_id
+					createdAt
+					user_id
+					game_id
+					stream_id
+					view_count
+					}
+				}
+			`;
+
+
+			// Calling postData function to add/update games and game related archive data to the MongoDB database
+			await postData(`http://localhost:3001/graphql`, queryPost, variables);
+
+		};
+	};
+
+	// Assigning to the amount of games that were gathered from the call
+	let allGamesLength = Object.keys(allGames).length;
+
+	// Defining variables to pass in to add/update TopData and TopData related archive data
+	const totalUpdateVariables = {
+		totalData: {
+			_id: "634f0ecf284e10863dd12ca2",
+			totalViewers: viewTotal,
+			totalChannels: allUserInfo.length,
+			totalGames: allGamesLength,
+		},
+		date: calculateDate('week'),
+		archiveData: {
+			total_id: "634f0ecf284e10863dd12ca2",
+			view_count: viewTotal,
+			totalChannels: allUserInfo.length,
+			totalGames: allGamesLength,
+		}
+	};
+
+	// Defining the query to pass in, this will perform the updateTotalData and addArchiveData mutations
+	const queryUpdateTotals = `
+		mutation Mutation($totalData: TotalDataInput!, $date: String, $archiveData: ArchiveDataInput!) {
+			updateTotalData(totalData: $totalData, date: $date) {
+			_id
+			totalViewers
+			avgTotalViewers
+			totalChannels
+			avgTotalChannels
+			totalGames
+			avgTotalGames
+			archive {
+				_id
+				createdAt
+				total_id
+				view_count
+				totalChannels
+				totalGames
+			}
+			}
+			addArchiveData(archiveData: $archiveData) {
+			_id
+			createdAt
+			total_id
+			view_count
+			totalChannels
+			totalGames
+			}
+		}
+	`;
+
+	// Calling postData function to add/update TopData and TopData related archive data to the MongoDB database
+	await postData(`http://localhost:3001/graphql`, queryUpdateTotals, totalUpdateVariables);
+
+	// console.log(results);
+
 	// Returning the results array for use in other functions
 	return results;
 
 };
 
+// Testing, checks Modern Warfare 2
+//countTotalViews(process.env.GET_STREAMS);
 
 
 /* This function with gather all users from the countTotalViews function and then make
@@ -319,25 +478,37 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 			// Assigning userId to the id key in the object
 			const userId = users[key].id;
 
-			// Checks if user_ids are in the userList, will change string added based on that for correct api call
-			if (userList === '?') {
-				userList = userList + 'id=' + userId
+			const userViews = users[key].views;
+
+			// If user has live views lower than 5 then it will remove the user from users to save Database storage
+			if (userViews > 5) {
+				
+				// Checks if user_ids are in the userList, will change string added based on that for correct api call
+				if (userList === '?') {
+					userList = userList + 'id=' + userId
+				} else {
+					userList = userList + '&id=' + userId
+				}
+
+				// Increases count by 1
+				count ++
+
+				/* If 100 user_ids are added to the userList then push it into the userListArray,
+				then reset counter and userList to default values. This is done so only 100 user_ids are
+				used in one api call because that is the maximum allowed
+				*/
+				if (count === 100) {
+					userListArray.push(userList);
+					userList = '?';
+					count = 0;
+				}
+
 			} else {
-				userList = userList + '&id=' + userId
+				// Removes user from users, makes less api calls and stores less users to save database storage
+				users.splice(key, 1);
 			}
 
-			// Increases count by 1
-			count ++
 
-			/* If 100 user_ids are added to the userList then push it into the userListArray,
-			then reset counter and userList to default values. This is done so only 100 user_ids are
-			used in one api call because that is the maximum allowed
-			*/
-			if (count === 100) {
-				userListArray.push(userList);
-				userList = '?';
-				count = 0;
-			}
 		};
 	};
 
@@ -380,6 +551,65 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 				findMatchingId.totalViews = resUserData[key].view_count;
 				findMatchingId.creationDate = resUserData[key].created_at;
 
+
+				// Defining variables to pass in to add/update games and game related archive data
+				const variables = {
+					broadcasterData: {
+						user_id: findMatchingId.id,
+						name: findMatchingId.displayName,
+						description: findMatchingId.userDescription,
+						language: findMatchingId.language,
+						broadcaster_type: findMatchingId.broadcasterType,
+						view_count: findMatchingId.views,
+						total_views: findMatchingId.totalViews,
+						profile_image_url: findMatchingId.profileImage,
+						createdAt: findMatchingId.creationDate,
+					},
+					archiveData: {
+						user_id: findMatchingId.id,
+						stream_id: findMatchingId.stream_id,
+						view_count: findMatchingId.views,
+					},
+				};
+
+				// Defining the query to pass in, this will perform the addBroadcasterData and addArchiveData mutations
+				const queryPost = `
+					mutation Mutation($broadcasterData: BroadcasterInput!, $archiveData: ArchiveDataInput!) {
+						addBroadcasterData(broadcasterData: $broadcasterData) {
+						_id
+						user_id
+						name
+						description
+						language
+						profile_image_url
+						view_count
+						total_views
+						broadcaster_type
+						createdAt
+						archive {
+							_id
+							createdAt
+							user_id
+							game_id
+							stream_id
+							view_count
+						}
+						}
+						addArchiveData(archiveData: $archiveData) {
+						_id
+						createdAt
+						user_id
+						game_id
+						stream_id
+						view_count
+						}
+					}
+				`;
+
+
+				// Calling postData function to add/update broadcaster and broadcaster related archive data to the MongoDB database
+				postData(`http://localhost:3001/graphql`, queryPost, variables);
+
 			};
 		};
 	};
@@ -388,8 +618,11 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 	return usableData;
 
 };
+//getData(process.env.GET_GAMES_ALL + '?name=Battleborn') //game_id is game_id=460998
+
 
 getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
+
 
 
 
