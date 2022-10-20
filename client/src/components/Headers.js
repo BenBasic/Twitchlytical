@@ -11,7 +11,7 @@ const navigation = [
 ];
 export default function Header() {
 	return (
-		<div className="relative overflow-hidden">
+		<div className="relative overflow-hidden bg-gray-900">
 			<Popover as="header" className="relative">
 				<div className="bg-gray-900 pt-6">
 					<nav className="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6">
@@ -84,7 +84,7 @@ export default function Header() {
 									</Popover.Button>
 								</div>
 							</div>
-							<div className="pt-5 pb-6">
+							<div className="pt-5">
 								<div className="px-2 space-y-1">
 									{navigation.map((item) => (
 										<a
