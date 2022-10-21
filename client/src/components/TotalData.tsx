@@ -3,10 +3,12 @@ import { select, selectAll, Selection } from 'd3-selection'
 import { scaleLinear, scaleBand } from 'd3-scale'
 import { max } from 'd3-array'
 import { axisLeft, axisBottom } from 'd3-axis'
+import 'd3-transition'
+import { easeBounce, easeElastic } from 'd3-ease'
 
 const data = [
     {
-        name: 'cool',
+        name: 'cool1',
         number: 9000,
     },
     {
@@ -46,7 +48,7 @@ const TotalData: React.FC = () => {
     const maxValue = max(dataState, d => d.number)
 
     let y = scaleLinear()
-        .domain([maxValue!, 0])
+        .domain([maxValue! +1, 0])
         .range([0, dimensions.chartHeight])
 
     let x = scaleBand()
@@ -137,6 +139,16 @@ const TotalData: React.FC = () => {
                         return null
                     }
                 })
+                .attr('height', 0)
+                .attr('y', dimensions.chartHeight)
+                .attr('fill', 'red')
+
+                .transition()
+                .duration(500)
+                .delay((_, index) => index * 100)
+                .ease(easeElastic)
+                
+                .attr('height', d=> dimensions.chartHeight - y(d.number))
                 .attr('y', d => {
                     const yValue = y(d.number)
                     if (yValue) {
@@ -145,8 +157,8 @@ const TotalData: React.FC = () => {
                         return null
                     }
                 })
-                .attr('fill', 'red')
-                .attr('height', d=> dimensions.chartHeight - y(d.number))
+                
+                
         }
     }, [selectionState])
 
@@ -165,9 +177,19 @@ const TotalData: React.FC = () => {
 
             rects
                 .exit()
+                .transition()
+                .duration(300)
+
+
+                .attr('height', 0)
+                .attr('y', dimensions.chartHeight)
+                
                 .remove()
 
             rects
+                .transition()
+                .duration(300)
+                .delay(100)
                 .attr('width', x.bandwidth)
                 .attr('x', d => {
                     const xValue = x(d.name)
@@ -200,6 +222,16 @@ const TotalData: React.FC = () => {
                         return null
                     }
                 })
+                .attr('height', 0)
+                .attr('y', dimensions.chartHeight)
+                .attr('fill', 'red')
+
+                .transition()
+                .duration(500)
+                .delay(300)
+                .ease(easeElastic)
+
+                .attr('height', d=> dimensions.chartHeight - y(d.number))
                 .attr('y', d => {
                     const yValue = y(d.number)
                     if (yValue) {
@@ -208,8 +240,7 @@ const TotalData: React.FC = () => {
                         return null
                     }
                 })
-                .attr('fill', 'red')
-                .attr('height', d=> dimensions.chartHeight - y(d.number))
+                
         }
     }, [dataState])
 
