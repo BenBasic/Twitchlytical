@@ -6,6 +6,7 @@ import { axisLeft, axisBottom } from 'd3-axis'
 import 'd3-transition'
 import { easeBounce, easeElastic } from 'd3-ease'
 
+// Placeholder data, used for testing
 const data = [
     {
         name: 'cool1',
@@ -29,6 +30,7 @@ const data = [
     },
 ];
 
+// Defining the dimensions of the chart and elements within it
 const dimensions = {
     width: 800,
     height: 500,
@@ -267,7 +269,7 @@ const TotalData: React.FC = () => {
 
     return (
     <div>
-        <svg ref={svgRef} width={dimensions.chartWidth} height={dimensions.chartHeight + 50}>
+        <svg ref={svgRef} width={dimensions.chartWidth + dimensions.marginLeft} height={dimensions.chartHeight + 50}>
         </svg>
 
         <button onClick={() => {
