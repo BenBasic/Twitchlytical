@@ -9,12 +9,15 @@ import { area } from 'd3-shape'
 import { ScaleTime } from 'd3-scale'
 import * as d3 from 'd3'
 
+
+const now = new Date();
+
 const data = [
-    { year: '2014', count: 25 },
-    { year: '2015', count: 30 },
-    { year: '2016', count: 75 },
-    { year: '2017', count: 57 },
-    { year: '2018', count: 68 },
+    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 5), count: 25 },
+    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 4), count: 30 },
+    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3), count: 75 },
+    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2), count: 57 },
+    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1), count: 68 },
 ];
 
 
@@ -38,7 +41,7 @@ const AreaChart = () => {
     .domain(
         d3.extent(dataState, (d) => {
             return d.year
-        }) as unknown as [Date, Date]
+        }) as [Date, Date]
       )
     .range([0, dimensions.width - 100])
 
@@ -46,17 +49,15 @@ const AreaChart = () => {
 
     const xAxis = axisBottom(x)
 
-    // FIGURE OUT WHY THIS AREA STUFF ISNT WORKING?????????
-
-    // const areaRef = area()
-    //     .x(d:any => x(d.year))
-    //     .y0(y(0))
-    //     .y1(d:any => y(d.count))
-
     const areaRef: any = area()
-    .x((d:any)=> x(d.year)!)
+    .x((d:any)=> x(d.year))
     .y0(y(0))
     .y1((d:any)=> y(d.count))
+
+    const startAreaRef: any = area()
+    .x((d:any)=> x(d.year))
+    .y0(y(0))
+    .y1(dimensions.height - 100)
 
 
     useEffect(() => {
@@ -74,18 +75,63 @@ const AreaChart = () => {
                 .attr('transform', `translate(20, 50)`)
                 .call(yAxis)
 
+            const tooltip = d3
+                .select('.areaChart')
+                .append('div')
+                .attr('class', 'tooltip')
+                .style("opacity", 0)
+
+
 
             selectionState
                 .attr('width', dimensions.width)
                 .attr('height', dimensions.height)
-                .style('background-color', 'yellow')
+                .style('background-color', '#4c6485')
                 .append('path')
                 .datum(dataState)
-                .attr('d', areaRef)
-                .attr('fill', 'red')
-                .attr('stroke', 'blue')
-                .attr('stroke-width', 2)
+                .attr('d', startAreaRef)
                 .attr('transform', 'translate(20, 50)')
+                .attr('fill', '#f5cf44')
+                .attr('stroke', '#E78D15')
+                .attr('stroke-width', 2)
+                .transition()
+                .duration(1000)
+                .ease(easeElastic)
+
+
+                .attr('d', areaRef)
+
+
+
+            selectionState
+                .selectAll("dot")
+                .data(dataState)
+                .enter()
+                .append("circle")
+                .attr("r", 5)
+                .attr("cx", function(d) { return x(d.year); })
+                .attr("cy", function(d) { return y(d.count); })
+                .attr('transform', 'translate(20, 50)')
+                .on("mouseover", function(event, d) {
+                    console.log("Check this")
+                    console.log(event.pageX)
+                    console.log(event.pageY)
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(
+                        `<p> Date: ${(d.year).toDateString()} </p>` +
+                        `<p> Count: ${d.count}</p>`
+                        )
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 40) + "px");
+                    })					
+                .on("mouseout", function(d) {		
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+                
 
         }
     })
