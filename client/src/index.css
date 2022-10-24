@@ -18,11 +18,18 @@ code {
 
 div.tooltip {
   position: absolute;
-  text-align: center;
-  width: 3rem;
-  min-height: 3rem;
+  /* text-align: center; */
+  width: 6rem;
   padding: .5rem;
   background: #e6efdb;
   border-radius: .5rem;
   pointer-events: none;
+}
+
+.higher {
+  color: green;
+}
+
+.lower {
+  color: red;
 }

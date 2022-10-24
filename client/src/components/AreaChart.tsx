@@ -20,8 +20,16 @@ const data = [
     { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1), count: 68 },
 ];
 
+const percentDifference = (a: number, b: number) => {
+    const prevVal: number = a;
+    const currentVal: number = b;
+    const percent: number = 100 * prevVal / (prevVal + currentVal);
 
-const AreaChart = () => {
+    return percent.toFixed(2);
+}
+
+
+const AreaChart: React.FC = () => {
 
     const areaChart = useRef<SVGSVGElement | null>(null)
 
@@ -47,7 +55,7 @@ const AreaChart = () => {
 
     const yAxis = axisLeft(y)
 
-    const xAxis = axisBottom(x)
+    const xAxis = axisBottom(x).ticks(5)
 
     const areaRef: any = area()
     .x((d:any)=> x(d.year))
@@ -75,11 +83,31 @@ const AreaChart = () => {
                 .attr('transform', `translate(20, 50)`)
                 .call(yAxis)
 
+            // Creating a tooltip, default state is to have 0 opacity
             const tooltip = d3
                 .select('.areaChart')
                 .append('div')
                 .attr('class', 'tooltip')
                 .style("opacity", 0)
+
+            // Creating a gradient to be referenced as an area fill
+            let gradient = selectionState
+                .append("defs")
+                .append("linearGradient")
+                .attr("id","gradient")
+                .attr('gradientTransform', 'rotate(90)')
+            
+            // Assigning starting color of gradient
+            gradient
+                .append("stop")
+                .attr("stop-color","#7D3AC1")
+                .attr("offset","0%")
+            
+            // Assigning ending color of gradient
+            gradient
+                .append("stop")
+                .attr("stop-color","#AF4BCE")
+                .attr("offset","100%");
 
 
 
@@ -91,8 +119,8 @@ const AreaChart = () => {
                 .datum(dataState)
                 .attr('d', startAreaRef)
                 .attr('transform', 'translate(20, 50)')
-                .attr('fill', '#f5cf44')
-                .attr('stroke', '#E78D15')
+                .attr('fill', 'url(#gradient)')
+                .attr('stroke', '#29066B')
                 .attr('stroke-width', 2)
                 .transition()
                 .duration(1000)
@@ -113,15 +141,38 @@ const AreaChart = () => {
                 .attr("cy", function(d) { return y(d.count); })
                 .attr('transform', 'translate(20, 50)')
                 .on("mouseover", function(event, d) {
+                    // Assigning i to find the index of matching data (this functions as the index)
+                    const i: number = dataState.indexOf(d);
+                    // Assigning lets, both used for displaying percentage difference between results
+                    let greatCheck: string = "";
+                    let colorClass: string = "";
                     console.log("Check this")
                     console.log(event.pageX)
                     console.log(event.pageY)
+                    console.log(i)
+
+                    /* Checks if tooltip has previous data to reference, if it does then 
+                    it will compare the current and previous data to check for a percentage difference.
+                    Color and unicode sign will be assigned based on if current data is higher
+                    or lower than the previous data
+                    */
+                    if (i > 0) {
+                        if (d.count > dataState[i - 1].count) {
+                            greatCheck = `▲ ${percentDifference(dataState[i - 1].count, d.count)}%`
+                            colorClass = `higher`
+                        } else {
+                            greatCheck = `▼ ${percentDifference(dataState[i - 1].count, d.count)}%`
+                            colorClass = `lower`
+                        };
+                    };
+
                     tooltip.transition()
                         .duration(200)
                         .style("opacity", .9);
                     tooltip.html(
-                        `<p> Date: ${(d.year).toDateString()} </p>` +
-                        `<p> Count: ${d.count}</p>`
+                        `<p> Date: ${(d.year).toDateString()}</p>` +
+                        `<p> Count: ${d.count}</p>` +
+                        `<p class=${colorClass}>${greatCheck}</p>`
                         )
                         .style("left", (event.pageX + 10) + "px")
                         .style("top", (event.pageY - 40) + "px");
