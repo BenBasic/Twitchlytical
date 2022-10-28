@@ -13,17 +13,18 @@ import * as d3 from 'd3'
 const now = new Date();
 
 const data = [
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 5), count: 25, channel: 10 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 4), count: 30, channel: 8 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3), count: 75, channel: 38 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2), count: 57, channel: 45 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1), count: 68, channel: 30 },
+    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 5), peak: 2510146, avg: 2010146 },
+    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 4), peak: 1910146, avg: 1510146 },
+    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3), peak: 2833111, avg: 2433111 },
+    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2), peak: 2000740, avg: 1900740 },
+    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1), peak: 2190800, avg: 2000100 },
 ];
 
+// Percentage difference calculator, used for showing value differences between current and previous data
 const percentDifference = (a: number, b: number) => {
     const prevVal: number = a;
     const currentVal: number = b;
-    const percent: number = 100 * prevVal / (prevVal + currentVal);
+    const percent: number = (prevVal-currentVal)/prevVal*100.0;
 
     return percent.toFixed(2);
 }
@@ -72,7 +73,7 @@ const AreaChart: React.FC = () => {
     const dimensions = { width: widthState, height: heightState }
 
     // Assigning maxValue to the maximum result from the data, used for sizing and axis labels
-    const maxValue = max(dataState, d => d.count)
+    const maxValue = max(dataState, d => d.peak)
 
     // Values and sizing referenced for the y axis
     let y = scaleLinear()
@@ -89,7 +90,7 @@ const AreaChart: React.FC = () => {
     .range([0, dimensions.width! - (dimensions.width! / 15) * 2])
 
     // Y axis placement and tick settings
-    const yAxis = axisLeft(y).tickPadding(12)
+    const yAxis = axisLeft(y).ticks(3, "s").tickPadding(12)
 
     // X axis placement and tick settings
     const xAxis = axisBottom(x).ticks(5).tickPadding(12)
@@ -104,13 +105,13 @@ const AreaChart: React.FC = () => {
     const areaRef: any = area()
     .x((d:any)=> x(d.year))
     .y0(y(0))
-    .y1((d:any)=> y(d.count))
+    .y1((d:any)=> y(d.peak))
 
     // Placement settings for dataset 2 (final position, after animation)
     const channelAreaRef: any = area()
     .x((d:any)=> x(d.year))
     .y0(y(0))
-    .y1((d:any)=> y(d.channel))
+    .y1((d:any)=> y(d.avg))
 
 
     useEffect(() => {
@@ -123,7 +124,7 @@ const AreaChart: React.FC = () => {
             const oldChart = selectionState.selectAll("*");
             oldChart.remove();
 
-            // Increments the count for the state, used to prevent enter animation re-triggering
+            // Increments the peak for the state, used to prevent enter animation re-triggering
             console.log("Original resize is " + resizeCheckState)
             setResizeCheckState(resizeCheckState + 1)
             console.log("NEW resize is " + resizeCheckState)
@@ -213,7 +214,7 @@ const AreaChart: React.FC = () => {
                 .classed("tipArea", true)
                 .attr("r", dimensions.width! / 32)
                 .attr("cx", function(d) { return x(d.year); })
-                .attr("cy", function(d) { return y( tIndex === 0 ? d.count : d.channel ); })
+                .attr("cy", function(d) { return y( tIndex === 0 ? d.peak : d.avg ); })
                 .attr('transform', `translate(${dimensions.width! / 15}, 0)`)
                 .on("mouseover", function(event, d) {
                     // Assigning i to find the index of matching data (this functions as the index)
@@ -233,19 +234,19 @@ const AreaChart: React.FC = () => {
                     or lower than the previous data
                     */
                     if (i > 0 && tIndex === 0) {
-                        if (d.count > dataState[i - 1].count) {
-                            greatCheck = `▲ ${percentDifference(dataState[i - 1].count, d.count)}%`
+                        if (d.peak > dataState[i - 1].peak) {
+                            greatCheck = `▲ ${percentDifference(dataState[i - 1].peak, d.peak)}%`
                             colorClass = `higher`
                         } else {
-                            greatCheck = `▼ ${percentDifference(dataState[i - 1].count, d.count)}%`
+                            greatCheck = `▼ ${percentDifference(dataState[i - 1].peak, d.peak)}%`
                             colorClass = `lower`
                         };
                     } else if (i > 0 && tIndex === 1) {
-                        if (d.channel > dataState[i - 1].channel) {
-                            greatCheck = `▲ ${percentDifference(dataState[i - 1].channel, d.channel)}%`
+                        if (d.avg > dataState[i - 1].avg) {
+                            greatCheck = `▲ ${percentDifference(dataState[i - 1].avg, d.avg)}%`
                             colorClass = `higher`
                         } else {
-                            greatCheck = `▼ ${percentDifference(dataState[i - 1].channel, d.channel)}%`
+                            greatCheck = `▼ ${percentDifference(dataState[i - 1].avg, d.avg)}%`
                             colorClass = `lower`
                         };
                     }
@@ -254,13 +255,16 @@ const AreaChart: React.FC = () => {
                         .duration(200)
                         .style("opacity", .9);
                     tooltip.html(
-                        `<p> Date: ${(d.year).toDateString()}</p>` +
-                        `<p>${ tIndex === 0 ? 'Count: ' + d.count : 'Channels: ' + d.channel }</p>` +
+                        `<p class='toolDate'>${(d.year).toDateString()}</p>` +
+                        `<p class='toolInfo'>${ tIndex === 0 ? 'Peak: ' + d.peak : 'Avg: ' + d.avg }</p>` +
                         `<p class=${colorClass}>${greatCheck}</p>`
                         )
-                        .style("left", (event.pageX + 10) + "px")
-                        .style("top", (event.pageY - 40) + "px");
-                    })					
+                    })
+                .on("mousemove", function(event) {
+                    tooltip
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 40) + "px");
+                })
                 .on("mouseout", function(d) {		
                     tooltip.transition()
                         .duration(500)

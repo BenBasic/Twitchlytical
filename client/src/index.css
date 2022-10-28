@@ -26,6 +26,15 @@ div.tooltip {
   pointer-events: none;
 }
 
+.toolDate, .toolInfo, .higher, .lower {
+  margin-block-start: 0em;
+  margin-block-end: 0em;
+}
+
+.toolDate {
+  font-size: .7rem;
+}
+
 .higher {
   color: green;
 }
