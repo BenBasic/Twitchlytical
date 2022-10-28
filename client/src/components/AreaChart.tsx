@@ -33,40 +33,80 @@ const AreaChart: React.FC = () => {
 
     const areaChart = useRef<SVGSVGElement | null>(null)
 
+    // This is a ref for the container, which is a parent of the d3 related svg elements
+    const svgContainer = useRef<HTMLDivElement | null>(null);
+
+    // States which keep track of the updating width and height of the svgContainer
+    const [widthState, setWidthState] = useState<number>();
+    const [heightState, setHeightState] = useState<number>();
+
+    // State keeping track of refreshes, used to prevent enter animation retriggering when resizing container
+    const [resizeCheckState, setResizeCheckState] = useState<number>(0);
+
+
+    // Calculates the width and height of the svgContainer
+    const getSvgContainerSize = () => {
+        const newWidth = svgContainer.current?.clientWidth;
+        setWidthState(newWidth);
+
+        const newHeight = svgContainer.current?.clientHeight;
+        setHeightState(newHeight);
+    };
+
+    useEffect(() => {
+        // Detects the width and height on render (determined by container size, or window size if no container)
+        getSvgContainerSize();
+        // Listens for resize changes, and detects dimensions again when they change
+        window.addEventListener("resize", getSvgContainerSize);
+        // Cleanup the previously applied event listener
+        return () => window.removeEventListener("resize", getSvgContainerSize);
+    }, []);
+
+    // State used for svg element selections, sort of like a root for all branching d3 manipulations
     const [selectionState, setSelectionState] = useState<null | Selection<SVGSVGElement | null, unknown, null, undefined>>(null)
 
+    // State storing the data referenced in the d3 chart
     const [dataState, setDataState] = useState(data)
 
-    const dimensions = { width: 800, height: 400 }
+    // Dimensions to be referenced for svg sizing and placement
+    const dimensions = { width: widthState, height: heightState }
 
+    // Assigning maxValue to the maximum result from the data, used for sizing and axis labels
     const maxValue = max(dataState, d => d.count)
 
+    // Values and sizing referenced for the y axis
     let y = scaleLinear()
     .domain([0, maxValue!])
-    .range([dimensions.height - 100, 0])
+    .range([dimensions.height! - (dimensions.height! / 8) * 1.2, dimensions.height! / 12])
 
+    // Values and sizing referenced for the x axis
     let x = scaleTime()
     .domain(
         d3.extent(dataState, (d) => {
             return d.year
         }) as [Date, Date]
       )
-    .range([0, dimensions.width - 100])
+    .range([0, dimensions.width! - (dimensions.width! / 15) * 2])
 
-    const yAxis = axisLeft(y)
+    // Y axis placement and tick settings
+    const yAxis = axisLeft(y).tickPadding(12)
 
+    // X axis placement and tick settings
     const xAxis = axisBottom(x).ticks(5).tickPadding(12)
 
+    // Placement settings for starting position of chart appearing animation
+    const startAreaRef: any = area()
+    .x((d:any)=> x(d.year))
+    .y0(y(0))
+    .y1(dimensions.height! - (dimensions.height! / 8))
+
+    // Placement settings for dataset 1 (final position, after animation)
     const areaRef: any = area()
     .x((d:any)=> x(d.year))
     .y0(y(0))
     .y1((d:any)=> y(d.count))
 
-    const startAreaRef: any = area()
-    .x((d:any)=> x(d.year))
-    .y0(y(0))
-    .y1(dimensions.height - 100)
-
+    // Placement settings for dataset 2 (final position, after animation)
     const channelAreaRef: any = area()
     .x((d:any)=> x(d.year))
     .y0(y(0))
@@ -74,11 +114,19 @@ const AreaChart: React.FC = () => {
 
 
     useEffect(() => {
+        // If theres no selection, select the current value from the areaChart ref
         if (!selectionState) {
             setSelectionState(select(areaChart.current))
         } else {
 
+            // Refreshes the chart so it doesnt infinitely redraw svgs on top of eachother while resizing
+            const oldChart = selectionState.selectAll("*");
+            oldChart.remove();
 
+            // Increments the count for the state, used to prevent enter animation re-triggering
+            console.log("Original resize is " + resizeCheckState)
+            setResizeCheckState(resizeCheckState + 1)
+            console.log("NEW resize is " + resizeCheckState)
 
             // Creating a tooltip, default state is to have 0 opacity
             const tooltip = d3
@@ -92,11 +140,12 @@ const AreaChart: React.FC = () => {
                 .append("defs");
 
             let dataVisuals = selectionState
-                .attr('width', dimensions.width)
-                .attr('height', dimensions.height)
+                .attr('width', dimensions.width!)
+                .attr('height', dimensions.height!)
                 .style('background-color', '#4c6485');
 
 
+            // Visualizes multiple data sets (Currently 2, can support more)
             for (let i = 0; i < 2; i++) {
                 const newG = gradient
                     .append("linearGradient")
@@ -115,11 +164,15 @@ const AreaChart: React.FC = () => {
                     .attr("stop-color", i === 0 ? "#AF4BCE" : "#EA7369")
                     .attr("offset","100%");
 
+                // Assigning data and visual settings for chart data
                 dataVisuals
                     .append('path')
                     .datum(dataState)
-                    .attr('d', startAreaRef)
-                    .attr('transform', 'translate(50, 50)')
+                    .attr('d', resizeCheckState > 0 && i === 0 ? areaRef :
+                    resizeCheckState > 0 && i > 0 ? channelAreaRef :
+                    startAreaRef
+                    )
+                    .attr('transform', `translate(${dimensions.width! / 15}, 0)`)
                     .attr('fill', i === 0 ? 'url(#gradient0)' : 'url(#gradient1)')
                     .attr('stroke', i === 0 ? '#29066B' : '#A5194D')
                     .attr('stroke-width', '.25rem')
@@ -132,31 +185,36 @@ const AreaChart: React.FC = () => {
             };
             
 
-
+            // Visual and placement settings for X axis
             const xAxisGroup = selectionState
                 .append('g')
-                .attr('transform', `translate(50, ${dimensions.height - 50})`)
+                .attr('transform', `translate(${dimensions.width! / 15}, ${dimensions.height! - (dimensions.height! / 8 * 1.2)})`)
                 .style('stroke-width', '.3rem')
                 .style("font-size", "1rem")
                 .call(xAxis);
 
+            // Visual and placement settings for Y axis
             const yAxisGroup = selectionState
                 .append('g')
-                .attr('transform', `translate(50, 50)`)
+                .attr('transform', `translate(${dimensions.width! / 15}, 0)`)
                 .style('stroke-width', '0rem')
+                .style("font-size", "1rem")
+                .style("text-anchor", "middle")
                 .call(yAxis);
 
 
+            // Adds tool tips for multiple data sets (Currently 2, can support more)
             for (let tIndex = 0; tIndex < 2; tIndex++) {
                 selectionState
                 .selectAll("dot")
                 .data(dataState)
                 .enter()
                 .append("circle")
-                .attr("r", 15)
+                .classed("tipArea", true)
+                .attr("r", dimensions.width! / 32)
                 .attr("cx", function(d) { return x(d.year); })
                 .attr("cy", function(d) { return y( tIndex === 0 ? d.count : d.channel ); })
-                .attr('transform', 'translate(50, 50)')
+                .attr('transform', `translate(${dimensions.width! / 15}, 0)`)
                 .on("mouseover", function(event, d) {
                     // Assigning i to find the index of matching data (this functions as the index)
                     const i: number = dataState.indexOf(d);
@@ -167,6 +225,7 @@ const AreaChart: React.FC = () => {
                     console.log(event.pageX)
                     console.log(event.pageY)
                     console.log(i)
+                    
 
                     /* Checks if tooltip has previous data to reference, if it does then 
                     it will compare the current and previous data to check for a percentage difference.
@@ -214,13 +273,15 @@ const AreaChart: React.FC = () => {
                 
 
         };
-    });
+    }, [widthState, heightState]);
 
 
     return (
-        <div className='areaChart'>
-            <svg ref={areaChart}></svg>
+
+        <div ref={svgContainer} className='areaChart'>
+            <svg ref={areaChart} className='svgArea'></svg>
         </div>
+
     )
 }
 

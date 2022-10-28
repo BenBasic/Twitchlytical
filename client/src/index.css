@@ -33,3 +33,17 @@ div.tooltip {
 .lower {
   color: red;
 }
+
+.areaChart {
+  width: 30rem !important;
+  height: 15rem !important;
+}
+
+.tipArea {
+  transition: .25s ease;
+  opacity: 0%;
+}
+
+.tipArea:hover {
+  opacity: 20%;
+}
