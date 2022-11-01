@@ -26,7 +26,7 @@ const percentDifference = (a: number, b: number) => {
     const currentVal: number = b;
     const percent: number = (prevVal-currentVal)/prevVal*100.0;
 
-    return percent.toFixed(2);
+    return percent.toFixed(2).toString().replace("-", "");
 }
 
 
@@ -255,9 +255,22 @@ const AreaChart: React.FC = () => {
                         .duration(200)
                         .style("opacity", .9);
                     tooltip.html(
-                        `<p class='toolDate'>${(d.year).toDateString()}</p>` +
-                        `<p class='toolInfo'>${ tIndex === 0 ? 'Peak: ' + d.peak : 'Avg: ' + d.avg }</p>` +
-                        `<p class=${colorClass}>${greatCheck}</p>`
+                        `<p class='toolDate'>
+                        ${(d.year).toDateString()}
+                        </p>` +
+
+                        `<p class='toolTitle'>
+                        ${ tIndex === 0 ? 'Peak' : 'Average' }
+                        </p>` +
+
+                        `<p class='toolInfo' style=${ tIndex === 0 ? 'background-color:#29066B;' : 'background-color:#A5194D;'}>
+                        ${ tIndex === 0 ? d.peak.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") :
+                        d.avg.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }
+                        </p>` +
+
+                        `<p class=${colorClass}>
+                        ${greatCheck}
+                        </p>`
                         )
                     })
                 .on("mousemove", function(event) {

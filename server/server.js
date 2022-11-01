@@ -620,8 +620,15 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 };
 //getData(process.env.GET_GAMES_ALL + '?name=Battleborn') //game_id is game_id=460998
 
+// COMMENTED OUT FOR TESTING PURPOSES
+// COMMENTED OUT FOR TESTING PURPOSES
+// COMMENTED OUT FOR TESTING PURPOSES
 
-getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
+//getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
+
+// COMMENTED OUT FOR TESTING PURPOSES
+// COMMENTED OUT FOR TESTING PURPOSES
+// COMMENTED OUT FOR TESTING PURPOSES
 
 
 

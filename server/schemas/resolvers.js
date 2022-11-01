@@ -27,6 +27,15 @@ const resolvers = {
 		getStream: async (parent, { _id }) => {
 			return Stream.find();
 		},
+		getTotalData: async (parent, args) => {
+            const totalData = await TotalData.find({}).populate("archive");
+
+            if (!totalData) {
+				console.log("No data was found")
+			}
+
+            return totalData;
+        },
 	},
 	Mutation: {
 

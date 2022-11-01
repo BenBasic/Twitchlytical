@@ -1,0 +1,26 @@
+import { gql } from "@apollo/client";
+
+export const GET_TOTAL_DATA = gql`
+    query Query {
+        getTotalData {
+            _id
+            totalViewers
+            avgTotalViewers
+            totalChannels
+            avgTotalChannels
+            totalGames
+            avgTotalGames
+            archive {
+            _id
+            createdAt
+            user_id
+            game_id
+            stream_id
+            total_id
+            view_count
+            totalChannels
+            totalGames
+            }
+        }
+    }
+`;

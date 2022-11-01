@@ -26,7 +26,7 @@ div.tooltip {
   pointer-events: none;
 }
 
-.toolDate, .toolInfo, .higher, .lower {
+.toolDate, .toolInfo, .toolTitle, .higher, .lower {
   margin-block-start: 0em;
   margin-block-end: 0em;
 }
@@ -35,12 +35,32 @@ div.tooltip {
   font-size: .7rem;
 }
 
+.toolTitle {
+  font-size: .9rem;
+  font-weight: 600;
+  border-bottom: .1rem solid black;
+  margin-bottom: .2rem;
+}
+
+.toolInfo {
+  display: inline-block;
+  font-weight: 600;
+  color: white;
+  padding: 0rem .2rem .1rem .2rem;
+  border-radius: .2rem;
+}
+
+.higher, .lower {
+  font-size: .9rem;
+  font-weight: 600;
+}
+
 .higher {
-  color: green;
+  color: #005700;
 }
 
 .lower {
-  color: red;
+  color: #9E0000;
 }
 
 .areaChart {
