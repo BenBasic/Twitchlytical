@@ -22,6 +22,7 @@ const HomeCharts: React.FC = () => {
 
     const archiveData = data?.getTotalData?.[0]?.archive;
 
+    // Object containing the dates of the last 7 days, used as reference for assigning data to dates
     const weekDates = {
         day1: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6),
         day2: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 5),
@@ -32,6 +33,7 @@ const HomeCharts: React.FC = () => {
         day7: now,
     }
 
+    // Array of empty arrays, will have archiveData pushed into them based on appropriate dates
     let weekData = {
         day1: [] as any[],
         day2: [] as any[],
@@ -42,36 +44,22 @@ const HomeCharts: React.FC = () => {
         day7: [] as any[],
     }
 
+    // For loop which assigns data from the last week to their matching dates
     for (let i = 0; i < archiveData?.length; i++) {
-
-        console.log("test " + i)
-        
+        // Assigning date objects for current archiveData and reference point for 8 days prior to current date
         const dateData = new Date(archiveData[i].createdAt);
-        
-        if (dateData < weekDates.day1) {
-            console.log("Here " + i);
-            weekData.day1.push(archiveData[i]);
+        let previous: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
 
-        } else if (dateData < weekDates.day2 && dateData > weekDates.day1) {
-            console.log("Here " + i);
-            weekData.day2.push(archiveData[i]);
-        } else if (dateData < weekDates.day3 && dateData > weekDates.day2) {
-            console.log("Here " + i);
-            weekData.day3.push(archiveData[i]);
-        } else if (dateData < weekDates.day4 && dateData > weekDates.day3) {
-            console.log("Here " + i);
-            weekData.day4.push(archiveData[i]);
-        } else if (dateData < weekDates.day5 && dateData > weekDates.day4) {
-            console.log("Here " + i);
-            weekData.day5.push(archiveData[i]);
-        } else if (dateData < weekDates.day6 && dateData > weekDates.day5) {
-            console.log("Here " + i);
-            weekData.day6.push(archiveData[i]);
-        } else if (dateData <= weekDates.day7 && dateData > weekDates.day6) {
-            console.log("Here " + i);
-            weekData.day7.push(archiveData[i]);
+        // For loop which checks date ranges to assign archiveData to matching date
+        for (const key in weekDates) {
+            if (weekDates.hasOwnProperty(key)) {
+                if (dateData > previous && dateData <= weekDates[key as keyof typeof weekDates]) {
+                    weekData[key as keyof typeof weekData].push(archiveData[i])
+                }
+                previous = weekDates[key as keyof typeof weekDates]
+            };
         };
-
+        console.log("weekData check")
         console.log(weekData);
     };
 
@@ -103,44 +91,24 @@ const HomeCharts: React.FC = () => {
         return averageRounded;
     };
 
-    const finalWeekData: WeeklyViewData = {
-        day1: {
-            peak: Math.max(...weekData.day1.map(o => o.view_count)),
-            avg: getAverage(weekData.day1, "view_count"),
-            date: weekDates.day1,
-        },
-        day2: {
-            peak: Math.max(...weekData.day2.map(o => o.view_count)),
-            avg: getAverage(weekData.day2, "view_count"),
-            date: weekDates.day2,
-        },
-        day3: {
-            peak: Math.max(...weekData.day3.map(o => o.view_count)),
-            avg: getAverage(weekData.day3, "view_count"),
-            date: weekDates.day3,
-        },
-        day4: {
-            peak: Math.max(...weekData.day4.map(o => o.view_count)),
-            avg: getAverage(weekData.day4, "view_count"),
-            date: weekDates.day4,
-        },
-        day5: {
-            peak: Math.max(...weekData.day5.map(o => o.view_count)),
-            avg: getAverage(weekData.day5, "view_count"),
-            date: weekDates.day5,
-        },
-        day6: {
-            peak: Math.max(...weekData.day6.map(o => o.view_count)),
-            avg: getAverage(weekData.day6, "view_count"),
-            date: weekDates.day6,
-        },
-        day7: {
-            peak: Math.max(...weekData.day7.map(o => o.view_count)),
-            avg: getAverage(weekData.day7, "view_count"),
-            date: weekDates.day7,
-        },
+    // Function that creates the object containing all peak, avg, and date data for the last week
+    function finalObj() {
+        let newObj: any = {};
+        // For loop to create day1 - day7 key value pairs
+        for (let i = 1; i < Object.keys(weekData).length + 1; i++) {
+            newObj[`day${i}` as keyof typeof newObj] = {
+                peak: Math.max(...weekData[`day${i}` as keyof typeof weekData].map(o => o.view_count)),
+                avg: getAverage(weekData[`day${i}` as keyof typeof weekData], "view_count"),
+                date: weekDates[`day${i}` as keyof typeof weekDates],
+            }
+        }
+        return newObj;
     };
 
+    // This contains all the final data of peak, avg, and dates to be referenced in data visualization
+    const finalWeekData: WeeklyViewData = finalObj()
+
+    console.log("Final Week Data")
     console.log(finalWeekData)
     
 
