@@ -15,3 +15,64 @@ code {
 .topGamesContainer {
   background-color: gray;
 }
+
+div.tooltip {
+  position: absolute;
+  /* text-align: center; */
+  width: 6rem;
+  padding: .5rem;
+  background: #e6efdb;
+  border-radius: .5rem;
+  pointer-events: none;
+}
+
+.toolDate, .toolInfo, .toolTitle, .higher, .lower {
+  margin-block-start: 0em;
+  margin-block-end: 0em;
+}
+
+.toolDate {
+  font-size: .7rem;
+}
+
+.toolTitle {
+  font-size: .9rem;
+  font-weight: 600;
+  border-bottom: .1rem solid black;
+  margin-bottom: .2rem;
+}
+
+.toolInfo {
+  display: inline-block;
+  font-weight: 600;
+  color: white;
+  padding: 0rem .2rem .1rem .2rem;
+  border-radius: .2rem;
+}
+
+.higher, .lower {
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.higher {
+  color: #005700;
+}
+
+.lower {
+  color: #9E0000;
+}
+
+.areaChart {
+  width: 30rem !important;
+  height: 15rem !important;
+}
+
+.tipArea {
+  transition: .25s ease;
+  opacity: 0%;
+}
+
+.tipArea:hover {
+  opacity: 20%;
+}

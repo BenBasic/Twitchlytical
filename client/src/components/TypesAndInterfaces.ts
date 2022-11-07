@@ -12,9 +12,26 @@ export type CardColor = {
     secondary: string;
 };
 
+export type DayData = {
+    peak: number;
+    avg: number;
+    date: Date;
+};
+
+
+
 // Assigning StatCardProps interface for passing values into RankCard component
 export interface StatCardProps {
     statInfo: Stats;
     color: CardColor;
 };
 
+export interface WeeklyViewData {
+    day1: DayData;
+    day2: DayData;
+    day3: DayData;
+    day4: DayData;
+    day5: DayData;
+    day6: DayData;
+    day7: DayData;
+};

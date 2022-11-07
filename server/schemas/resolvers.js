@@ -6,6 +6,7 @@ const { Clips } = require("../models");
 const { ArchiveData } = require("../models");
 const { TotalData } = require("../models");
 
+const now = new Date();
 
 const resolvers = {
 	Query: {
@@ -27,6 +28,26 @@ const resolvers = {
 		getStream: async (parent, { _id }) => {
 			return Stream.find();
 		},
+		getTotalData: async (parent, { date }) => {
+            const totalData = await TotalData.find({}).populate("archive");
+
+            if (!totalData) {
+				console.log("No data was found")
+			};
+
+			if (!date) {
+				console.log("No args")
+				return totalData;
+			} else {
+				console.log("This is args")
+				const newDate = new Date(date);
+				// NOTE: Should add a less than check too, so it can check for ranges
+				const archives = totalData?.[0]?.archive.filter(value => value.createdAt > newDate)
+				console.log(archives)
+				totalData[0].archive = archives
+				return totalData;
+			}
+        },
 	},
 	Mutation: {
 

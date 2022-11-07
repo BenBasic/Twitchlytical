@@ -116,6 +116,7 @@ const typeDefs = gql`
 		getGame(_id: ID): Game
 		Clips: [Clips]
 		getStream: [Stream]
+		getTotalData(date: Date): [TotalData]
 	}
 
 	type Mutation {
