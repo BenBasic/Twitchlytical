@@ -2,6 +2,7 @@ import React from 'react'
 import { useQuery } from "@apollo/client";
 import { GET_TOTAL_DATA, GET_DATA_DATE } from "../utils/queries";
 import { DayData, WeeklyViewData } from './TypesAndInterfaces';
+import AreaChart from './AreaChart';
 
 const now = new Date();
 
@@ -30,7 +31,7 @@ const HomeCharts: React.FC = () => {
         day4: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3),
         day5: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2),
         day6: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1),
-        day7: now,
+        day7: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
     }
 
     // Array of empty arrays, will have archiveData pushed into them based on appropriate dates
@@ -48,15 +49,16 @@ const HomeCharts: React.FC = () => {
     for (let i = 0; i < archiveData?.length; i++) {
         // Assigning date objects for current archiveData and reference point for 8 days prior to current date
         const dateData = new Date(archiveData[i].createdAt);
-        let previous: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+        
 
         // For loop which checks date ranges to assign archiveData to matching date
         for (const key in weekDates) {
             if (weekDates.hasOwnProperty(key)) {
-                if (dateData > previous && dateData <= weekDates[key as keyof typeof weekDates]) {
+                let previous: Date = weekDates[key as keyof typeof weekDates];
+                let next: Date = new Date(previous.getFullYear(), previous.getMonth(), previous.getDate() + 1)
+                if (dateData > previous && dateData < next) {
                     weekData[key as keyof typeof weekData].push(archiveData[i])
                 }
-                previous = weekDates[key as keyof typeof weekDates]
             };
         };
         console.log("weekData check")
@@ -123,7 +125,9 @@ const HomeCharts: React.FC = () => {
     // console.log(weekQueryDate > mydate);
 
     return (
-        <div>Test</div>
+        loading === false ? 
+        <AreaChart dayProps={finalWeekData}></AreaChart> :
+        <p className='areaChart'>Loading Chart...</p>
     )
 }
 

@@ -8,17 +8,8 @@ import { easeBounce, easeElastic } from 'd3-ease'
 import { area } from 'd3-shape'
 import { ScaleTime } from 'd3-scale'
 import * as d3 from 'd3'
+import { WeeklyViewProps } from './TypesAndInterfaces'
 
-
-const now = new Date();
-
-const data = [
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 5), peak: 2510146, avg: 2010146 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 4), peak: 1910146, avg: 1510146 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3), peak: 2833111, avg: 2433111 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2), peak: 2000740, avg: 1900740 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1), peak: 2190800, avg: 2000100 },
-];
 
 // Percentage difference calculator, used for showing value differences between current and previous data
 const percentDifference = (a: number, b: number) => {
@@ -30,7 +21,23 @@ const percentDifference = (a: number, b: number) => {
 }
 
 
-const AreaChart: React.FC = () => {
+const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps }) => {
+
+    // Function that creates the array containing all peak, avg, and date data for the last week (from dayProps)
+    function assignPropData() {
+        let propArray = [];
+        for (let i = 1; i < Object.keys(dayProps).length + 1; i++) {
+            let propData = dayProps[`day${i}` as keyof typeof dayProps]
+            propArray.push({date: propData.date, peak: propData.peak, avg: propData.avg})
+        };
+        return propArray;
+    };
+    // This contains all the prop data to be referenced in data visualization
+    const data = assignPropData();
+
+    console.log("Data2 is")
+    console.log(data)
+
 
     const areaChart = useRef<SVGSVGElement | null>(null)
 
@@ -84,7 +91,7 @@ const AreaChart: React.FC = () => {
     let x = scaleTime()
     .domain(
         d3.extent(dataState, (d) => {
-            return d.year
+            return d.date
         }) as [Date, Date]
       )
     .range([0, dimensions.width! - (dimensions.width! / 15) * 2])
@@ -93,23 +100,23 @@ const AreaChart: React.FC = () => {
     const yAxis = axisLeft(y).ticks(3, "s").tickPadding(12)
 
     // X axis placement and tick settings
-    const xAxis = axisBottom(x).ticks(5).tickPadding(12)
+    const xAxis = axisBottom(x).ticks(7).tickPadding(12)
 
     // Placement settings for starting position of chart appearing animation
     const startAreaRef: any = area()
-    .x((d:any)=> x(d.year))
+    .x((d:any)=> x(d.date))
     .y0(y(0))
     .y1(dimensions.height! - (dimensions.height! / 8))
 
     // Placement settings for dataset 1 (final position, after animation)
     const areaRef: any = area()
-    .x((d:any)=> x(d.year))
+    .x((d:any)=> x(d.date))
     .y0(y(0))
     .y1((d:any)=> y(d.peak))
 
     // Placement settings for dataset 2 (final position, after animation)
     const channelAreaRef: any = area()
-    .x((d:any)=> x(d.year))
+    .x((d:any)=> x(d.date))
     .y0(y(0))
     .y1((d:any)=> y(d.avg))
 
@@ -213,7 +220,7 @@ const AreaChart: React.FC = () => {
                 .append("circle")
                 .classed("tipArea", true)
                 .attr("r", dimensions.width! / 32)
-                .attr("cx", function(d) { return x(d.year); })
+                .attr("cx", function(d) { return x(d.date); })
                 .attr("cy", function(d) { return y( tIndex === 0 ? d.peak : d.avg ); })
                 .attr('transform', `translate(${dimensions.width! / 15}, 0)`)
                 .on("mouseover", function(event, d) {
@@ -256,7 +263,7 @@ const AreaChart: React.FC = () => {
                         .style("opacity", .9);
                     tooltip.html(
                         `<p class='toolDate'>
-                        ${(d.year).toDateString()}
+                        ${(d.date).toDateString()}
                         </p>` +
 
                         `<p class='toolTitle'>
