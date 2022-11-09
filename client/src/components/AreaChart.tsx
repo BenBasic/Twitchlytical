@@ -18,17 +18,20 @@ const percentDifference = (a: number, b: number) => {
     const percent: number = (prevVal-currentVal)/prevVal*100.0;
 
     return percent.toFixed(2).toString().replace("-", "");
-}
+};
 
 
-const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps }) => {
+const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
 
     // Function that creates the array containing all peak, avg, and date data for the last week (from dayProps)
     function assignPropData() {
         let propArray = [];
         for (let i = 1; i < Object.keys(dayProps).length + 1; i++) {
             let propData = dayProps[`day${i}` as keyof typeof dayProps]
-            propArray.push({date: propData.date, peak: propData.peak, avg: propData.avg})
+            // Checks if data exists for peak and avg keys, adds to array if it does. If not then it doesnt add it, this avoids visualization errors
+            if (isFinite(propData.peak) && isNaN(propData.avg) === false) {
+                propArray.push({date: propData.date, peak: propData.peak, avg: propData.avg})
+            }
         };
         return propArray;
     };
@@ -37,6 +40,14 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps }) => {
 
     console.log("Data2 is")
     console.log(data)
+
+    const colorPicker = {
+        view: {peak: ["#16b132", "#1de441", "#084914"], avg: ["#EA7369", "#EB548C", "#A5194D"]},
+        channel: {peak: ["#176ba0", "#1ac9e6", "#142459"], avg: ["#de542c", "#d8ac2d", "#991212"]},
+        game: {peak: ["#e9e427", "#e7e35e", "#de542c"], avg: ["#7D3AC1", "#AF4BCE", "#29066B"]},
+    }
+    console.log("TYPE IS " + type)
+    console.log(colorPicker[type as keyof typeof colorPicker])
 
 
     const areaChart = useRef<SVGSVGElement | null>(null)
@@ -100,7 +111,7 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps }) => {
     const yAxis = axisLeft(y).ticks(3, "s").tickPadding(12)
 
     // X axis placement and tick settings
-    const xAxis = axisBottom(x).ticks(7).tickPadding(12)
+    const xAxis = axisBottom(x).ticks(dataState.length, '%a %e').tickPadding(12)
 
     // Placement settings for starting position of chart appearing animation
     const startAreaRef: any = area()
@@ -150,26 +161,26 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps }) => {
             let dataVisuals = selectionState
                 .attr('width', dimensions.width!)
                 .attr('height', dimensions.height!)
-                .style('background-color', '#4c6485');
+                .style('background-color', '#DDD4E3');
 
 
             // Visualizes multiple data sets (Currently 2, can support more)
             for (let i = 0; i < 2; i++) {
                 const newG = gradient
                     .append("linearGradient")
-                    .attr("id",`gradient${i}`)
+                    .attr("id",`gradient${i + type}`)
                     .attr('gradientTransform', 'rotate(90)');
 
                 // Assigning starting color of gradient
                 newG
                     .append("stop")
-                    .attr("stop-color", i === 0 ? "#7D3AC1" : "#EB548C")
+                    .attr("stop-color", i === 0 ? colorPicker[type as keyof typeof colorPicker].peak[1] : colorPicker[type as keyof typeof colorPicker].avg[1])
                     .attr("offset","0%");
         
                 // Assigning ending color of gradient
                 newG
                     .append("stop")
-                    .attr("stop-color", i === 0 ? "#AF4BCE" : "#EA7369")
+                    .attr("stop-color", i === 0 ? colorPicker[type as keyof typeof colorPicker].peak[0] : colorPicker[type as keyof typeof colorPicker].avg[0])
                     .attr("offset","100%");
 
                 // Assigning data and visual settings for chart data
@@ -181,8 +192,8 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps }) => {
                     startAreaRef
                     )
                     .attr('transform', `translate(${dimensions.width! / 15}, 0)`)
-                    .attr('fill', i === 0 ? 'url(#gradient0)' : 'url(#gradient1)')
-                    .attr('stroke', i === 0 ? '#29066B' : '#A5194D')
+                    .attr('fill', i === 0 ? `url(#gradient0${type})` : `url(#gradient1${type})`)
+                    .attr('stroke', i === 0 ? colorPicker[type as keyof typeof colorPicker].peak[2] : colorPicker[type as keyof typeof colorPicker].avg[2])
                     .attr('stroke-width', '.25rem')
 
                     .transition()
@@ -301,12 +312,10 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps }) => {
 
 
     return (
-
         <div ref={svgContainer} className='areaChart'>
             <svg ref={areaChart} className='svgArea'></svg>
         </div>
-
     )
-}
+};
 
-export default AreaChart
+export default AreaChart;

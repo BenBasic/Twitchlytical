@@ -38,4 +38,5 @@ export interface WeeklyViewData {
 
 export interface WeeklyViewProps {
     dayProps: WeeklyViewData;
+    type: string;
 }
