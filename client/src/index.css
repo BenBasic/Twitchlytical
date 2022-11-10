@@ -63,9 +63,9 @@ div.tooltip {
   color: #9E0000;
 }
 
+/* Aspect Ratio 2:1 - Original Width: 30rem, Original Height: 15rem*/
 .areaChart {
-  width: 30rem !important;
-  height: 15rem !important;
+  height: 9rem !important;
 }
 
 .tipArea {

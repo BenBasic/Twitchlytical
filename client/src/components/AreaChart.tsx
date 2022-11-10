@@ -108,10 +108,10 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
     .range([0, dimensions.width! - (dimensions.width! / 15) * 2])
 
     // Y axis placement and tick settings
-    const yAxis = axisLeft(y).ticks(3, "s").tickPadding(12)
+    const yAxis = axisLeft(y).ticks(3, "s").tickPadding(dimensions.width! > 350 ? Math.round(dimensions.width! / 40) : Math.round(dimensions.width! / 60))
 
     // X axis placement and tick settings
-    const xAxis = axisBottom(x).ticks(dataState.length, '%a %e').tickPadding(12)
+    const xAxis = axisBottom(x).ticks(dataState.length, '%a %e').tickPadding(Math.round(dimensions.height! / 40))
 
     // Placement settings for starting position of chart appearing animation
     const startAreaRef: any = area()
@@ -209,7 +209,7 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
                 .append('g')
                 .attr('transform', `translate(${dimensions.width! / 15}, ${dimensions.height! - (dimensions.height! / 8 * 1.2)})`)
                 .style('stroke-width', '.3rem')
-                .style("font-size", "1rem")
+                .style("font-size", Math.round(dimensions.height! / 20 / 3 + (dimensions.height! / 20)))
                 .call(xAxis);
 
             // Visual and placement settings for Y axis
@@ -217,7 +217,7 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
                 .append('g')
                 .attr('transform', `translate(${dimensions.width! / 15}, 0)`)
                 .style('stroke-width', '0rem')
-                .style("font-size", "1rem")
+                .style("font-size", Math.round(dimensions.width! / 40 / 3 + (dimensions.width! / 40)))
                 .style("text-anchor", "middle")
                 .call(yAxis);
 

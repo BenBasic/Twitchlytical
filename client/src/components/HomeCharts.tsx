@@ -3,6 +3,9 @@ import { useQuery } from "@apollo/client";
 import { GET_DATA_DATE } from "../utils/queries";
 import { WeeklyViewData } from './TypesAndInterfaces';
 import AreaChart from './AreaChart';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography'
 
 const now = new Date();
 
@@ -103,13 +106,28 @@ const HomeCharts: React.FC = () => {
     console.log(finalWeekData)
 
     return (
-        loading === false ? 
-        <>
-        <AreaChart dayProps={finalWeekData} type="view"></AreaChart>
-        <AreaChart dayProps={finalChannelData} type="channel"></AreaChart>
-        <AreaChart dayProps={finalGameData} type="game"></AreaChart>
-        </> :
-        <p className='areaChart'>Loading Chart...</p>
+        <Container maxWidth="md" className="homeChartContainer">
+            <Grid container>
+                {loading === false ?
+                <>
+                <Grid item xs={4}>
+                    <AreaChart dayProps={finalWeekData} type="view"></AreaChart>
+                </Grid>
+                <Grid item xs={4}>
+                    <AreaChart dayProps={finalChannelData} type="channel"></AreaChart>
+                </Grid>
+                <Grid item xs={4}>
+                    <AreaChart dayProps={finalGameData} type="game"></AreaChart>
+                </Grid>
+                </> :
+                <Grid item xs={12}>
+                    <Typography className='areaChart' variant={'h4'} textAlign='center'>
+                        Loading Charts...
+                    </Typography>
+                </Grid>
+                }
+            </Grid>
+        </Container>
     )
 };
 
