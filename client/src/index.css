@@ -1,8 +1,12 @@
+:root {
+  --fontFam: 'Outfit', sans-serif;
+  --fontWeightRegular: 400;
+  --fontWeightBold: 700;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -10,18 +14,6 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
-}
-
-.homeChartContainer {
-  background-color: rgb(236, 221, 243);
-  padding-bottom: 1rem;
-  border-radius: 0rem 0rem 1rem 1rem;
-}
-
-.homeChartTitle {
-  background-color: #318469;
-  color: white;
-  border-radius: 1rem;
 }
 
 .homeChartItem {
@@ -36,10 +28,10 @@ code {
 
 div.tooltip {
   position: absolute;
-  /* text-align: center; */
+  text-align: left;
   width: 6rem;
   padding: .5rem;
-  background: #e6efdb;
+  background: white;
   border-radius: .5rem;
   pointer-events: none;
   z-index: 1;
@@ -52,18 +44,20 @@ div.tooltip {
 
 .toolDate {
   font-size: .7rem;
+  font-family: var(--fontFam);
+  font-weight: var(--fontWeightRegular);
 }
 
 .toolTitle {
   font-size: .9rem;
-  font-weight: 600;
+  font-weight: var(--fontWeightRegular);
   border-bottom: .1rem solid black;
   margin-bottom: .2rem;
 }
 
 .toolInfo {
   display: inline-block;
-  font-weight: 600;
+  font-weight: var(--fontWeightBold);
   color: white;
   padding: 0rem .2rem .1rem .2rem;
   border-radius: .2rem;
@@ -71,7 +65,7 @@ div.tooltip {
 
 .higher, .lower {
   font-size: .9rem;
-  font-weight: 600;
+  font-weight: var(--fontWeightBold);
 }
 
 .higher {
