@@ -6,6 +6,29 @@ import AreaChart from './AreaChart';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
+// Importing colors from Material UI
+import { indigo, deepPurple } from '@mui/material/colors';
+
+// Object containing style properties used for the MUI implementation throughout this file
+const styles = {
+    container: {
+        backgroundColor: indigo[100],
+        paddingBottom: '1rem',
+        borderRadius: '0rem 0rem 1rem 1rem',
+    },
+    mainTitle: {
+        display: 'inline-block',
+        fontFamily: 'Outfit, sans-serif',
+        fontWeight: 700,
+    },
+    title: {
+        fontFamily: 'Outfit, sans-serif',
+        fontWeight: 700,
+        color: 'white',
+        backgroundColor: indigo[700],
+        borderRadius: '1rem'
+    },
+};
 
 const now = new Date();
 
@@ -106,27 +129,29 @@ const HomeCharts: React.FC = () => {
     console.log(finalWeekData)
 
     return (
-        <Container maxWidth="md" className="homeChartContainer">
-            <Typography variant={'h4'} textAlign='center' mb={1}>
-                This Week
-            </Typography>
-            <Grid container>
+        <Container maxWidth="md" style={styles.container}>
+            <Grid container justifyContent={'center'} textAlign='center'>
+                <Grid item xs={12}>
+                    <Typography variant={'h4'} mb={2} mt={1} borderBottom={5} borderTop={5} borderColor={deepPurple[700]} style={styles.mainTitle}>
+                        This Week
+                    </Typography>
+                </Grid>
                 {loading === false ?
                 <>
                 <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
-                    <Typography variant={'h5'} textAlign='center' className="homeChartTitle">
-                        Views
+                    <Typography variant={'h5'} textAlign='center' style={styles.title}>
+                        Live Views
                     </Typography>
                     <AreaChart dayProps={finalWeekData} type="view"></AreaChart>
                 </Grid>
                 <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
-                    <Typography variant={'h5'} textAlign='center' className="homeChartTitle">
+                    <Typography variant={'h5'} textAlign='center' style={styles.title}>
                         Live Channels
                     </Typography>
                     <AreaChart dayProps={finalChannelData} type="channel"></AreaChart>
                 </Grid>
                 <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
-                    <Typography variant={'h5'} textAlign='center' className="homeChartTitle">
+                    <Typography variant={'h5'} textAlign='center' style={styles.title}>
                         Games Streamed
                     </Typography>
                     <AreaChart dayProps={finalGameData} type="game"></AreaChart>

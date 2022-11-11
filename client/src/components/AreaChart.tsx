@@ -42,7 +42,7 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
     console.log(data)
 
     const colorPicker = {
-        view: {peak: ["#16b132", "#1de441", "#084914"], avg: ["#EA7369", "#EB548C", "#A5194D"]},
+        view: {peak: ["#16b132", "#1de441", "#084914"], avg: ["#EB548C", "#EA7369", "#A5194D"]},
         channel: {peak: ["#176ba0", "#1ac9e6", "#142459"], avg: ["#de542c", "#d8ac2d", "#991212"]},
         game: {peak: ["#e9e427", "#e7e35e", "#de542c"], avg: ["#7D3AC1", "#AF4BCE", "#29066B"]},
     }
@@ -294,7 +294,7 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
                     })
                 .on("mousemove", function(event) {
                     tooltip
-                    .style("left", (event.pageX + 10) + "px")
+                    .style("left", (event.pageX > (window.innerWidth - 150) ? event.pageX - 120 : event.pageX + 10) + "px")
                     .style("top", (event.pageY - 40) + "px");
                 })
                 .on("mouseout", function(d) {		
