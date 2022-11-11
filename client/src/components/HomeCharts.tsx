@@ -107,16 +107,28 @@ const HomeCharts: React.FC = () => {
 
     return (
         <Container maxWidth="md" className="homeChartContainer">
+            <Typography variant={'h4'} textAlign='center' mb={1}>
+                This Week
+            </Typography>
             <Grid container>
                 {loading === false ?
                 <>
-                <Grid item xs={4}>
+                <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
+                    <Typography variant={'h5'} textAlign='center' className="homeChartTitle">
+                        Views
+                    </Typography>
                     <AreaChart dayProps={finalWeekData} type="view"></AreaChart>
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
+                    <Typography variant={'h5'} textAlign='center' className="homeChartTitle">
+                        Live Channels
+                    </Typography>
                     <AreaChart dayProps={finalChannelData} type="channel"></AreaChart>
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
+                    <Typography variant={'h5'} textAlign='center' className="homeChartTitle">
+                        Games Streamed
+                    </Typography>
                     <AreaChart dayProps={finalGameData} type="game"></AreaChart>
                 </Grid>
                 </> :

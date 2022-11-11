@@ -161,7 +161,7 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
             let dataVisuals = selectionState
                 .attr('width', dimensions.width!)
                 .attr('height', dimensions.height!)
-                .style('background-color', '#DDD4E3');
+                // .style('background-color', '#DDD4E3');
 
 
             // Visualizes multiple data sets (Currently 2, can support more)
@@ -281,7 +281,8 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
                         ${ tIndex === 0 ? 'Peak' : 'Average' }
                         </p>` +
 
-                        `<p class='toolInfo' style=${ tIndex === 0 ? 'background-color:#29066B;' : 'background-color:#A5194D;'}>
+                        `<p class='toolInfo' style=${ tIndex === 0 ? `background-color:${colorPicker[type as keyof typeof colorPicker].peak[2]};` :
+                        `background-color:${colorPicker[type as keyof typeof colorPicker].avg[2]};`}>
                         ${ tIndex === 0 ? d.peak.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") :
                         d.avg.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }
                         </p>` +
