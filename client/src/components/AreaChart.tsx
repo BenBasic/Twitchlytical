@@ -8,17 +8,8 @@ import { easeBounce, easeElastic } from 'd3-ease'
 import { area } from 'd3-shape'
 import { ScaleTime } from 'd3-scale'
 import * as d3 from 'd3'
+import { WeeklyViewProps } from './TypesAndInterfaces'
 
-
-const now = new Date();
-
-const data = [
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 5), peak: 2510146, avg: 2010146 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 4), peak: 1910146, avg: 1510146 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3), peak: 2833111, avg: 2433111 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2), peak: 2000740, avg: 1900740 },
-    { year: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1), peak: 2190800, avg: 2000100 },
-];
 
 // Percentage difference calculator, used for showing value differences between current and previous data
 const percentDifference = (a: number, b: number) => {
@@ -27,10 +18,37 @@ const percentDifference = (a: number, b: number) => {
     const percent: number = (prevVal-currentVal)/prevVal*100.0;
 
     return percent.toFixed(2).toString().replace("-", "");
-}
+};
 
 
-const AreaChart: React.FC = () => {
+const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
+
+    // Function that creates the array containing all peak, avg, and date data for the last week (from dayProps)
+    function assignPropData() {
+        let propArray = [];
+        for (let i = 1; i < Object.keys(dayProps).length + 1; i++) {
+            let propData = dayProps[`day${i}` as keyof typeof dayProps]
+            // Checks if data exists for peak and avg keys, adds to array if it does. If not then it doesnt add it, this avoids visualization errors
+            if (isFinite(propData.peak) && isNaN(propData.avg) === false) {
+                propArray.push({date: propData.date, peak: propData.peak, avg: propData.avg})
+            }
+        };
+        return propArray;
+    };
+    // This contains all the prop data to be referenced in data visualization
+    const data = assignPropData();
+
+    console.log("Data2 is")
+    console.log(data)
+
+    const colorPicker = {
+        view: {peak: ["#16b132", "#1de441", "#084914"], avg: ["#EA7369", "#EB548C", "#A5194D"]},
+        channel: {peak: ["#176ba0", "#1ac9e6", "#142459"], avg: ["#de542c", "#d8ac2d", "#991212"]},
+        game: {peak: ["#e9e427", "#e7e35e", "#de542c"], avg: ["#7D3AC1", "#AF4BCE", "#29066B"]},
+    }
+    console.log("TYPE IS " + type)
+    console.log(colorPicker[type as keyof typeof colorPicker])
+
 
     const areaChart = useRef<SVGSVGElement | null>(null)
 
@@ -84,32 +102,32 @@ const AreaChart: React.FC = () => {
     let x = scaleTime()
     .domain(
         d3.extent(dataState, (d) => {
-            return d.year
+            return d.date
         }) as [Date, Date]
       )
     .range([0, dimensions.width! - (dimensions.width! / 15) * 2])
 
     // Y axis placement and tick settings
-    const yAxis = axisLeft(y).ticks(3, "s").tickPadding(12)
+    const yAxis = axisLeft(y).ticks(3, "s").tickPadding(dimensions.width! > 350 ? Math.round(dimensions.width! / 40) : Math.round(dimensions.width! / 60))
 
     // X axis placement and tick settings
-    const xAxis = axisBottom(x).ticks(5).tickPadding(12)
+    const xAxis = axisBottom(x).ticks(dataState.length, '%a %e').tickPadding(Math.round(dimensions.height! / 40))
 
     // Placement settings for starting position of chart appearing animation
     const startAreaRef: any = area()
-    .x((d:any)=> x(d.year))
+    .x((d:any)=> x(d.date))
     .y0(y(0))
     .y1(dimensions.height! - (dimensions.height! / 8))
 
     // Placement settings for dataset 1 (final position, after animation)
     const areaRef: any = area()
-    .x((d:any)=> x(d.year))
+    .x((d:any)=> x(d.date))
     .y0(y(0))
     .y1((d:any)=> y(d.peak))
 
     // Placement settings for dataset 2 (final position, after animation)
     const channelAreaRef: any = area()
-    .x((d:any)=> x(d.year))
+    .x((d:any)=> x(d.date))
     .y0(y(0))
     .y1((d:any)=> y(d.avg))
 
@@ -143,26 +161,26 @@ const AreaChart: React.FC = () => {
             let dataVisuals = selectionState
                 .attr('width', dimensions.width!)
                 .attr('height', dimensions.height!)
-                .style('background-color', '#4c6485');
+                // .style('background-color', '#DDD4E3');
 
 
             // Visualizes multiple data sets (Currently 2, can support more)
             for (let i = 0; i < 2; i++) {
                 const newG = gradient
                     .append("linearGradient")
-                    .attr("id",`gradient${i}`)
+                    .attr("id",`gradient${i + type}`)
                     .attr('gradientTransform', 'rotate(90)');
 
                 // Assigning starting color of gradient
                 newG
                     .append("stop")
-                    .attr("stop-color", i === 0 ? "#7D3AC1" : "#EB548C")
+                    .attr("stop-color", i === 0 ? colorPicker[type as keyof typeof colorPicker].peak[1] : colorPicker[type as keyof typeof colorPicker].avg[1])
                     .attr("offset","0%");
         
                 // Assigning ending color of gradient
                 newG
                     .append("stop")
-                    .attr("stop-color", i === 0 ? "#AF4BCE" : "#EA7369")
+                    .attr("stop-color", i === 0 ? colorPicker[type as keyof typeof colorPicker].peak[0] : colorPicker[type as keyof typeof colorPicker].avg[0])
                     .attr("offset","100%");
 
                 // Assigning data and visual settings for chart data
@@ -174,8 +192,8 @@ const AreaChart: React.FC = () => {
                     startAreaRef
                     )
                     .attr('transform', `translate(${dimensions.width! / 15}, 0)`)
-                    .attr('fill', i === 0 ? 'url(#gradient0)' : 'url(#gradient1)')
-                    .attr('stroke', i === 0 ? '#29066B' : '#A5194D')
+                    .attr('fill', i === 0 ? `url(#gradient0${type})` : `url(#gradient1${type})`)
+                    .attr('stroke', i === 0 ? colorPicker[type as keyof typeof colorPicker].peak[2] : colorPicker[type as keyof typeof colorPicker].avg[2])
                     .attr('stroke-width', '.25rem')
 
                     .transition()
@@ -191,7 +209,7 @@ const AreaChart: React.FC = () => {
                 .append('g')
                 .attr('transform', `translate(${dimensions.width! / 15}, ${dimensions.height! - (dimensions.height! / 8 * 1.2)})`)
                 .style('stroke-width', '.3rem')
-                .style("font-size", "1rem")
+                .style("font-size", Math.round(dimensions.height! / 20 / 3 + (dimensions.height! / 20)))
                 .call(xAxis);
 
             // Visual and placement settings for Y axis
@@ -199,7 +217,7 @@ const AreaChart: React.FC = () => {
                 .append('g')
                 .attr('transform', `translate(${dimensions.width! / 15}, 0)`)
                 .style('stroke-width', '0rem')
-                .style("font-size", "1rem")
+                .style("font-size", Math.round(dimensions.width! / 40 / 3 + (dimensions.width! / 40)))
                 .style("text-anchor", "middle")
                 .call(yAxis);
 
@@ -213,7 +231,7 @@ const AreaChart: React.FC = () => {
                 .append("circle")
                 .classed("tipArea", true)
                 .attr("r", dimensions.width! / 32)
-                .attr("cx", function(d) { return x(d.year); })
+                .attr("cx", function(d) { return x(d.date); })
                 .attr("cy", function(d) { return y( tIndex === 0 ? d.peak : d.avg ); })
                 .attr('transform', `translate(${dimensions.width! / 15}, 0)`)
                 .on("mouseover", function(event, d) {
@@ -256,14 +274,15 @@ const AreaChart: React.FC = () => {
                         .style("opacity", .9);
                     tooltip.html(
                         `<p class='toolDate'>
-                        ${(d.year).toDateString()}
+                        ${(d.date).toDateString()}
                         </p>` +
 
                         `<p class='toolTitle'>
                         ${ tIndex === 0 ? 'Peak' : 'Average' }
                         </p>` +
 
-                        `<p class='toolInfo' style=${ tIndex === 0 ? 'background-color:#29066B;' : 'background-color:#A5194D;'}>
+                        `<p class='toolInfo' style=${ tIndex === 0 ? `background-color:${colorPicker[type as keyof typeof colorPicker].peak[2]};` :
+                        `background-color:${colorPicker[type as keyof typeof colorPicker].avg[2]};`}>
                         ${ tIndex === 0 ? d.peak.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") :
                         d.avg.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }
                         </p>` +
@@ -294,12 +313,10 @@ const AreaChart: React.FC = () => {
 
 
     return (
-
         <div ref={svgContainer} className='areaChart'>
             <svg ref={areaChart} className='svgArea'></svg>
         </div>
-
     )
-}
+};
 
-export default AreaChart
+export default AreaChart;

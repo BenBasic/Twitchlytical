@@ -35,3 +35,8 @@ export interface WeeklyViewData {
     day6: DayData;
     day7: DayData;
 };
+
+export interface WeeklyViewProps {
+    dayProps: WeeklyViewData;
+    type: string;
+}

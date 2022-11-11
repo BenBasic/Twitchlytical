@@ -52,7 +52,7 @@ function App() {
             path="/"
             element={
               <>
-                <AreaChart />
+
                 <HomeCharts />
                 <TopStats />
               </>
