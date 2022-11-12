@@ -24,6 +24,8 @@ export type DayData = {
 export interface StatCardProps {
     statInfo: Stats;
     color: CardColor;
+    rankIndex: number;
+    rankColor: CardColor;
 };
 
 export interface WeeklyViewData {

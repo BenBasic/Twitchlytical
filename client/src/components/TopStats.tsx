@@ -13,7 +13,29 @@ import { Stats } from './TypesAndInterfaces';
 import RankCard from './RankCard';
 
 // Importing colors from Material UI
-import { amber, orange, deepPurple, blue, green } from '@mui/material/colors';
+import { amber, orange, deepPurple, blue, green, teal, cyan } from '@mui/material/colors';
+
+// Object containing style properties used for the MUI implementation throughout this file
+const styles = {
+    container: {
+        backgroundColor: teal[100],
+    },
+    mainTitle: {
+        display: 'inline-block',
+        paddingLeft: '1.5rem',
+        paddingRight: '1.5rem',
+        fontFamily: 'Outfit, sans-serif',
+        fontWeight: 700,
+        color: 'white',
+        backgroundColor: teal[700],
+        borderRadius: '1rem'
+    },
+    title: {
+        display: 'inline-block',
+        fontFamily: 'Outfit, sans-serif',
+        fontWeight: 700,
+    },
+};
 
 
 // Defining object containing ranked property color values 
@@ -36,7 +58,7 @@ const TopStats: React.FC = () => {
         {
             name: "Overwatch",
             views: 103040,
-            image: "https://www.mobygames.com/images/covers/l/840891-overwatch-2-nintendo-switch-front-cover.jpg",
+            image: "https://static-cdn.jtvnw.net/ttv-boxart/509658-210x280.jpg",
         },
         {
             name: "Stardew Valley",
@@ -66,7 +88,7 @@ const TopStats: React.FC = () => {
         {
             name: "Sid Meier's Civilization VI",
             views: 72301,
-            image: "https://steamuserimages-a.akamaihd.net/ugc/1802025626651923540/962EB4599F3C3E318491A62AEB3604876AFBE87D/",
+            image: "https://static-cdn.jtvnw.net/ttv-boxart/492553_IGDB-210x280.jpg",
         },
         {
             name: "Pavlov VR",
@@ -91,7 +113,7 @@ const TopStats: React.FC = () => {
         {
             name: "MOISTCR1TIKAL",
             views: 103040,
-            image: "https://cdn1.dotesports.com/wp-content/uploads/2020/11/15213949/Charlie-Penguinz0.png",
+            image: "https://static-cdn.jtvnw.net/jtv_user_pictures/fc7b15b2-e400-4e74-8c8b-2ad3725e5770-profile_image-300x300.png",
         },
         {
             name: "Emiru",
@@ -162,23 +184,29 @@ const TopStats: React.FC = () => {
 
     return (
 
-        <Container maxWidth="sm" className='topGamesContainer'>
+        <Container maxWidth="md" style={styles.container} className="topStatsContainer">
 
-            <Typography variant={'h4'} textAlign='center' marginBottom={'1rem'}>
-                Most Popular
-            </Typography>
+            <Grid item xs={12} textAlign="center">
+                <Typography variant={'h4'} mt={2} mb={1} textAlign='center' style={styles.mainTitle}>
+                    Most Popular
+                </Typography>
+            </Grid>
 
             <Grid container spacing={2}>
 
                 <Grid item xs={6}>
+                    <Grid item xs={12} textAlign="center">
+                        <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={cyan[700]} textAlign='center' style={styles.title}>
+                            Games
+                        </Typography>
+                    </Grid>
 
-                    <Typography variant={'h4'} textAlign='center'>
-                        Games
-                    </Typography>
 
                     {topGames.map((game, index) => (
                         <RankCard statInfo={game} key={index}
-                        color={ index === 0 ?
+                        color={{primary: teal[700], secondary: teal[900]}}
+                        rankIndex={index}
+                        rankColor={ index === 0 ?
                             {primary: topColors.best, secondary: topColors.bestDark} :
                             index > 0 && index < 3 ?
                             {primary: topColors.great, secondary: topColors.greatDark} :
@@ -194,13 +222,17 @@ const TopStats: React.FC = () => {
 
                 <Grid item xs={6}>
 
-                    <Typography variant={'h4'} textAlign='center'>
-                        Streamers
-                    </Typography>
+                <Grid item xs={12} textAlign="center">
+                        <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={cyan[700]} textAlign='center' style={styles.title}>
+                            Streamers
+                        </Typography>
+                    </Grid>
 
                     {topStreamers.map((streamer, index) => (
                         <RankCard statInfo={streamer} key={index}
-                        color={ index === 0 ?
+                        color={{primary: teal[700], secondary: teal[900]}}
+                        rankIndex={index}
+                        rankColor={ index === 0 ?
                             {primary: topColors.best, secondary: topColors.bestDark} :
                             index > 0 && index < 3 ?
                             {primary: topColors.great, secondary: topColors.greatDark} :
