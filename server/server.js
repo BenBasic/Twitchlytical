@@ -630,6 +630,50 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 // COMMENTED OUT FOR TESTING PURPOSES
 // COMMENTED OUT FOR TESTING PURPOSES
 
+const updateTopWeekGames = async (reqUrl) => {
+
+	let gameIdArray = [];
+
+	// Requesting first 30 since currently live top 10 isnt always the weekly average top views, will need rework
+	const topGameList = await getData(reqUrl + '?first=30');
+	console.log("TOP GAME LIST SERVER.JS IS")
+	const topGameListData = topGameList.data;
+	console.log(topGameListData)
+	console.log(topGameListData.length)
+
+	for (let i = 0; i < topGameListData.length; i++) {
+		if (topGameListData[i].id) {
+			gameIdArray.push(topGameListData[i].id)
+		};
+	};
+	console.log("gameIdArray is")
+	console.log(gameIdArray)
+
+	// Defining variables to pass in to update top game list in database
+	const variables = {
+		id: "634f0ecf284e10863dd12ca2",
+		games: gameIdArray,
+	};
+
+	const queryPost = `
+	mutation Mutation($id: ID, $games: [ID]) {
+		updateTopGames(_id: $id, games: $games) {
+		  _id
+		  topGames {
+			_id
+			name
+			view_count
+		  }
+		}
+	  }
+	`;
+	console.log("Variables are")
+	console.log(variables)
+
+	await postData(`http://localhost:3001/graphql`, queryPost, variables);
+};
+
+updateTopWeekGames(process.env.GET_GAMES)
 
 
 

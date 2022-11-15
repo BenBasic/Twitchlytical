@@ -48,6 +48,26 @@ const resolvers = {
 				return totalData;
 			}
         },
+		getTopGames: async (parent, args) => {
+			const topGames = await TotalData.find({})
+			.populate({
+				path: 'topGames',
+				model: 'Game',
+				populate: {
+					path: 'archive',
+					model: 'ArchiveData'
+				}
+			})
+			
+			// console.log("TOP GAMES IS")
+			// console.log(topGames[0].topGames[0].archive)
+
+			if (!topGames) {
+				console.log("No Total Data!")
+			};
+
+			return topGames
+		},
 	},
 	Mutation: {
 
@@ -215,6 +235,20 @@ const resolvers = {
 				// Returning the TotalData with new values
 				return total;
 			};
+		},
+		// Updates top game list
+		updateTopGames: async (parent, { _id, games }) => {
+			const total = await TotalData.findOne({ _id: _id })
+			.populate({
+				path: 'topGames',
+				model: 'Game',
+			})
+
+			await total.update({
+				topGames: games
+			}, { new: true });
+
+			return total;
 		},
 
 

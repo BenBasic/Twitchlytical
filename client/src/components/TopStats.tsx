@@ -5,6 +5,8 @@ import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar';
+import { useQuery } from "@apollo/client";
+import { GET_TOP_GAME_WEEK } from "../utils/queries";
 
 // Importing the Stats type for use within the Comparator function
 import { Stats } from './TypesAndInterfaces';
@@ -53,59 +55,65 @@ const topColors = {
 
 const TopStats: React.FC = () => {
 
+    const { loading, data, error } = useQuery(GET_TOP_GAME_WEEK);
+
+    const topGameData = data?.getTopGames[0]?.topGames;
+
+    const [loadingState, setLoadingState] = useState<boolean>(loading);
+
+    console.log("Data check")
+    console.log(topGameData)
+    
+
+    // This function will reference archives after a specified date and provide a rounded average value
+    const createListData = (array: any[], keyValue: string, keyValue2: string) => {
+
+        let finalResult = [];
+
+        // Cycles through the returned list of archive data and adds them to the total and count values
+        for (let i = 0; i < array?.length; i++) {
+            // Total and Count will keep track of total values and how many of them there are to divide them into an average number
+            let total = 0;
+            let count = 0;
+            let imgUrl = "";
+            let twitchGameId = array[i]?._id;
+            let name = array[i]?.name
+            for (let j = 0; j < array[i][keyValue].length; j++) {
+                total = total + array[i][keyValue][j][keyValue2];
+
+                count++
+            }
+            // Getting the average value by dividing total and count
+            let average: any = total / count;
+
+            // Rounding the average, without this the database tends to throw errors due to long decimal values
+            let averageRounded: number = average.toFixed()*1;
+
+            if (name === "Just Chatting" || name === "Music" || name === "Poker" || name === "ASMR" ||
+            name === "Art" || name === "Retro" || name === "Sports" || name === "Chess" ||
+            name === "Pools, Hot Tubs, and Beaches" || name === "Talk Shows & Podcasts") {
+                imgUrl = `https://static-cdn.jtvnw.net/ttv-boxart/${twitchGameId}-210x280.jpg`
+            } else {
+                imgUrl = `https://static-cdn.jtvnw.net/ttv-boxart/${twitchGameId}_IGDB-210x280.jpg`
+            }
+
+            finalResult.push({
+                name: name,
+                views: averageRounded,
+                image: imgUrl,
+            })
+        };
+
+
+        // Returning the rounded average result
+        return finalResult;
+    };
+
     // Let of test data using an array of the Stats type, this is only used for display testing purposes for now
-    let testData: Stats[] = [
-        {
-            name: "Overwatch",
-            views: 103040,
-            image: "https://static-cdn.jtvnw.net/ttv-boxart/509658-210x280.jpg",
-        },
-        {
-            name: "Stardew Valley",
-            views: 24500,
-            image: "https://image.api.playstation.com/cdn/UP2456/CUSA06840_00/0WuZecPtRr7aEsQPv2nJqiPa2ZvDOpYm.png",
-        },
-        {
-            name: "Fallout New Vegas",
-            views: 3100,
-            image: "https://howlongtobeat.com/games/Fallout_New_Vegas.jpg",
-        },
-        {
-            name: "Minecraft",
-            views: 4680,
-            image: "https://www.mobygames.com/images/covers/l/672322-minecraft-playstation-4-front-cover.jpg",
-        },
-        {
-            name: "Xcom 2",
-            views: 20003,
-            image: "https://www.mobygames.com/images/covers/l/425882-xcom-2-war-of-the-chosen-playstation-4-front-cover.jpg",
-        },
-        {
-            name: "Portal 2",
-            views: 302,
-            image: "http://s01.riotpixels.net/data/b5/cf/b5cfe10d-7290-4bcb-a89d-e5d0e07b89f4.jpg/cover.portal-2.1024x1024.2014-04-24.1116.jpg",
-        },
-        {
-            name: "Sid Meier's Civilization VI",
-            views: 72301,
-            image: "https://static-cdn.jtvnw.net/ttv-boxart/492553_IGDB-210x280.jpg",
-        },
-        {
-            name: "Pavlov VR",
-            views: 135,
-            image: "https://cdna.artstation.com/p/assets/images/images/022/303/284/large/david-sheep-pavlov-01.jpg?1574894810",
-        },
-        {
-            name: "Fall Guys",
-            views: 6300,
-            image: "https://www.mobygames.com/images/covers/l/676144-fall-guys-ultimate-knockout-playstation-4-front-cover.png",
-        },
-        {
-            name: "Compound",
-            views: 30005,
-            image: "https://thumbnails.pcgamingwiki.com/5/55/New_cover.png/300px-New_cover.png",
-        },
-    ];
+    let testData: Stats[] = createListData(topGameData, "archive", "view_count")
+
+    console.log("TEST DATA IS")
+    console.log(testData)
 
 
     // Let of test data using an array of the Stats type, this is only used for display testing purposes for now
@@ -177,6 +185,14 @@ const TopStats: React.FC = () => {
     // Assigning the topGames state, currently uses the Stats type and sets initial state to the values in testData
     const [topGames, setTopGames] = useState<Stats[]>(testData);
 
+    // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
+    if (loading === false && loadingState === true) {
+        setLoadingState(false)
+        setTopGames(testData.sort(Comparator))
+    };
+    console.log("TOP GAMES STATE IS")
+    console.log(topGames)
+
     // Assigning the topStreamers state, currently uses the Stats type and sets initial state to the values in testDataSteamers
     const [topStreamers, setTopStreamers] = useState<Stats[]>(testDataStreamers);
 
@@ -201,21 +217,26 @@ const TopStats: React.FC = () => {
                         </Typography>
                     </Grid>
 
+                    {loading === false ?
+                        topGames.slice(0, 10).map((game, index) => (
+                            <RankCard statInfo={game} key={index}
+                            color={{primary: teal[700], secondary: teal[900]}}
+                            rankIndex={index}
+                            rankColor={ index === 0 ?
+                                {primary: topColors.best, secondary: topColors.bestDark} :
+                                index > 0 && index < 3 ?
+                                {primary: topColors.great, secondary: topColors.greatDark} :
+                                index > 2 && index < 7 ?
+                                {primary: topColors.good, secondary: topColors.goodDark} :
+                                {primary: topColors.ok, secondary: topColors.okDark}
+                            }
+                            ></RankCard>
+                        )) :
+                        <Typography variant={'h4'}>
+                            Loading...
+                        </Typography>
+                    }
 
-                    {topGames.map((game, index) => (
-                        <RankCard statInfo={game} key={index}
-                        color={{primary: teal[700], secondary: teal[900]}}
-                        rankIndex={index}
-                        rankColor={ index === 0 ?
-                            {primary: topColors.best, secondary: topColors.bestDark} :
-                            index > 0 && index < 3 ?
-                            {primary: topColors.great, secondary: topColors.greatDark} :
-                            index > 2 && index < 7 ?
-                            {primary: topColors.good, secondary: topColors.goodDark} :
-                            {primary: topColors.ok, secondary: topColors.okDark}
-                        }
-                        ></RankCard>
-                    ))}
 
                 </Grid>
 

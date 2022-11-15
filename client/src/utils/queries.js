@@ -50,3 +50,20 @@ export const GET_DATA_DATE = gql`
     }
 `;
 
+export const GET_TOP_GAME_WEEK = gql`
+    query Query {
+        getTopGames {
+            _id
+            topGames {
+                _id
+                name
+                view_count
+                archive {
+                    _id
+                    view_count
+                }
+            }
+        }
+    }
+`
+

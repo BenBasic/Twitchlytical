@@ -81,6 +81,8 @@ const typeDefs = gql`
 		totalGames: Int
 		avgTotalGames: Int
 		archive: [ArchiveData]
+		topGames: [Game]
+		topStreamers: [Broadcaster]
 	}
 	input TotalDataInput {
 		_id: ID
@@ -117,6 +119,7 @@ const typeDefs = gql`
 		Clips: [Clips]
 		getStream: [Stream]
 		getTotalData(date: Date): [TotalData]
+		getTopGames: [TotalData]
 	}
 
 	type Mutation {
@@ -124,6 +127,7 @@ const typeDefs = gql`
 		addBroadcasterData(broadcasterData: BroadcasterInput!): Broadcaster
 		addArchiveData(archiveData: ArchiveDataInput!): ArchiveData
 		updateTotalData(totalData: TotalDataInput!, date: String): TotalData
+		updateTopGames(_id: ID, games: [ID]): TotalData
 	}
 
 `;
