@@ -179,6 +179,76 @@ const countTotalViews = async (reqUrl) => {
 			} else {
 				resData = await getData(reqUrl + '&first=100');
 			};
+			let resultRef = resData?.data;
+			let resultLengthRef = 10;
+
+			if (resultRef.length < 10 && resultRef.length !== 0) {
+				resultLengthRef = resultRef.length;
+			} else if (resultRef.length === 0) {
+				stopSearch = true;
+			}
+
+			let topStreams = resData?.data.slice(0, resultLengthRef);
+
+			for (let i = 0; i < topStreams?.length; i++) {
+				// Defining variables to pass in to add/update streams and topStreams
+				const variables = {
+					streamData: {
+						_id: topStreams[i].id,
+						user_id: topStreams[i].user_id,
+						user_name: topStreams[i].user_name,
+						game_id: topStreams[i].game_id,
+						game_name: topStreams[i].game_name,
+						title: topStreams[i].title,
+						viewer_count: topStreams[i].viewer_count,
+						peak_views: topStreams[i].viewer_count,
+						started_at: topStreams[i].started_at,
+					},
+				};
+				const queryPost = `
+				mutation Mutation($streamData: StreamInput!) {
+					addStream(streamData: $streamData) {
+					  _id
+					  user_id
+					  user_name
+					  game_id
+					  game_name
+					  title
+					  viewer_count
+					  peak_views
+					  started_at
+					}
+				  }
+				`;
+				// Calling postData function to add/update streams and topStreams to the MongoDB database
+				await postData(`http://localhost:3001/graphql`, queryPost, variables);
+			};
+
+			// Defining variables to pass in to TotalData which will sort and update top stream list
+			const variables = {
+				id: "634f0ecf284e10863dd12ca2",
+			};
+
+			const queryPost = `
+			mutation Mutation($id: ID) {
+				updateTopStreams(_id: $id) {
+				  _id
+				  topStreams {
+					_id
+					user_id
+					user_name
+					game_id
+					game_name
+					title
+					viewer_count
+					peak_views
+					started_at
+				  }
+				}
+			  }
+			`;
+			// Calling postData function to sort and update final top stream list in MongoDB database
+			await postData(`http://localhost:3001/graphql`, queryPost, variables);
 		};
 		
 		// Assigning to the value of the data array of objects from the api call
@@ -744,7 +814,7 @@ const getTopClipsAll = async (gameUrl, clipUrl, date) => {
 //getData(process.env.GET_GAMES + '?first=100');
 
 //getData('https://api.twitch.tv/helix/games?name=Call of Duty: Modern Warfare II')
-//countTotalViews(process.env.GET_STREAMS + '?game_id=1678052513')
+// countTotalViews(process.env.GET_STREAMS + '?game_id=1732431919') // Sonic Frontiers
 
 // // Gathing a user by login name (aka their username)
 //getData(process.env.GET_USERS + '?login=xqc');

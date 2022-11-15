@@ -14,7 +14,7 @@ const resolvers = {
 			return Broadcaster.find();
 		},
 		getBroadcaster: async (parent, { _id }) => {
-			return Broadcaster.findOne({ _id });
+			return Broadcaster.find({ user_id: _id });
 		},
 		Games: async () => {
 			return Game.find();
@@ -68,6 +68,19 @@ const resolvers = {
 
 			return topGames
 		},
+		getTopStreams: async (parent, args) => {
+			const topStreams = await TotalData.find({})
+			.populate({
+				path: 'topStreams',
+				model: 'Stream',
+			})
+
+			if (!topStreams) {
+				console.log("No Total Data!")
+			};
+
+			return topStreams
+		},
 	},
 	Mutation: {
 
@@ -80,6 +93,84 @@ const resolvers = {
 			} else {
 				await game.update({ view_count: gameData.view_count }, { new: true });
 				return game;
+			};
+
+        },
+
+		addStream: async (parent, { streamData }) => {
+            const stream = await Stream.findOne({ _id: streamData._id });
+
+			const topStreams = await TotalData.find({})
+			.populate({
+				path: 'topStreams',
+				model: 'Stream',
+			})
+
+			const lastWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6)
+
+			console.log(topStreams[0].topStreams)
+			if (topStreams[0].topStreams.length === 0) {
+				await topStreams[0].update({
+					topStreams: streamData._id
+				}, { new: true });
+			}
+
+			let higherPeak = false;
+			let oldPeaks = [];
+			for (let i = 0; i < topStreams[0].topStreams.length; i++) {
+				let dateFormat = new Date(topStreams[0].topStreams[i].started_at);
+				console.log("Dateformat is")
+				console.log(dateFormat)
+				console.log("LastWeekIs")
+				console.log(lastWeek)
+
+				if (dateFormat > lastWeek) {
+					if ((topStreams[0].topStreams[i].peak_views < streamData.peak_views &&
+						topStreams[0].topStreams[i]._id !== streamData._id) ||
+						(topStreams[0].topStreams[i]._id !== streamData._id &&
+						topStreams[0].topStreams.length < 10)) {
+						higherPeak = true;
+					};
+				} else {
+					oldPeaks.push(topStreams[0].topStreams[i]._id);
+				}
+			};
+
+			console.log("Old peaks is")
+			console.log(oldPeaks)
+
+			if (oldPeaks.length > 0) {
+				console.log("OldPeaksIfStatement")
+				for (let i = 0; i < oldPeaks.length; i++) {
+					await topStreams[0].update({
+						$pull: { topStreams: oldPeaks[i] }
+					}, { new: true });
+				}
+			}
+
+			if (higherPeak === true) {
+				await topStreams[0].update({
+					$addToSet: { topStreams: streamData._id }
+				}, { new: true });
+			}
+
+            if (!stream) {
+				console.log("Here1")
+				const newStream = await Stream.create(streamData);
+				return newStream;
+			} else {
+				if (streamData.viewer_count > stream.peak_views) {
+					console.log("Here2")
+					await stream.update({
+						peak_views: streamData.viewer_count,
+						viewer_count: streamData.viewer_count
+					}, { new: true });
+				} else {
+					console.log("Here3")
+					await stream.update({ viewer_count: streamData.viewer_count }, { new: true });
+				};
+				console.log("Here4")
+				return stream;
 			};
 
         },
@@ -250,7 +341,44 @@ const resolvers = {
 
 			return total;
 		},
+		// Updates top stream list
+		updateTopStreams: async (parent, { _id }) => {
+			const total = await TotalData.findOne({ _id: _id })
+			.populate({
+				path: 'topStreams',
+				model: 'Stream',
+			})
 
+			console.log("TOP STREAM TOTAL")
+			console.log(total)
+
+			let topStreamArray = total.topStreams
+
+			console.log("TOP STREAM ARRAY IS")
+			console.log(topStreamArray)
+
+			// Comparator function which will sort streams by peak_views highest to lowest
+			function Comparator(a, b) {
+				if (a.peak_views < b.peak_views) return 1;
+				if (a.peak_views > b.peak_views) return -1;
+				return 0;
+			};
+
+			// Sorting streams by peak_views highest to lowest, then removing anything lower than 10th place
+			topStreamArray = topStreamArray.sort(Comparator).slice(0, 10);
+
+			console.log("TOP STREAM ARRAY 2 IS")
+			console.log(topStreamArray)
+
+			await total.update({
+				topStreams: topStreamArray
+			}, { new: true });
+
+			console.log("TOP STREAM TOTAL 2")
+			console.log(total)
+
+			return total;
+		},
 
 	},
 };

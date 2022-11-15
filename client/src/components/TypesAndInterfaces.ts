@@ -22,6 +22,7 @@ export type DayData = {
 
 // Assigning StatCardProps interface for passing values into RankCard component
 export interface StatCardProps {
+    viewType: string;
     statInfo: Stats;
     color: CardColor;
     rankIndex: number;

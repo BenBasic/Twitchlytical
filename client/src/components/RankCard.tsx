@@ -89,11 +89,12 @@ const RankCard: React.FC<StatCardProps> = (props) => {
                             }}
                         >
                             <Typography style={styles.viewTitle}>
-                                Average Weekly Views
+                                { props.viewType === "avg" ? "7 Day View Average" :
+                                "7 Day View Peak"}
                             </Typography>
 
                             <Typography variant={'h6'}>
-                                {props.statInfo.views}
+                                {props.statInfo.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             </Typography>
                         </Container>
                     </CardContent>

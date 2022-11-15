@@ -6,7 +6,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar';
 import { useQuery } from "@apollo/client";
-import { GET_TOP_GAME_WEEK } from "../utils/queries";
+import { GET_TOP_GAME_WEEK, GET_TOP_STREAM_WEEK, GET_BROADCASTER_USER_ID } from "../utils/queries";
 
 // Importing the Stats type for use within the Comparator function
 import { Stats } from './TypesAndInterfaces';
@@ -57,9 +57,28 @@ const TopStats: React.FC = () => {
 
     const { loading, data, error } = useQuery(GET_TOP_GAME_WEEK);
 
+    const { loading: loadingStream, data: dataStream, error: errorStream } = useQuery(GET_TOP_STREAM_WEEK);
+
     const topGameData = data?.getTopGames[0]?.topGames;
 
-    const [loadingState, setLoadingState] = useState<boolean>(loading);
+    const topStreamData = dataStream?.getTopStreams[0]?.topStreams;
+
+    let userIdArray = [];
+
+    for (let i = 0; i < topStreamData?.length; i ++) {
+        userIdArray.push(topStreamData[i]?.user_id)
+    };
+
+    console.log("USER ID ARRAY CHECK")
+    console.log(userIdArray)
+
+    const { loading: loadingUser, data: dataUser, error: errorUser } = useQuery(GET_BROADCASTER_USER_ID, {
+        variables: { id: userIdArray },
+    });
+
+    const topUserData = dataUser?.getBroadcaster;
+
+    const [loadingState, setLoadingState] = useState<boolean[]>([loading, loadingStream, loadingUser]);
 
     console.log("Data check")
     console.log(topGameData)
@@ -115,60 +134,33 @@ const TopStats: React.FC = () => {
     console.log("TEST DATA IS")
     console.log(testData)
 
+    const createStreamerData = (array: any[]) => {
+        let finalResult = [];
+        console.log("ARRAY CHECK")
+        console.log(array)
+        console.log("TOP USER CHECK")
+        console.log(dataUser)
+
+        for (let i = 0; i < array?.length; i++) {
+            for (let j = 0; j < topUserData?.length; j++) {
+                if (array[i]?.user_id === topUserData[j]?.user_id) {
+
+                    finalResult.push({
+                        name: array[i]?.user_name,
+                        views: array[i]?.peak_views,
+                        image: topUserData[j]?.profile_image_url
+                    })
+                };
+            };
+        };
+
+        console.log("Create Streamer Data Result Is")
+        console.log(finalResult)
+        return finalResult;
+    };
 
     // Let of test data using an array of the Stats type, this is only used for display testing purposes for now
-    let testDataStreamers: Stats[] = [
-        {
-            name: "MOISTCR1TIKAL",
-            views: 103040,
-            image: "https://static-cdn.jtvnw.net/jtv_user_pictures/fc7b15b2-e400-4e74-8c8b-2ad3725e5770-profile_image-300x300.png",
-        },
-        {
-            name: "Emiru",
-            views: 24500,
-            image: "https://yt3.ggpht.com/ytc/AMLnZu-8R7HpB66AznXoaDb5sQFpD4DXbCyqnDncT_yMFw=s900-c-k-c0x00ffffff-no-rj",
-        },
-        {
-            name: "Pokimane",
-            views: 3100,
-            image: "https://upload.wikimedia.org/wikipedia/commons/1/10/Pokimane_2019.png",
-        },
-        {
-            name: "IronMouse",
-            views: 4680,
-            image: "https://wegotthiscovered.com/wp-content/uploads/2022/04/FLtfwy3WQAIDTJW.jpg",
-        },
-        {
-            name: "CDawgVA",
-            views: 20003,
-            image: "https://pbs.twimg.com/profile_images/1528374271407378434/cngzQWHr_400x400.jpg",
-        },
-        {
-            name: "Mori Calliope",
-            views: 302,
-            image: "https://yt3.ggpht.com/8B_T08sx8R7XVi5Mwx_l9sjQm5FGWGspeujSvVDvd80Zyr-3VvVTRGVLOnBrqNRxZp6ZeXAV=s900-c-k-c0x00ffffff-no-rj",
-        },
-        {
-            name: "Gawr Gura",
-            views: 72301,
-            image: "https://yt3.ggpht.com/uMUat6yJL2_Sk6Wg2-yn0fSIqUr_D6aKVNVoWbgeZ8N-edT5QJAusk4PI8nmPgT_DxFDTyl8=s900-c-k-c0x00ffffff-no-rj",
-        },
-        {
-            name: "Trash Taste",
-            views: 135,
-            image: "https://yt3.ggpht.com/ytc/AMLnZu_ftgC9BGqAjjTQBtT6w9lMWgfQzihCQ5MmnlE=s900-c-k-c0x00ffffff-no-rj",
-        },
-        {
-            name: "Lugwig",
-            views: 6300,
-            image: "https://www.svg.com/img/gallery/ludwig-makes-a-surprising-claim-about-amouranth/intro-1624629959.jpg",
-        },
-        {
-            name: "Joe Bartolozzi",
-            views: 30005,
-            image: "https://yt3.ggpht.com/MbrQnkNF6nHK8xDmMvJ0AckDshGXT1OSQnuAWYsOIWBczy_5Fy5w4yVWdL1YBTe5AmxDpmPY=s900-c-k-c0x00ffffff-no-rj",
-        },
-    ];
+    let testDataStreamers: Stats[] = createStreamerData(topStreamData);
 
 
     // Comparator function which will sort cards by views highest to lowest
@@ -185,16 +177,18 @@ const TopStats: React.FC = () => {
     // Assigning the topGames state, currently uses the Stats type and sets initial state to the values in testData
     const [topGames, setTopGames] = useState<Stats[]>(testData);
 
+    // Assigning the topStreamers state, currently uses the Stats type and sets initial state to the values in testDataSteamers
+    const [topStreamers, setTopStreamers] = useState<Stats[]>(testDataStreamers);
+
     // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
-    if (loading === false && loadingState === true) {
-        setLoadingState(false)
+    if (loading === false && loadingStream === false && loadingUser === false &&
+        loadingState[0] === true && loadingState[1] === true && loadingState[2] === true) {
+        setLoadingState([false, false, false])
         setTopGames(testData.sort(Comparator))
+        setTopStreamers(testDataStreamers)
     };
     console.log("TOP GAMES STATE IS")
     console.log(topGames)
-
-    // Assigning the topStreamers state, currently uses the Stats type and sets initial state to the values in testDataSteamers
-    const [topStreamers, setTopStreamers] = useState<Stats[]>(testDataStreamers);
 
 
 
@@ -217,9 +211,9 @@ const TopStats: React.FC = () => {
                         </Typography>
                     </Grid>
 
-                    {loading === false ?
+                    {loading === false && loadingStream === false && loadingUser === false ?
                         topGames.slice(0, 10).map((game, index) => (
-                            <RankCard statInfo={game} key={index}
+                            <RankCard statInfo={game} key={index} viewType="avg"
                             color={{primary: teal[700], secondary: teal[900]}}
                             rankIndex={index}
                             rankColor={ index === 0 ?
@@ -243,26 +237,32 @@ const TopStats: React.FC = () => {
 
                 <Grid item xs={6}>
 
-                <Grid item xs={12} textAlign="center">
+                    <Grid item xs={12} textAlign="center">
                         <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={cyan[700]} textAlign='center' style={styles.title}>
                             Streamers
                         </Typography>
                     </Grid>
 
-                    {topStreamers.map((streamer, index) => (
-                        <RankCard statInfo={streamer} key={index}
-                        color={{primary: teal[700], secondary: teal[900]}}
-                        rankIndex={index}
-                        rankColor={ index === 0 ?
-                            {primary: topColors.best, secondary: topColors.bestDark} :
-                            index > 0 && index < 3 ?
-                            {primary: topColors.great, secondary: topColors.greatDark} :
-                            index > 2 && index < 7 ?
-                            {primary: topColors.good, secondary: topColors.goodDark} :
-                            {primary: topColors.ok, secondary: topColors.okDark}
-                        }
-                        ></RankCard>
-                    ))}
+                    {loading === false && loadingStream === false && loadingUser === false ?
+                        topStreamers.map((streamer, index) => (
+                            <RankCard statInfo={streamer} key={index} viewType="peak"
+                            color={{primary: teal[700], secondary: teal[900]}}
+                            rankIndex={index}
+                            rankColor={ index === 0 ?
+                                {primary: topColors.best, secondary: topColors.bestDark} :
+                                index > 0 && index < 3 ?
+                                {primary: topColors.great, secondary: topColors.greatDark} :
+                                index > 2 && index < 7 ?
+                                {primary: topColors.good, secondary: topColors.goodDark} :
+                                {primary: topColors.ok, secondary: topColors.okDark}
+                            }
+                            ></RankCard>
+                        )) :
+                        <Typography variant={'h4'}>
+                        Loading...
+                        </Typography>
+                    }
+
 
                 </Grid>
 

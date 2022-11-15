@@ -67,3 +67,32 @@ export const GET_TOP_GAME_WEEK = gql`
     }
 `
 
+export const GET_TOP_STREAM_WEEK = gql`
+    query Query {
+        getTopStreams {
+            _id
+            topStreams {
+            _id
+            user_id
+            user_name
+            game_id
+            game_name
+            title
+            viewer_count
+            peak_views
+            thumbnail_url
+            started_at
+            }
+        }
+    }
+`
+
+export const GET_BROADCASTER_USER_ID = gql`
+    query Query($id: [String]) {
+        getBroadcaster(_id: $id) {
+            _id
+            user_id
+            profile_image_url
+        }
+    }
+`;
