@@ -96,3 +96,13 @@ export const GET_BROADCASTER_USER_ID = gql`
         }
     }
 `;
+
+export const GET_CURRENT_DATA = gql`
+    query Query {
+        getCurrentData {
+            totalViewers
+            totalChannels
+            totalGames
+        }
+    }
+`;

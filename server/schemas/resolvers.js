@@ -48,6 +48,15 @@ const resolvers = {
 				return totalData;
 			}
         },
+		getCurrentData: async (parent, args) => {
+			const totalData = await TotalData.find({});
+
+			if (!totalData) {
+				console.log("No data was found")
+			} else {
+				return totalData
+			}
+		},
 		getTopGames: async (parent, args) => {
 			const topGames = await TotalData.find({})
 			.populate({

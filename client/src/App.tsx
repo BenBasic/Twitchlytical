@@ -1,8 +1,8 @@
 import React from 'react';
 import logo from './logo.svg';
 import TopStats from './components/TopStats';
-import TopData from './components/TotalData';
-import AreaChart from './components/AreaChart';
+import NavBar from './components/NavBar';
+import Header from './components/Header';
 import HomeCharts from './components/HomeCharts';
 import {
 	ApolloClient,
@@ -52,7 +52,8 @@ function App() {
             path="/"
             element={
               <>
-
+                <NavBar />
+                <Header />
                 <HomeCharts />
                 <TopStats />
               </>

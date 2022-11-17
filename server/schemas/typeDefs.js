@@ -133,6 +133,7 @@ const typeDefs = gql`
 		Clips: [Clips]
 		getStream: [Stream]
 		getTotalData(date: Date): [TotalData]
+		getCurrentData: [TotalData]
 		getTopGames: [TotalData]
 		getTopStreams: [TotalData]
 	}

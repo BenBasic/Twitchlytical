@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid'
-import { styled } from '@mui/material/styles';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography'
-import Avatar from '@mui/material/Avatar';
 import { useQuery } from "@apollo/client";
 import { GET_TOP_GAME_WEEK, GET_TOP_STREAM_WEEK, GET_BROADCASTER_USER_ID } from "../utils/queries";
 

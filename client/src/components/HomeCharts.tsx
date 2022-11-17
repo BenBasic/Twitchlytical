@@ -4,6 +4,7 @@ import { GET_DATA_DATE } from "../utils/queries";
 import { WeeklyViewData } from './TypesAndInterfaces';
 import AreaChart from './AreaChart';
 import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 // Importing colors from Material UI
@@ -14,7 +15,6 @@ const styles = {
     container: {
         backgroundColor: indigo[100],
         paddingBottom: '1rem',
-        borderRadius: '0rem 0rem 1rem 1rem',
     },
     mainTitle: {
         display: 'inline-block',
@@ -38,8 +38,8 @@ const weekQueryDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() 
 const HomeCharts: React.FC = () => {
 
     const { loading, data, error } = useQuery(GET_DATA_DATE, {
-		variables: { date: weekQueryDate },
-	});
+        variables: { date: weekQueryDate },
+    });
 
     console.log("Data check")
     console.log(data)
@@ -72,7 +72,7 @@ const HomeCharts: React.FC = () => {
     for (let i = 0; i < archiveData?.length; i++) {
         // Assigning date objects for current archiveData and reference point for 8 days prior to current date
         const dateData = new Date(archiveData[i].createdAt);
-        
+
         // For loop which checks date ranges to assign archiveData to matching date
         for (const key in weekDates) {
             if (weekDates.hasOwnProperty(key)) {
@@ -100,7 +100,7 @@ const HomeCharts: React.FC = () => {
         let average: any = total / count;
 
         // Rounding the average, without this the database tends to throw errors due to long decimal values
-        let averageRounded: number = average.toFixed()*1;
+        let averageRounded: number = average.toFixed() * 1;
 
         // Returning the rounded average result
         return averageRounded;
@@ -129,42 +129,45 @@ const HomeCharts: React.FC = () => {
     console.log(finalWeekData)
 
     return (
-        <Container maxWidth="md" style={styles.container}>
-            <Grid container justifyContent={'center'} textAlign='center'>
-                <Grid item xs={12}>
-                    <Typography variant={'h4'} mb={2} mt={1} borderBottom={5} borderTop={5} borderColor={deepPurple[700]} style={styles.mainTitle}>
-                        This Week
-                    </Typography>
+        <Box sx={{ flexGrow: 1 }} style={styles.container}>
+            <Grid container alignItems="center" justifyContent="center">
+                <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>
+                    <Grid item xs={12}>
+                        <Typography variant={'h4'} mb={2} mt={1} borderBottom={5} borderTop={5} borderColor={deepPurple[700]} style={styles.mainTitle}>
+                            This Week
+                        </Typography>
+                    </Grid>
+                    {loading === false ?
+                        <>
+                            <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
+                                <Typography variant={'h5'} textAlign='center' style={styles.title}>
+                                    Live Views
+                                </Typography>
+                                <AreaChart dayProps={finalWeekData} type="view"></AreaChart>
+                            </Grid>
+                            <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
+                                <Typography variant={'h5'} textAlign='center' style={styles.title}>
+                                    Live Channels
+                                </Typography>
+                                <AreaChart dayProps={finalChannelData} type="channel"></AreaChart>
+                            </Grid>
+                            <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
+                                <Typography variant={'h5'} textAlign='center' style={styles.title}>
+                                    Games Streamed
+                                </Typography>
+                                <AreaChart dayProps={finalGameData} type="game"></AreaChart>
+                            </Grid>
+                        </> :
+                        <Grid item xs={12}>
+                            <Typography className='areaChart' variant={'h4'} textAlign='center'>
+                                Loading Charts...
+                            </Typography>
+                        </Grid>
+                    }
                 </Grid>
-                {loading === false ?
-                <>
-                <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
-                    <Typography variant={'h5'} textAlign='center' style={styles.title}>
-                        Live Views
-                    </Typography>
-                    <AreaChart dayProps={finalWeekData} type="view"></AreaChart>
-                </Grid>
-                <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
-                    <Typography variant={'h5'} textAlign='center' style={styles.title}>
-                        Live Channels
-                    </Typography>
-                    <AreaChart dayProps={finalChannelData} type="channel"></AreaChart>
-                </Grid>
-                <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
-                    <Typography variant={'h5'} textAlign='center' style={styles.title}>
-                        Games Streamed
-                    </Typography>
-                    <AreaChart dayProps={finalGameData} type="game"></AreaChart>
-                </Grid>
-                </> :
-                <Grid item xs={12}>
-                    <Typography className='areaChart' variant={'h4'} textAlign='center'>
-                        Loading Charts...
-                    </Typography>
-                </Grid>
-                }
             </Grid>
-        </Container>
+
+        </Box>
     )
 };
 
