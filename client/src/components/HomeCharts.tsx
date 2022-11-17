@@ -139,19 +139,21 @@ const HomeCharts: React.FC = () => {
                     </Grid>
                     {loading === false ?
                         <>
-                            <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
-                                <Typography variant={'h5'} textAlign='center' style={styles.title}>
+                            <Grid item xs={10} sm={3.9} ml={.2} mr={.2} className="homeChartItem">
+                                <Typography variant={'h5'} textAlign='center' style={styles.title}
+                                width={'100%'}
+                                >
                                     Live Views
                                 </Typography>
                                 <AreaChart dayProps={finalWeekData} type="view"></AreaChart>
                             </Grid>
-                            <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
+                            <Grid item xs={10} sm={3.9} my={{ xs: 1.8, sm: 0 }} ml={.2} mr={.2} className="homeChartItem">
                                 <Typography variant={'h5'} textAlign='center' style={styles.title}>
                                     Live Channels
                                 </Typography>
                                 <AreaChart dayProps={finalChannelData} type="channel"></AreaChart>
                             </Grid>
-                            <Grid item xs={3.9} ml={.2} mr={.2} className="homeChartItem">
+                            <Grid item xs={10} sm={3.9} ml={.2} mr={.2} className="homeChartItem">
                                 <Typography variant={'h5'} textAlign='center' style={styles.title}>
                                     Games Streamed
                                 </Typography>

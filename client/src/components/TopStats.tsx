@@ -12,12 +12,14 @@ import { Stats } from './TypesAndInterfaces';
 import RankCard from './RankCard';
 
 // Importing colors from Material UI
-import { amber, orange, deepPurple, blue, green, teal, cyan } from '@mui/material/colors';
+import { amber, orange, deepPurple, blue, green, indigo, cyan } from '@mui/material/colors';
 
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {
     container: {
-        backgroundColor: teal[100],
+        backgroundColor: indigo[200],
+        borderRadius: '.5rem',
+        paddingBottom: '1rem',
     },
     mainTitle: {
         display: 'inline-block',
@@ -26,7 +28,7 @@ const styles = {
         fontFamily: 'Outfit, sans-serif',
         fontWeight: 700,
         color: 'white',
-        backgroundColor: teal[700],
+        backgroundColor: indigo[700],
         borderRadius: '1rem'
     },
     title: {
@@ -194,7 +196,10 @@ const TopStats: React.FC = () => {
         <Container maxWidth="md" style={styles.container} className="topStatsContainer">
 
             <Grid item xs={12} textAlign="center">
-                <Typography variant={'h4'} mt={2} mb={1} textAlign='center' style={styles.mainTitle}>
+                <Typography variant={'h4'} mt={2} mb={1} textAlign='center'
+                style={styles.mainTitle}
+                fontSize={{ xs: '1.85rem', sm: '2.13rem'}}
+                >
                     Most Popular
                 </Typography>
             </Grid>
@@ -203,7 +208,10 @@ const TopStats: React.FC = () => {
 
                 <Grid item xs={6}>
                     <Grid item xs={12} textAlign="center">
-                        <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={cyan[700]} textAlign='center' style={styles.title}>
+                        <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={indigo[700]} textAlign='center'
+                        style={styles.title}
+                        fontSize={{ xs: '1.35rem', sm: '2.1rem'}}
+                        >
                             Games
                         </Typography>
                     </Grid>
@@ -211,7 +219,7 @@ const TopStats: React.FC = () => {
                     {loading === false && loadingStream === false && loadingUser === false ?
                         topGames.slice(0, 10).map((game, index) => (
                             <RankCard statInfo={game} key={index} viewType="avg"
-                            color={{primary: teal[700], secondary: teal[900]}}
+                            color={{primary: indigo[700], secondary: indigo[900]}}
                             rankIndex={index}
                             rankColor={ index === 0 ?
                                 {primary: topColors.best, secondary: topColors.bestDark} :
@@ -235,7 +243,10 @@ const TopStats: React.FC = () => {
                 <Grid item xs={6}>
 
                     <Grid item xs={12} textAlign="center">
-                        <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={cyan[700]} textAlign='center' style={styles.title}>
+                        <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={indigo[700]} textAlign='center'
+                        style={styles.title}
+                        fontSize={{ xs: '1.35rem', sm: '2.1rem'}}
+                        >
                             Streamers
                         </Typography>
                     </Grid>
@@ -243,7 +254,7 @@ const TopStats: React.FC = () => {
                     {loading === false && loadingStream === false && loadingUser === false ?
                         topStreamers.map((streamer, index) => (
                             <RankCard statInfo={streamer} key={index} viewType="peak"
-                            color={{primary: teal[700], secondary: teal[900]}}
+                            color={{primary: indigo[700], secondary: indigo[900]}}
                             rankIndex={index}
                             rankColor={ index === 0 ?
                                 {primary: topColors.best, secondary: topColors.bestDark} :

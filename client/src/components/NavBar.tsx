@@ -10,6 +10,8 @@ import InputBase from '@mui/material/InputBase';
 import AppLogo from '../assets/Twitchlytical-Logo-40x40.webp';
 import Divider from '@mui/material/Divider';
 import SearchIcon from '@mui/icons-material/Search';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
 // Importing colors from Material UI
 import { indigo } from '@mui/material/colors';
 
@@ -83,7 +85,7 @@ const NavBar: React.FC = () => {
                             variant="h6"
                             noWrap
                             component="div"
-                            sx={{ flexGrow: 1, textTransform: "none", display: { xs: 'none', sm: 'block' } }}
+                            sx={{ flexGrow: 1, textTransform: "none", display: { xs: 'none', sm: 'none', md: 'block' } }}
                             style={styles.appTitle}
                         >
                             Twitchlytical
@@ -91,9 +93,9 @@ const NavBar: React.FC = () => {
                     </LogoButton>
 
                     <Divider orientation="vertical" variant="middle" color={indigo[300]}
-                    flexItem sx={{ mx: 1 }}/>
+                        flexItem sx={{ mx: 1 }} />
 
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'flex' } }}>
+                    <Box sx={{ flexGrow: 1, display: { xs: 'none', sm: 'flex', md: 'flex' } }}>
                         {pages.map((page) => (
                             <LogoButton
                                 key={page}
@@ -105,7 +107,7 @@ const NavBar: React.FC = () => {
                         ))}
                     </Box>
 
-                    <Search>
+                    <Search >
                         <SearchIconWrapper>
                             <SearchIcon />
                         </SearchIconWrapper>
@@ -114,6 +116,18 @@ const NavBar: React.FC = () => {
                             inputProps={{ 'aria-label': 'search' }}
                         />
                     </Search>
+
+                    <IconButton sx={{ display: { xs: 'inline-flex', sm: 'none' } }}
+                        size="large"
+                        aria-label="account of current user"
+                        aria-controls="menu-appbar"
+                        aria-haspopup="true"
+                        //onClick={handleOpenNavMenu}
+                        color="inherit"
+                    >
+                        <MenuIcon />
+                    </IconButton>
+                    
                 </Toolbar>
             </AppBar>
         </Box>

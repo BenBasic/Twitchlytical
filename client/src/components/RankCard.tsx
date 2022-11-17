@@ -52,6 +52,10 @@ const styles = {
         paddingBottom: '.3rem',
         marginTop: '1rem',
     },
+    viewNum: {
+        fontFamily: 'Outfit, sans-serif',
+        fontWeight: 400,
+    }
 };
 
 
@@ -69,7 +73,7 @@ const RankCard: React.FC<StatCardProps> = (props) => {
             </div>
 
             <Card style={styles.cardContent} sx={{ display: 'flex' }}>
-                <CardMedia style={styles.media} image={props.statInfo.image} />
+                <CardMedia sx={{display: { xs: 'none', sm: 'block' }}} style={styles.media} image={props.statInfo.image} />
                 <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <CardContent
                         sx={{
@@ -93,7 +97,7 @@ const RankCard: React.FC<StatCardProps> = (props) => {
                                 "7 Day View Peak"}
                             </Typography>
 
-                            <Typography variant={'h6'}>
+                            <Typography variant={'h6'} style={styles.viewNum}>
                                 {props.statInfo.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             </Typography>
                         </Container>

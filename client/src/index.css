@@ -9,6 +9,7 @@ body {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #c5cae9;
 }
 
 code {

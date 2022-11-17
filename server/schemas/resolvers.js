@@ -135,8 +135,10 @@ const resolvers = {
 
 				if (dateFormat > lastWeek) {
 					if ((topStreams[0].topStreams[i].peak_views < streamData.peak_views &&
-						topStreams[0].topStreams[i]._id !== streamData._id) ||
+						topStreams[0].topStreams[i]._id !== streamData._id &&
+						topStreams[0].topStreams[i].user_id !== streamData.user_id) ||
 						(topStreams[0].topStreams[i]._id !== streamData._id &&
+						topStreams[0].topStreams[i].user_id !== streamData.user_id &&
 						topStreams[0].topStreams.length < 10)) {
 						higherPeak = true;
 					};
@@ -366,6 +368,14 @@ const resolvers = {
 			console.log("TOP STREAM ARRAY IS")
 			console.log(topStreamArray)
 
+			const counts = topStreamArray.reduce((a, { user_id }) => {
+				a[user_id] = (a[user_id] || 0) + 1;
+				return a;
+			  }, {});
+			  
+			  let filArr = topStreamArray.filter(({ user_id }) => counts[user_id] > 1);
+			  let uniqueArr = topStreamArray.filter(({ user_id }) => counts[user_id] === 1);
+
 			// Comparator function which will sort streams by peak_views highest to lowest
 			function Comparator(a, b) {
 				if (a.peak_views < b.peak_views) return 1;
@@ -373,14 +383,21 @@ const resolvers = {
 				return 0;
 			};
 
-			// Sorting streams by peak_views highest to lowest, then removing anything lower than 10th place
-			topStreamArray = topStreamArray.sort(Comparator).slice(0, 10);
+			let newArr = filArr.sort(Comparator);
 
-			console.log("TOP STREAM ARRAY 2 IS")
-			console.log(topStreamArray)
+
+			let unique = newArr.filter((set => f => !set.has(f.user_id) && set.add(f.user_id))(new Set));
+
+
+			let result = unique.concat(uniqueArr.filter(bo => unique.every(ao => ao.user_id != bo.user_id)));
+
+
+			// Sorting streams by peak_views highest to lowest, then removing anything lower than 10th place
+			result = result.sort(Comparator).slice(0, 10);
+
 
 			await total.update({
-				topStreams: topStreamArray
+				topStreams: result
 			}, { new: true });
 
 			console.log("TOP STREAM TOTAL 2")
