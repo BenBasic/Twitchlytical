@@ -694,7 +694,7 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 // COMMENTED OUT FOR TESTING PURPOSES
 // COMMENTED OUT FOR TESTING PURPOSES
 
-//getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
+// getUserInfo(process.env.GET_STREAMS, process.env.GET_USERS);
 
 // COMMENTED OUT FOR TESTING PURPOSES
 // COMMENTED OUT FOR TESTING PURPOSES
@@ -803,10 +803,57 @@ const getTopClipsAll = async (gameUrl, clipUrl, date) => {
 	};
 
 	// Sorting clips by view_count highest to lowest
-	clipsArray = clipsArray.sort(Comparator);
-	
+	clipsArray = clipsArray.sort(Comparator).slice(0, 10);
+
 	console.log(clipsArray);
 
+	let finalClipsArray = [];
+
+	for (let i = 0; i < clipsArray.length; i++) {
+		if (clipsArray[i].id) {
+
+			finalClipsArray.push({
+				_id: clipsArray[i].id,
+				game_id: clipsArray[i].game_id,
+				title: clipsArray[i].title,
+				embed_url: clipsArray[i].embed_url,
+				broadcaster_name: clipsArray[i].broadcaster_name,
+				broadcaster_id: clipsArray[i].broadcaster_id,
+				thumbnail_url: clipsArray[i].thumbnail_url,
+				view_count: clipsArray[i].view_count,
+				created_at: clipsArray[i].created_at,
+				duration: clipsArray[i].duration,
+				vod_offset: clipsArray[i].vod_offset,
+			});
+		};
+	};
+
+	// Defining variables to pass in to update top clips list in database
+	const variables = {
+		clipData: finalClipsArray,
+	};
+
+	const queryPost = `
+		mutation Mutation($clipData: [ClipsInput]!) {
+			addClip(clipData: $clipData) {
+			_id
+			game_id
+			title
+			embed_url
+			broadcaster_name
+			broadcaster_id
+			thumbnail_url
+			view_count
+			created_at
+			duration
+			vod_offset
+			}
+		}
+	`;
+	console.log("Variables are")
+	console.log(variables)
+
+	await postData(`http://localhost:3001/graphql`, queryPost, variables);
 };
 
 //getTopClipsAll(process.env.GET_GAMES, process.env.GET_CLIPS, 'week')

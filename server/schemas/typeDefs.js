@@ -97,6 +97,7 @@ const typeDefs = gql`
 		archive: [ArchiveData]
 		topGames: [Game]
 		topStreams: [Stream]
+		topClips: [Clips]
 	}
 	input TotalDataInput {
 		_id: ID
@@ -115,13 +116,24 @@ const typeDefs = gql`
 		embed_url: String
 		broadcaster_name: String
 		broadcaster_id: String
-		creator_id: String
-		creator_name: String
-		url: String
 		thumbnail_url: String
 		view_count: Int
 		created_at: String
-		duration: String
+		duration: Float
+		vod_offset: Int
+	}
+
+	input ClipsInput {
+		_id: ID
+		game_id: String
+		title: String
+		embed_url: String
+		broadcaster_name: String
+		broadcaster_id: String
+		thumbnail_url: String
+		view_count: Int
+		created_at: String
+		duration: Float
 		vod_offset: Int
 	}
 
@@ -136,11 +148,13 @@ const typeDefs = gql`
 		getCurrentData: [TotalData]
 		getTopGames: [TotalData]
 		getTopStreams: [TotalData]
+		getTopClips: [TotalData]
 	}
 
 	type Mutation {
 		addGame(gameData: GameInput!): Game
 		addStream(streamData: StreamInput!): Stream
+		addClip(clipData: [ClipsInput]!): [Clips]
 		addBroadcasterData(broadcasterData: BroadcasterInput!): Broadcaster
 		addArchiveData(archiveData: ArchiveDataInput!): ArchiveData
 		updateTotalData(totalData: TotalDataInput!, date: String): TotalData

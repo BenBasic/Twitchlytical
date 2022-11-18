@@ -106,3 +106,24 @@ export const GET_CURRENT_DATA = gql`
         }
     }
 `;
+
+export const GET_TOP_CLIPS_WEEK = gql`
+    query Query {
+        getTopClips {
+            _id
+            topClips {
+            _id
+            game_id
+            title
+            embed_url
+            broadcaster_name
+            broadcaster_id
+            thumbnail_url
+            view_count
+            created_at
+            duration
+            vod_offset
+            }
+        }
+    }
+`;

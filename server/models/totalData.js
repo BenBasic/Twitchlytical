@@ -36,6 +36,12 @@ const totalDataSchema = new Schema({
 			type: Schema.Types.String,
 			ref: "Stream",
 		}
+	],
+	topClips: [
+		{
+			type: Schema.Types.String,
+			ref: "Clips",
+		}
 	]
 });
 const totalData = model("TotalData", totalDataSchema);

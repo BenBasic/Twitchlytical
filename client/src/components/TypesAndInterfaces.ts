@@ -18,6 +18,15 @@ export type DayData = {
     date: Date;
 };
 
+export type ClipModalProps = {
+    title: string;
+    broadcasterName: string;
+    url: string;
+    thumbnail: string;
+    createdAt: string;
+    views: number;
+}
+
 
 
 // Assigning StatCardProps interface for passing values into RankCard component
@@ -42,4 +51,4 @@ export interface WeeklyViewData {
 export interface WeeklyViewProps {
     dayProps: WeeklyViewData;
     type: string;
-}
+};

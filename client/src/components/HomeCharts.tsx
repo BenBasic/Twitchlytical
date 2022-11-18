@@ -155,7 +155,7 @@ const HomeCharts: React.FC = () => {
                             </Grid>
                             <Grid item xs={10} sm={3.9} ml={.2} mr={.2} className="homeChartItem">
                                 <Typography variant={'h5'} textAlign='center' style={styles.title}>
-                                    Games Streamed
+                                    Live Games
                                 </Typography>
                                 <AreaChart dayProps={finalGameData} type="game"></AreaChart>
                             </Grid>

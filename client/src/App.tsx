@@ -4,6 +4,7 @@ import TopStats from './components/TopStats';
 import NavBar from './components/NavBar';
 import Header from './components/Header';
 import HomeCharts from './components/HomeCharts';
+import TopClips from './components/TopClips';
 import {
 	ApolloClient,
 	InMemoryCache,
@@ -56,6 +57,7 @@ function App() {
                 <Header />
                 <HomeCharts />
                 <TopStats />
+                <TopClips />
               </>
             }
           />

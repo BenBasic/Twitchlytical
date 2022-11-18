@@ -108,3 +108,8 @@ div.tooltip {
   transform: translate(-50%, -50%);
   color: white;
 }
+
+.modalContent {
+  height: calc((100vw/16)*9);
+  width: 100vw;
+}

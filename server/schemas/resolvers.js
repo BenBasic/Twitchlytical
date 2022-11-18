@@ -90,6 +90,19 @@ const resolvers = {
 
 			return topStreams
 		},
+		getTopClips: async (parent, args) => {
+			const topClips = await TotalData.find({})
+			.populate({
+				path: 'topClips',
+				model: 'Clips',
+			})
+
+			if (!topClips) {
+				console.log("No Total Data!")
+			};
+
+			return topClips
+		},
 	},
 	Mutation: {
 
@@ -184,6 +197,33 @@ const resolvers = {
 				return stream;
 			};
 
+        },
+
+		addClip: async (parent, { clipData }) => {
+			// Deletes previously stored clips
+			const oldClip = await Clips.deleteMany({});
+			// Inserts new clips from current api call for top 10 clips this week
+			const clip = await Clips.insertMany(clipData)
+			// Empty array which will fill up with ids for reference in topClips field in TotalData
+			let idArray = [];
+			// Iterative loop to gather ids of new top 10 clips
+			for (let i = 0; i < clipData?.length; i++) {
+				if (clipData[i]._id) {
+					idArray.push(clipData[i]._id)
+				};
+			};
+			// Finds and populates the topClips
+			const total = await TotalData.find({})
+			.populate({
+				path: 'topClips',
+				model: 'Clips',
+			})
+			// Updates topClips with the ids of the current top 10 clips from api call
+			await total[0].update({
+				topClips: idArray
+			}, { new: true });
+
+			return clip;
         },
 
 		addBroadcasterData: async (parent, { broadcasterData }) => {

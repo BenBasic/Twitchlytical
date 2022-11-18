@@ -18,7 +18,7 @@ const styles = {
     card: {
         borderRadius: 16,
         marginTop: '2rem',
-        transition: '0.2s',
+        transition: '0.1s',
     },
     cardContent: {
         borderRadius: 16,
@@ -64,7 +64,7 @@ const RankCard: React.FC<StatCardProps> = (props) => {
         <CardActionArea style={styles.card}
             sx={{
                 '&:hover': {
-                    transform: 'scale(1.1)',
+                    transform: 'scale(1.08)',
                 }
             }}>
 
