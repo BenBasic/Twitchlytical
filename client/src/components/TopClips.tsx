@@ -51,7 +51,7 @@ const TopClips: React.FC = () => {
 
                 {loading === false ?
                     topClipData.map((clip: any, index: any) => (
-                        <Grid item xs={ index === 0 ? 10 : 4} sm={2.4} py={2} px={1}>
+                        <Grid item xs={ index === 0 ? 10 : 4} sm={2.4} py={2} px={1} key={index}>
                             <ClipCard
                                 key={index}
                                 title={clip.title}

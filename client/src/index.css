@@ -113,3 +113,9 @@ div.tooltip {
   height: calc((100vw/16)*9);
   width: 100vw;
 }
+
+/* Aspect Ratio 2:1 - Original Width: 30rem, Original Height: 15rem*/
+.pieContainer {
+  height: 100%;
+  width: 100%;
+}

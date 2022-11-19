@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useQuery } from "@apollo/client";
 import { GET_DATA_DATE } from "../utils/queries";
-import { WeeklyViewData } from './TypesAndInterfaces';
+import { GetTotal, WeeklyViewData } from './TypesAndInterfaces';
 import AreaChart from './AreaChart';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -35,16 +35,9 @@ const now = new Date();
 const weekQueryDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7)
 
 
-const HomeCharts: React.FC = () => {
+const HomeCharts: React.FC<GetTotal> = (props) => {
 
-    const { loading, data, error } = useQuery(GET_DATA_DATE, {
-        variables: { date: weekQueryDate },
-    });
-
-    console.log("Data check")
-    console.log(data)
-
-    const archiveData = data?.getTotalData?.[0]?.archive;
+    const archiveData = props?.totalVal?.archive;
 
     // Object containing the dates of the last 7 days, used as reference for assigning data to dates
     const weekDates = {
@@ -125,6 +118,14 @@ const HomeCharts: React.FC = () => {
     const finalChannelData: WeeklyViewData = finalObj("totalChannels")
     const finalGameData: WeeklyViewData = finalObj("totalGames")
 
+
+    const [canMount, setCanMount] = useState<boolean>(false);
+
+    // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
+    if (props.loading === false && canMount === false) {
+        setCanMount(true);
+    };
+
     console.log("Final Week Data")
     console.log(finalWeekData)
 
@@ -137,11 +138,11 @@ const HomeCharts: React.FC = () => {
                             This Week
                         </Typography>
                     </Grid>
-                    {loading === false ?
+                    {canMount === true ?
                         <>
                             <Grid item xs={10} sm={3.9} ml={.2} mr={.2} className="homeChartItem">
                                 <Typography variant={'h5'} textAlign='center' style={styles.title}
-                                width={'100%'}
+                                    width={'100%'}
                                 >
                                     Live Views
                                 </Typography>

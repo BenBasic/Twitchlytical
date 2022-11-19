@@ -1,0 +1,95 @@
+import React, { useState } from 'react'
+import TopStats from './TopStats';
+import Header from './Header';
+import HomeCharts from './HomeCharts';
+import TopClips from './TopClips';
+import HomePies from './HomePies';
+
+// Importing the Stats type for use within the Comparator function
+import { Stats } from './TypesAndInterfaces';
+
+import { useQuery } from "@apollo/client";
+import { GET_TOP_GAME_WEEK, GET_TOP_STREAM_WEEK, GET_BROADCASTER_USER_ID, GET_DATA_DATE } from "../utils/queries";
+
+const HomePage: React.FC = () => {
+
+    const now = new Date();
+
+    const weekQueryDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7)
+
+    const { loading: loadingTotals, data: dataTotals, error: errorTotals } = useQuery(GET_DATA_DATE, {
+        variables: { date: weekQueryDate },
+    });
+
+    const totalObject = dataTotals?.getTotalData?.[0];
+
+
+
+    const { loading, data, error } = useQuery(GET_TOP_GAME_WEEK);
+
+    const { loading: loadingStream, data: dataStream, error: errorStream } = useQuery(GET_TOP_STREAM_WEEK);
+
+    const topGameData = data?.getTopGames[0]?.topGames;
+
+    const topStreamData = dataStream?.getTopStreams[0]?.topStreams;
+
+    let userIdArray = [];
+
+    for (let i = 0; i < topStreamData?.length; i++) {
+        userIdArray.push(topStreamData[i]?.user_id)
+    };
+
+    const { loading: loadingUser, data: dataUser, error: errorUser } = useQuery(GET_BROADCASTER_USER_ID, {
+        variables: { id: userIdArray },
+    });
+
+    const topUserData = dataUser?.getBroadcaster;
+
+
+    const [loadingState, setLoadingState] = useState<boolean[]>([loading, loadingStream, loadingUser]);
+
+    const [canMount, setCanMount] = useState<boolean>(false);
+
+    const [topDataLoadingState, setTopDataLoadingState] = useState<boolean>(loadingTotals);
+
+    const [canMountTopData, setCanMountTopData] = useState<boolean>(false);
+
+
+    // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
+    if (loading === false && loadingStream === false && loadingUser === false &&
+        loadingState[0] === true && loadingState[1] === true && loadingState[2] === true &&
+        canMount === false) {
+        setLoadingState([false, false, false])
+        setCanMount(true);
+    };
+
+    // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
+    if (loadingTotals === false && topDataLoadingState === true && canMountTopData === false) {
+        setTopDataLoadingState(false)
+        setCanMountTopData(true);
+    };
+
+    return (
+        <>
+            <Header />
+            <HomeCharts
+                totalVal={totalObject}
+                loading={canMountTopData === true ? false : true }
+            />
+            <HomePies
+                data={topGameData}
+                totalVal={totalObject?.avgTotalViewers}
+                loading={canMount === true && canMountTopData === true ? false : true}
+            />
+            <TopStats
+                gameProps={topGameData}
+                streamProps={topStreamData}
+                broadcasterProps={topUserData}
+                loading={canMount === true ? false : true}
+            />
+            <TopClips />
+        </>
+    )
+}
+
+export default HomePage
