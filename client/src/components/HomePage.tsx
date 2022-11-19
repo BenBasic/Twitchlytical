@@ -74,18 +74,19 @@ const HomePage: React.FC = () => {
             <Header />
             <HomeCharts
                 totalVal={totalObject}
-                loading={canMountTopData === true ? false : true }
-            />
-            <HomePies
-                data={topGameData}
-                totalVal={totalObject?.avgTotalViewers}
-                loading={canMount === true && canMountTopData === true ? false : true}
+                loading={canMountTopData === true ? false : true}
             />
             <TopStats
                 gameProps={topGameData}
                 streamProps={topStreamData}
                 broadcasterProps={topUserData}
                 loading={canMount === true ? false : true}
+            />
+            <HomePies
+                data={topGameData}
+                streamData={topStreamData}
+                totalVal={totalObject?.avgTotalViewers}
+                loading={canMount === true && canMountTopData === true ? false : true}
             />
             <TopClips />
         </>

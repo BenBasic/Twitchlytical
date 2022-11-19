@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { indigo, deepPurple } from '@mui/material/colors';
 import PieChart from './PieChart';
 import { TopGames, PieContainerProps, Stats } from './TypesAndInterfaces';
-import { createListData, Comparator } from '../utils/helpers';
+import { createListData, createShortStreamerList, Comparator } from '../utils/helpers';
 
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {
@@ -33,6 +33,8 @@ const HomePies: React.FC<PieContainerProps> = (props) => {
 
     // Let of test data using an array of the Stats type, this is only used for display testing purposes for now
     let testData: Stats[] = createListData(props.data);
+    let streamerData: Stats[] = createShortStreamerList(props.streamData)
+
     const [canMount, setCanMount] = useState<boolean>(false);
 
     // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
@@ -46,22 +48,38 @@ const HomePies: React.FC<PieContainerProps> = (props) => {
                 <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>
                     <Grid item xs={12}>
                         <Typography variant={'h4'} mb={2} mt={1} borderBottom={5} borderTop={5} borderColor={deepPurple[700]} style={styles.mainTitle}>
-                            Top 5 Divisions
+                            Top 5 Breakdown
                         </Typography>
                     </Grid>
 
                     {canMount === true ?
-                        <Grid item xs={10} sm={3.9} ml={.2} mr={.2} className="homeChartItem">
-                            <Typography variant={'h5'} mb={1} textAlign='center' style={styles.title}
-                                width={'100%'}
-                            >
-                                Game Views
-                            </Typography>
-                            <PieChart
-                                dataSet={testData.sort(Comparator).slice(0, 5)}
-                                totalVal={props.totalVal}
-                            />
-                        </Grid> :
+                        <>
+                            <Grid item xs={10} sm={5.9} md={5.7} mb={2} ml={{ sm: .2, md: .6}} mr={{ sm: .2, md: .6}} pb={{xs: '1.7rem', sm: '.5rem'}} className="homeChartItem">
+                                <Typography variant={'h5'} mb={{ xs: 3, sm: 1.5}} textAlign='center' style={styles.title}
+                                    width={'100%'}
+                                >
+                                    Game Views
+                                </Typography>
+                                <PieChart
+                                    dataSet={testData.sort(Comparator).slice(0, 5)}
+                                    totalVal={props.totalVal}
+                                    type={"average"}
+                                />
+                            </Grid>
+
+                            <Grid item xs={10} sm={5.9} md={5.7} mb={2} ml={{ sm: .2, md: .6}} mr={{ sm: .2, md: .6}} pb={{xs: '1.7rem', sm: '.5rem'}} className="homeChartItem">
+                                <Typography variant={'h5'} mb={{ xs: 3, sm: 1.5}} textAlign='center' style={styles.title}
+                                    width={'100%'}
+                                >
+                                    Streamer Views
+                                </Typography>
+                                <PieChart
+                                    dataSet={streamerData.sort(Comparator).slice(0, 5)}
+                                    totalVal={props.totalVal}
+                                    type={"peak"}
+                                />
+                            </Grid>
+                        </> :
                         <Typography variant={'h4'}>
                             Loading...
                         </Typography>

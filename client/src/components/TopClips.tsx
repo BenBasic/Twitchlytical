@@ -10,8 +10,8 @@ import { indigo, deepPurple } from '@mui/material/colors';
 
 const styles = {
     container: {
-        backgroundColor: indigo.A100,
-        borderRadius: '0rem 0rem .5rem .5rem',
+        backgroundColor: indigo[200],
+        borderRadius: '.5rem .5rem .5rem .5rem',
         padding: '0rem 1rem 1rem 1rem',
     },
     mainTitle: {
@@ -21,7 +21,7 @@ const styles = {
         fontFamily: 'Outfit, sans-serif',
         fontWeight: 700,
         color: 'white',
-        backgroundColor: deepPurple[800],
+        backgroundColor: indigo[700],
         borderRadius: '1rem'
     },
 };

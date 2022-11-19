@@ -12,7 +12,7 @@ export function Comparator(a: Stats, b: Stats) {
 export const percentDifference = (a: number, b: number) => {
     const prevVal: number = a;
     const currentVal: number = b;
-    const percent: number = (prevVal-currentVal)/prevVal*100.0;
+    const percent: number = (prevVal - currentVal) / prevVal * 100.0;
 
     return percent.toFixed(2).toString().replace("-", "");
 };
@@ -43,7 +43,8 @@ export const createListData = (array: TopGames[]) => {
 
         if (name === "Just Chatting" || name === "Music" || name === "Poker" || name === "ASMR" ||
             name === "Art" || name === "Retro" || name === "Sports" || name === "Chess" ||
-            name === "Pools, Hot Tubs, and Beaches" || name === "Talk Shows & Podcasts") {
+            name === "Pools, Hot Tubs, and Beaches" || name === "Talk Shows & Podcasts" ||
+            name === "Special Events") {
             imgUrl = `https://static-cdn.jtvnw.net/ttv-boxart/${twitchGameId}-210x280.jpg`
         } else {
             imgUrl = `https://static-cdn.jtvnw.net/ttv-boxart/${twitchGameId}_IGDB-210x280.jpg`
@@ -74,6 +75,18 @@ export const createStreamerData = (array: TopStreams[], array2: TopBroadcasters[
                 })
             };
         };
+    };
+    return finalResult;
+};
+
+export const createShortStreamerList = (array: TopStreams[]) => {
+    let finalResult = [];
+
+    for (let i = 0; i < array?.length; i++) {
+        finalResult.push({
+            name: array[i]?.user_name,
+            views: array[i]?.peak_views,
+        })
     };
     return finalResult;
 };

@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import Tooltip from '@mui/material/Tooltip';
 import { ClipModalProps } from './TypesAndInterfaces';
 // Importing colors from Material UI
 import { indigo, deepPurple } from '@mui/material/colors';
@@ -96,19 +97,23 @@ const ClipCard: React.FC<ClipModalProps> = (props) => {
                     }}
                 />
                 <CardContent style={styles.cardContent}>
-
-                    <Typography style={styles.cardTitle} variant={'h5'} textAlign='center'
-                        sx={{
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textAlign: "left",
-                            display: "block",
-                            borderRadius: { xs: '0rem', sm: '.3rem' },
-                        }}
+                    <Tooltip title={props.title} placement="bottom" arrow disableInteractive
+                    enterDelay={500}
+                    TransitionProps={{ timeout: 600 }}
                     >
-                        {props.title}
-                    </Typography>
+                        <Typography style={styles.cardTitle} variant={'h5'} textAlign='center'
+                            sx={{
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textAlign: "left",
+                                display: "block",
+                                borderRadius: { xs: '0rem', sm: '.3rem' },
+                            }}
+                        >
+                            {props.title}
+                        </Typography>
+                    </Tooltip>
 
                     <Box style={styles.cardBox}>
                         <Typography style={styles.cardText} variant={'h5'}

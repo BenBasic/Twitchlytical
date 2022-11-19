@@ -187,7 +187,8 @@ const resolvers = {
 					console.log("Here2")
 					await stream.update({
 						peak_views: streamData.viewer_count,
-						viewer_count: streamData.viewer_count
+						viewer_count: streamData.viewer_count,
+						title: streamData.title,
 					}, { new: true });
 				} else {
 					console.log("Here3")

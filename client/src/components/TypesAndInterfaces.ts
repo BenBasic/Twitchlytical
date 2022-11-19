@@ -97,6 +97,7 @@ export interface TopProps {
 
 export interface PieContainerProps {
     data: [TopGames];
+    streamData: [TopStreams];
     totalVal: number;
     loading: boolean;
 }
@@ -104,6 +105,7 @@ export interface PieContainerProps {
 export interface PieProps {
     dataSet: Stats[];
     totalVal: number;
+    type: string;
 }
 
 // Assigning StatCardProps interface for passing values into RankCard component

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { PieArcDatum } from 'd3-shape';
 import { select, selectAll, Selection } from 'd3-selection'
+import { easeBounce, easeElastic } from 'd3-ease'
 import { Stats, PieProps } from './TypesAndInterfaces'
 
 const colorTest = ['#1de441', '#EA7369', '#1ac9e6', '#d8ac2d', '#e7e35e', '#AF4BCE']
@@ -99,7 +100,6 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .attr('class', 'tooltip')
                 .style("opacity", 0);
 
-
             // Draw pie
             svg.append('g')
                 .selectAll('path')
@@ -108,7 +108,16 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .attr('d', arc)
                 .attr('fill', (d, i) => colorTest[i])
                 .attr('stroke', (d, i) => colorOutline[i])
-                .attr('stroke-width', '.2rem')
+                .attr('stroke-width', '.25rem')
+
+                .on("mouseenter", function (d) {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .ease(easeElastic)
+                        .attr('transform', `scale(1.1)`)
+                })
+
                 .on('mouseover', (e, d) => {
                     tooltip.transition()
                         .duration(200)
@@ -127,7 +136,7 @@ const PieChart: React.FC<PieProps> = (props) => {
                         </p>` +
 
                         `<p class='toolDate'>
-                        7 day average
+                        ${d.index === 0 ? 'remaining views' : '7 day ' + props.type}
                         </p>`
 
 
@@ -139,6 +148,12 @@ const PieChart: React.FC<PieProps> = (props) => {
                         .style("top", (event.pageY - 40) + "px");
                 })
                 .on("mouseout", function (d) {
+                    d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .ease(easeElastic)
+                    .attr('transform', `scale(1)`)
+
                     tooltip.transition()
                         .duration(500)
                         .style("opacity", 0);
@@ -151,10 +166,13 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .append('text')
                 .attr('class', 'pieLabel')
                 .text(function (d) { return (d.index === 0 ? d.data.name : '') })
-                .attr("transform", function (d) { return "translate(" + (arc.centroid(d)[0] / 2) +
-                "," + arc.centroid(d)[1] + ")"; })
+                .attr("transform", function (d) {
+                    return "translate(" + (arc.centroid(d)[0] / 2) +
+                        "," + arc.centroid(d)[1] + ")";
+                })
                 .style("text-anchor", "center")
-                .style("font-size", '.8rem')
+                .style("font-size", '.9rem')
+                .attr('fill', 'white')
         }
 
 

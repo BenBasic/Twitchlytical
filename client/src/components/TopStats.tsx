@@ -20,7 +20,7 @@ import { amber, orange, deepPurple, blue, green, indigo, cyan } from '@mui/mater
 const styles = {
     container: {
         backgroundColor: indigo[200],
-        borderRadius: '.5rem .5rem 0rem 0rem',
+        borderRadius: '.5rem .5rem .5rem .5rem',
         paddingBottom: '2rem',
     },
     mainTitle: {
