@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { indigo, deepPurple } from '@mui/material/colors';
 import PieChart from './PieChart';
 import { TopGames, PieContainerProps, Stats } from './TypesAndInterfaces';
-import { createListData } from '../utils/helpers';
+import { createListData, Comparator } from '../utils/helpers';
 
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {
@@ -33,7 +33,6 @@ const HomePies: React.FC<PieContainerProps> = (props) => {
 
     // Let of test data using an array of the Stats type, this is only used for display testing purposes for now
     let testData: Stats[] = createListData(props.data);
-
     const [canMount, setCanMount] = useState<boolean>(false);
 
     // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
@@ -59,7 +58,7 @@ const HomePies: React.FC<PieContainerProps> = (props) => {
                                 Game Views
                             </Typography>
                             <PieChart
-                                dataSet={testData.slice(0, 5)}
+                                dataSet={testData.sort(Comparator).slice(0, 5)}
                                 totalVal={props.totalVal}
                             />
                         </Grid> :

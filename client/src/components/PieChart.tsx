@@ -6,10 +6,17 @@ import { Stats, PieProps } from './TypesAndInterfaces'
 
 const colorTest = ['#1de441', '#EA7369', '#1ac9e6', '#d8ac2d', '#e7e35e', '#AF4BCE']
 const colorOutline = ["#084914", "#A5194D", "#142459", "#991212", "#de542c", "#29066B"]
+const colorToolTip = ["#29066B", "#084914", "#A5194D", "#142459", "#991212", "#de542c"]
 
 const PieChart: React.FC<PieProps> = (props) => {
 
-    const dataFinal = [...props.dataSet, { name: "Rest of Twitch", views: props.totalVal }]
+    let top5Total = 0;
+
+    for (let i = 0; i < props?.dataSet.length; i++) {
+        top5Total += props.dataSet[i].views;
+    };
+
+    const dataFinal = [...props.dataSet, { name: "Other", views: (props.totalVal - top5Total) }]
 
     const pieChart = useRef<SVGSVGElement | null>(null)
 
@@ -83,7 +90,6 @@ const PieChart: React.FC<PieProps> = (props) => {
             let svg = selectionState
                 .attr('width', dimensions.width!)
                 .attr('height', dimensions.height!)
-                // .style('background-color','yellow')
                 .append('g')
                 .attr('transform', `translate(${dimensions.width! / 2},${dimensions.height! / 2})`)
 
@@ -102,7 +108,7 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .attr('d', arc)
                 .attr('fill', (d, i) => colorTest[i])
                 .attr('stroke', (d, i) => colorOutline[i])
-                .attr('stroke-width', '.15rem')
+                .attr('stroke-width', '.2rem')
                 .on('mouseover', (e, d) => {
                     tooltip.transition()
                         .duration(200)
@@ -112,9 +118,19 @@ const PieChart: React.FC<PieProps> = (props) => {
                         ${d.data.name}
                         </p>` +
 
-                        `<p class='toolInfo' style='background-color: red;'>
+                        `<p class="toolInfo" style='background-color: ${colorToolTip[d.index]};'>
+                        ${(d.data.views / props.totalVal * 100).toFixed(2)}%
+                        </p>` +
+
+                        `<p class='percentage' >
                         ${d.data.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        </p>` +
+
+                        `<p class='toolDate'>
+                        7 day average
                         </p>`
+
+
                     )
                 })
                 .on("mousemove", function (event) {
@@ -127,6 +143,18 @@ const PieChart: React.FC<PieProps> = (props) => {
                         .duration(500)
                         .style("opacity", 0);
                 });
+
+            svg
+                .selectAll('mySlices')
+                .data(piedata)
+                .enter()
+                .append('text')
+                .attr('class', 'pieLabel')
+                .text(function (d) { return (d.index === 0 ? d.data.name : '') })
+                .attr("transform", function (d) { return "translate(" + (arc.centroid(d)[0] / 2) +
+                "," + arc.centroid(d)[1] + ")"; })
+                .style("text-anchor", "center")
+                .style("font-size", '.8rem')
         }
 
 

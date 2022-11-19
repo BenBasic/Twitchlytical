@@ -8,6 +8,15 @@ export function Comparator(a: Stats, b: Stats) {
     return 0;
 };
 
+// Percentage difference calculator, used for showing value differences between current and previous data
+export const percentDifference = (a: number, b: number) => {
+    const prevVal: number = a;
+    const currentVal: number = b;
+    const percent: number = (prevVal-currentVal)/prevVal*100.0;
+
+    return percent.toFixed(2).toString().replace("-", "");
+};
+
 // This function will reference archives after a specified date and provide a rounded average value
 export const createListData = (array: TopGames[]) => {
 
