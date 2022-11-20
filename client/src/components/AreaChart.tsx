@@ -9,16 +9,7 @@ import { area } from 'd3-shape'
 import { ScaleTime } from 'd3-scale'
 import * as d3 from 'd3'
 import { WeeklyViewProps } from './TypesAndInterfaces'
-
-
-// Percentage difference calculator, used for showing value differences between current and previous data
-const percentDifference = (a: number, b: number) => {
-    const prevVal: number = a;
-    const currentVal: number = b;
-    const percent: number = (prevVal-currentVal)/prevVal*100.0;
-
-    return percent.toFixed(2).toString().replace("-", "");
-};
+import { percentDifference } from '../utils/helpers'
 
 
 const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {

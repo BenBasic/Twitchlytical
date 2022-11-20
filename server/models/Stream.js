@@ -30,6 +30,9 @@ const StreamSchema = new Schema({
 	viewer_count: {
 		type: Number,
 	},
+	peak_views: {
+		type: Number,
+	},
 	thumbnail_url: {
 		type: String,
 	},

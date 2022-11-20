@@ -14,7 +14,20 @@ const resolvers = {
 			return Broadcaster.find();
 		},
 		getBroadcaster: async (parent, { _id }) => {
-			return Broadcaster.findOne({ _id });
+			return Broadcaster.find({ user_id: _id });
+		},
+		getBroadcasterPerformance: async (parent, { _id }) => {
+			const streamer = await Broadcaster.findOne({ user_id: _id })
+			.populate({
+				path: 'archive',
+				model: 'ArchiveData',
+			})
+
+			if (!streamer) {
+				console.log("No Streamer was found")
+			} else {
+				return streamer;
+			};
 		},
 		Games: async () => {
 			return Game.find();
@@ -48,6 +61,61 @@ const resolvers = {
 				return totalData;
 			}
         },
+		getCurrentData: async (parent, args) => {
+			const totalData = await TotalData.find({});
+
+			if (!totalData) {
+				console.log("No data was found")
+			} else {
+				return totalData
+			}
+		},
+		getTopGames: async (parent, args) => {
+			const topGames = await TotalData.find({})
+			.populate({
+				path: 'topGames',
+				model: 'Game',
+				populate: {
+					path: 'archive',
+					model: 'ArchiveData'
+				}
+			})
+			
+			// console.log("TOP GAMES IS")
+			// console.log(topGames[0].topGames[0].archive)
+
+			if (!topGames) {
+				console.log("No Total Data!")
+			};
+
+			return topGames
+		},
+		getTopStreams: async (parent, args) => {
+			const topStreams = await TotalData.find({})
+			.populate({
+				path: 'topStreams',
+				model: 'Stream',
+			})
+
+			if (!topStreams) {
+				console.log("No Total Data!")
+			};
+
+			return topStreams
+		},
+		getTopClips: async (parent, args) => {
+			const topClips = await TotalData.find({})
+			.populate({
+				path: 'topClips',
+				model: 'Clips',
+			})
+
+			if (!topClips) {
+				console.log("No Total Data!")
+			};
+
+			return topClips
+		},
 	},
 	Mutation: {
 
@@ -62,6 +130,114 @@ const resolvers = {
 				return game;
 			};
 
+        },
+
+		addStream: async (parent, { streamData }) => {
+            const stream = await Stream.findOne({ _id: streamData._id });
+
+			const topStreams = await TotalData.find({})
+			.populate({
+				path: 'topStreams',
+				model: 'Stream',
+			})
+
+			const lastWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6)
+
+			console.log(topStreams[0].topStreams)
+			if (topStreams[0].topStreams.length === 0) {
+				await topStreams[0].update({
+					topStreams: streamData._id
+				}, { new: true });
+			}
+
+			let higherPeak = false;
+			let oldPeaks = [];
+			for (let i = 0; i < topStreams[0].topStreams.length; i++) {
+				let dateFormat = new Date(topStreams[0].topStreams[i].started_at);
+				console.log("Dateformat is")
+				console.log(dateFormat)
+				console.log("LastWeekIs")
+				console.log(lastWeek)
+
+				if (dateFormat > lastWeek) {
+					if ((topStreams[0].topStreams[i].peak_views < streamData.peak_views &&
+						topStreams[0].topStreams[i]._id !== streamData._id &&
+						topStreams[0].topStreams[i].user_id !== streamData.user_id) ||
+						(topStreams[0].topStreams[i]._id !== streamData._id &&
+						topStreams[0].topStreams[i].user_id !== streamData.user_id &&
+						topStreams[0].topStreams.length < 10)) {
+						higherPeak = true;
+					};
+				} else {
+					oldPeaks.push(topStreams[0].topStreams[i]._id);
+				}
+			};
+
+			console.log("Old peaks is")
+			console.log(oldPeaks)
+
+			if (oldPeaks.length > 0) {
+				console.log("OldPeaksIfStatement")
+				for (let i = 0; i < oldPeaks.length; i++) {
+					await topStreams[0].update({
+						$pull: { topStreams: oldPeaks[i] }
+					}, { new: true });
+				}
+			}
+
+			if (higherPeak === true) {
+				await topStreams[0].update({
+					$addToSet: { topStreams: streamData._id }
+				}, { new: true });
+			}
+
+            if (!stream) {
+				console.log("Here1")
+				const newStream = await Stream.create(streamData);
+				return newStream;
+			} else {
+				if (streamData.viewer_count > stream.peak_views) {
+					console.log("Here2")
+					await stream.update({
+						peak_views: streamData.viewer_count,
+						viewer_count: streamData.viewer_count,
+						title: streamData.title,
+					}, { new: true });
+				} else {
+					console.log("Here3")
+					await stream.update({ viewer_count: streamData.viewer_count }, { new: true });
+				};
+				console.log("Here4")
+				return stream;
+			};
+
+        },
+
+		addClip: async (parent, { clipData }) => {
+			// Deletes previously stored clips
+			const oldClip = await Clips.deleteMany({});
+			// Inserts new clips from current api call for top 10 clips this week
+			const clip = await Clips.insertMany(clipData)
+			// Empty array which will fill up with ids for reference in topClips field in TotalData
+			let idArray = [];
+			// Iterative loop to gather ids of new top 10 clips
+			for (let i = 0; i < clipData?.length; i++) {
+				if (clipData[i]._id) {
+					idArray.push(clipData[i]._id)
+				};
+			};
+			// Finds and populates the topClips
+			const total = await TotalData.find({})
+			.populate({
+				path: 'topClips',
+				model: 'Clips',
+			})
+			// Updates topClips with the ids of the current top 10 clips from api call
+			await total[0].update({
+				topClips: idArray
+			}, { new: true });
+
+			return clip;
         },
 
 		addBroadcasterData: async (parent, { broadcasterData }) => {
@@ -216,7 +392,73 @@ const resolvers = {
 				return total;
 			};
 		},
+		// Updates top game list
+		updateTopGames: async (parent, { _id, games }) => {
+			const total = await TotalData.findOne({ _id: _id })
+			.populate({
+				path: 'topGames',
+				model: 'Game',
+			})
 
+			await total.update({
+				topGames: games
+			}, { new: true });
+
+			return total;
+		},
+		// Updates top stream list
+		updateTopStreams: async (parent, { _id }) => {
+			const total = await TotalData.findOne({ _id: _id })
+			.populate({
+				path: 'topStreams',
+				model: 'Stream',
+			})
+
+			console.log("TOP STREAM TOTAL")
+			console.log(total)
+
+			let topStreamArray = total.topStreams
+
+			console.log("TOP STREAM ARRAY IS")
+			console.log(topStreamArray)
+
+			const counts = topStreamArray.reduce((a, { user_id }) => {
+				a[user_id] = (a[user_id] || 0) + 1;
+				return a;
+			  }, {});
+			  
+			  let filArr = topStreamArray.filter(({ user_id }) => counts[user_id] > 1);
+			  let uniqueArr = topStreamArray.filter(({ user_id }) => counts[user_id] === 1);
+
+			// Comparator function which will sort streams by peak_views highest to lowest
+			function Comparator(a, b) {
+				if (a.peak_views < b.peak_views) return 1;
+				if (a.peak_views > b.peak_views) return -1;
+				return 0;
+			};
+
+			let newArr = filArr.sort(Comparator);
+
+
+			let unique = newArr.filter((set => f => !set.has(f.user_id) && set.add(f.user_id))(new Set));
+
+
+			let result = unique.concat(uniqueArr.filter(bo => unique.every(ao => ao.user_id != bo.user_id)));
+
+
+			// Sorting streams by peak_views highest to lowest, then removing anything lower than 10th place
+			result = result.sort(Comparator).slice(0, 10);
+
+
+			await total.update({
+				topStreams: result
+			}, { new: true });
+
+			console.log("TOP STREAM TOTAL 2")
+			console.log(total)
+
+			return total;
+		},
 
 	},
 };

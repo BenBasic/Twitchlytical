@@ -9,6 +9,7 @@ body {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #c5cae9;
 }
 
 code {
@@ -22,10 +23,6 @@ code {
   border-radius: 1.5rem 1.5rem .5rem .5rem;
 }
 
-.topGamesContainer {
-  background-color: gray;
-}
-
 div.tooltip {
   position: absolute;
   text-align: left;
@@ -37,7 +34,7 @@ div.tooltip {
   z-index: 1;
 }
 
-.toolDate, .toolInfo, .toolTitle, .higher, .lower {
+.toolDate, .toolInfo, .toolTitle, .higher, .lower, .percentage {
   margin-block-start: 0em;
   margin-block-end: 0em;
 }
@@ -53,6 +50,11 @@ div.tooltip {
   font-weight: var(--fontWeightRegular);
   border-bottom: .1rem solid black;
   margin-bottom: .2rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: left;
+  display: block;
 }
 
 .toolInfo {
@@ -63,7 +65,7 @@ div.tooltip {
   border-radius: .2rem;
 }
 
-.higher, .lower {
+.higher, .lower, .percentage {
   font-size: .9rem;
   font-weight: var(--fontWeightBold);
 }
@@ -88,4 +90,53 @@ div.tooltip {
 
 .tipArea:hover {
   opacity: 20%;
+}
+
+.rankCircle {
+  width: 1.6rem;
+  height: 1.6rem;
+  border: solid 0.3rem;
+  border-radius: 50%;
+  font-size: 1rem;
+  text-align: center;
+  position: absolute;
+  top: -.7rem;
+  left: -.7rem;
+  font-family: var(--fontFam);
+  font-weight: var(--fontWeightBold);
+}
+
+.rankCircle span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+}
+
+.modalContent {
+  height: calc((100vw/16)*9);
+  width: 100vw;
+}
+
+/* Aspect Ratio 2:1 - Original Width: 30rem, Original Height: 15rem*/
+.pieContainer {
+  height: 15.5rem;
+  width: 100%;
+}
+
+.pieSvg {
+  overflow: visible; /* Needed for hover scaling to not have edges cut off */
+}
+
+.pieLabel {
+  font-weight: var(--fontWeightBold);
+  pointer-events : none;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+     -moz-user-select: none; /* Old versions of Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; /* Non-prefixed version, currently
+                                supported by Chrome, Edge, Opera and Firefox */
 }

@@ -25,6 +25,24 @@ const totalDataSchema = new Schema({
 			ref: "ArchiveData",
 		},
 	],
+	topGames: [
+		{
+			type: Schema.Types.String,
+			ref: "Game"
+		}
+	],
+	topStreams: [
+		{
+			type: Schema.Types.String,
+			ref: "Stream",
+		}
+	],
+	topClips: [
+		{
+			type: Schema.Types.String,
+			ref: "Clips",
+		}
+	]
 });
 const totalData = model("TotalData", totalDataSchema);
 

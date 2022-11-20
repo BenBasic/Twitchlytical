@@ -68,6 +68,20 @@ const typeDefs = gql`
 		title: String
 		tags_ids: [String]
 		viewer_count: Int
+		peak_views: Int
+		thumbnail_url: String
+		started_at: String
+		language: String
+	}
+	input StreamInput {
+		_id: ID
+		user_id: String
+		user_name: String
+		game_id: String
+		game_name: String
+		title: String
+		viewer_count: Int
+		peak_views: Int
 		thumbnail_url: String
 		started_at: String
 		language: String
@@ -81,6 +95,9 @@ const typeDefs = gql`
 		totalGames: Int
 		avgTotalGames: Int
 		archive: [ArchiveData]
+		topGames: [Game]
+		topStreams: [Stream]
+		topClips: [Clips]
 	}
 	input TotalDataInput {
 		_id: ID
@@ -99,31 +116,51 @@ const typeDefs = gql`
 		embed_url: String
 		broadcaster_name: String
 		broadcaster_id: String
-		creator_id: String
-		creator_name: String
-		url: String
 		thumbnail_url: String
 		view_count: Int
 		created_at: String
-		duration: String
+		duration: Float
+		vod_offset: Int
+	}
+
+	input ClipsInput {
+		_id: ID
+		game_id: String
+		title: String
+		embed_url: String
+		broadcaster_name: String
+		broadcaster_id: String
+		thumbnail_url: String
+		view_count: Int
+		created_at: String
+		duration: Float
 		vod_offset: Int
 	}
 
 	type Query {
 		Broadcaster: [Broadcaster]
-		getBroadcaster(_id: ID): Broadcaster
+		getBroadcaster(_id: [String]): [Broadcaster]
+		getBroadcasterPerformance(_id: String): Broadcaster
 		Games: [Game]
 		getGame(_id: ID): Game
 		Clips: [Clips]
 		getStream: [Stream]
 		getTotalData(date: Date): [TotalData]
+		getCurrentData: [TotalData]
+		getTopGames: [TotalData]
+		getTopStreams: [TotalData]
+		getTopClips: [TotalData]
 	}
 
 	type Mutation {
 		addGame(gameData: GameInput!): Game
+		addStream(streamData: StreamInput!): Stream
+		addClip(clipData: [ClipsInput]!): [Clips]
 		addBroadcasterData(broadcasterData: BroadcasterInput!): Broadcaster
 		addArchiveData(archiveData: ArchiveDataInput!): ArchiveData
 		updateTotalData(totalData: TotalDataInput!, date: String): TotalData
+		updateTopGames(_id: ID, games: [ID]): TotalData
+		updateTopStreams(_id: ID): TotalData
 	}
 
 `;

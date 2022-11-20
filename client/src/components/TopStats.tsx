@@ -1,19 +1,44 @@
 import React, { useState } from 'react'
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid'
-import { styled } from '@mui/material/styles';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography'
-import Avatar from '@mui/material/Avatar';
+import { useQuery } from "@apollo/client";
+import { GET_TOP_GAME_WEEK, GET_TOP_STREAM_WEEK, GET_BROADCASTER_USER_ID } from "../utils/queries";
+
+import { createListData, createStreamerData, Comparator } from '../utils/helpers';
 
 // Importing the Stats type for use within the Comparator function
-import { Stats } from './TypesAndInterfaces';
+import { Stats, TopProps, TopGames, TopStreams, TopBroadcasters, } from './TypesAndInterfaces';
 
 // Importing the RankCard component for use within the return of TopStats
 import RankCard from './RankCard';
 
 // Importing colors from Material UI
-import { amber, orange, deepPurple, blue, green } from '@mui/material/colors';
+import { amber, orange, deepPurple, blue, green, indigo, cyan } from '@mui/material/colors';
+
+// Object containing style properties used for the MUI implementation throughout this file
+const styles = {
+    container: {
+        backgroundColor: indigo[200],
+        borderRadius: '.5rem .5rem .5rem .5rem',
+        paddingBottom: '2rem',
+    },
+    mainTitle: {
+        display: 'inline-block',
+        paddingLeft: '1.5rem',
+        paddingRight: '1.5rem',
+        fontFamily: 'Outfit, sans-serif',
+        fontWeight: 700,
+        color: 'white',
+        backgroundColor: indigo[700],
+        borderRadius: '1rem'
+    },
+    title: {
+        display: 'inline-block',
+        fontFamily: 'Outfit, sans-serif',
+        fontWeight: 700,
+    },
+};
 
 
 // Defining object containing ranked property color values 
@@ -29,125 +54,14 @@ const topColors = {
 };
 
 
-const TopStats: React.FC = () => {
+const TopStats: React.FC<TopProps> = (props) => {
 
     // Let of test data using an array of the Stats type, this is only used for display testing purposes for now
-    let testData: Stats[] = [
-        {
-            name: "Overwatch",
-            views: 103040,
-            image: "https://www.mobygames.com/images/covers/l/840891-overwatch-2-nintendo-switch-front-cover.jpg",
-        },
-        {
-            name: "Stardew Valley",
-            views: 24500,
-            image: "https://image.api.playstation.com/cdn/UP2456/CUSA06840_00/0WuZecPtRr7aEsQPv2nJqiPa2ZvDOpYm.png",
-        },
-        {
-            name: "Fallout New Vegas",
-            views: 3100,
-            image: "https://howlongtobeat.com/games/Fallout_New_Vegas.jpg",
-        },
-        {
-            name: "Minecraft",
-            views: 4680,
-            image: "https://www.mobygames.com/images/covers/l/672322-minecraft-playstation-4-front-cover.jpg",
-        },
-        {
-            name: "Xcom 2",
-            views: 20003,
-            image: "https://www.mobygames.com/images/covers/l/425882-xcom-2-war-of-the-chosen-playstation-4-front-cover.jpg",
-        },
-        {
-            name: "Portal 2",
-            views: 302,
-            image: "http://s01.riotpixels.net/data/b5/cf/b5cfe10d-7290-4bcb-a89d-e5d0e07b89f4.jpg/cover.portal-2.1024x1024.2014-04-24.1116.jpg",
-        },
-        {
-            name: "Sid Meier's Civilization VI",
-            views: 72301,
-            image: "https://steamuserimages-a.akamaihd.net/ugc/1802025626651923540/962EB4599F3C3E318491A62AEB3604876AFBE87D/",
-        },
-        {
-            name: "Pavlov VR",
-            views: 135,
-            image: "https://cdna.artstation.com/p/assets/images/images/022/303/284/large/david-sheep-pavlov-01.jpg?1574894810",
-        },
-        {
-            name: "Fall Guys",
-            views: 6300,
-            image: "https://www.mobygames.com/images/covers/l/676144-fall-guys-ultimate-knockout-playstation-4-front-cover.png",
-        },
-        {
-            name: "Compound",
-            views: 30005,
-            image: "https://thumbnails.pcgamingwiki.com/5/55/New_cover.png/300px-New_cover.png",
-        },
-    ];
-
+    let testData: Stats[] = createListData(props.gameProps)
 
     // Let of test data using an array of the Stats type, this is only used for display testing purposes for now
-    let testDataStreamers: Stats[] = [
-        {
-            name: "MOISTCR1TIKAL",
-            views: 103040,
-            image: "https://cdn1.dotesports.com/wp-content/uploads/2020/11/15213949/Charlie-Penguinz0.png",
-        },
-        {
-            name: "Emiru",
-            views: 24500,
-            image: "https://yt3.ggpht.com/ytc/AMLnZu-8R7HpB66AznXoaDb5sQFpD4DXbCyqnDncT_yMFw=s900-c-k-c0x00ffffff-no-rj",
-        },
-        {
-            name: "Pokimane",
-            views: 3100,
-            image: "https://upload.wikimedia.org/wikipedia/commons/1/10/Pokimane_2019.png",
-        },
-        {
-            name: "IronMouse",
-            views: 4680,
-            image: "https://wegotthiscovered.com/wp-content/uploads/2022/04/FLtfwy3WQAIDTJW.jpg",
-        },
-        {
-            name: "CDawgVA",
-            views: 20003,
-            image: "https://pbs.twimg.com/profile_images/1528374271407378434/cngzQWHr_400x400.jpg",
-        },
-        {
-            name: "Mori Calliope",
-            views: 302,
-            image: "https://yt3.ggpht.com/8B_T08sx8R7XVi5Mwx_l9sjQm5FGWGspeujSvVDvd80Zyr-3VvVTRGVLOnBrqNRxZp6ZeXAV=s900-c-k-c0x00ffffff-no-rj",
-        },
-        {
-            name: "Gawr Gura",
-            views: 72301,
-            image: "https://yt3.ggpht.com/uMUat6yJL2_Sk6Wg2-yn0fSIqUr_D6aKVNVoWbgeZ8N-edT5QJAusk4PI8nmPgT_DxFDTyl8=s900-c-k-c0x00ffffff-no-rj",
-        },
-        {
-            name: "Trash Taste",
-            views: 135,
-            image: "https://yt3.ggpht.com/ytc/AMLnZu_ftgC9BGqAjjTQBtT6w9lMWgfQzihCQ5MmnlE=s900-c-k-c0x00ffffff-no-rj",
-        },
-        {
-            name: "Lugwig",
-            views: 6300,
-            image: "https://www.svg.com/img/gallery/ludwig-makes-a-surprising-claim-about-amouranth/intro-1624629959.jpg",
-        },
-        {
-            name: "Joe Bartolozzi",
-            views: 30005,
-            image: "https://yt3.ggpht.com/MbrQnkNF6nHK8xDmMvJ0AckDshGXT1OSQnuAWYsOIWBczy_5Fy5w4yVWdL1YBTe5AmxDpmPY=s900-c-k-c0x00ffffff-no-rj",
-        },
-    ];
+    let testDataStreamers: Stats[] = createStreamerData(props.streamProps, props.broadcasterProps);
 
-
-    // Comparator function which will sort cards by views highest to lowest
-    function Comparator(a:Stats, b:Stats) {
-        if (a.views < b.views) return 1;
-        if (a.views > b.views) return -1;
-        return 0;
-    };
-    
     // Assigning the array of data to sort by value of views from highest to lowest
     testData = testData.sort(Comparator);
     testDataStreamers = testDataStreamers.sort(Comparator);
@@ -158,58 +72,97 @@ const TopStats: React.FC = () => {
     // Assigning the topStreamers state, currently uses the Stats type and sets initial state to the values in testDataSteamers
     const [topStreamers, setTopStreamers] = useState<Stats[]>(testDataStreamers);
 
+    const [canMount, setCanMount] = useState<boolean>(false);
+
+    // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
+    if (props.loading === false && canMount === false) {
+        setTopGames(testData.sort(Comparator))
+        setTopStreamers(testDataStreamers)
+        setCanMount(true);
+    };
+
 
 
     return (
 
-        <Container maxWidth="sm" className='topGamesContainer'>
+        <Container maxWidth="md" style={styles.container} className="topStatsContainer">
 
-            <Typography variant={'h4'} textAlign='center' marginBottom={'1rem'}>
-                Most Popular
-            </Typography>
+            <Grid item xs={12} textAlign="center">
+                <Typography variant={'h4'} mt={2} mb={1} textAlign='center'
+                    style={styles.mainTitle}
+                    fontSize={{ xs: '1.85rem', sm: '2.13rem' }}
+                >
+                    Most Popular
+                </Typography>
+            </Grid>
 
             <Grid container spacing={2}>
 
                 <Grid item xs={6}>
+                    <Grid item xs={12} textAlign="center">
+                        <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={indigo[700]} textAlign='center'
+                            style={styles.title}
+                            fontSize={{ xs: '1.35rem', sm: '2.1rem' }}
+                        >
+                            Games
+                        </Typography>
+                    </Grid>
 
-                    <Typography variant={'h4'} textAlign='center'>
-                        Games
-                    </Typography>
+                    {canMount === true ?
+                        topGames.slice(0, 10).map((game, index) => (
+                            <RankCard statInfo={game} key={index} viewType="avg"
+                                color={{ primary: indigo[700], secondary: indigo[900] }}
+                                rankIndex={index}
+                                rankColor={index === 0 ?
+                                    { primary: topColors.best, secondary: topColors.bestDark } :
+                                    index > 0 && index < 3 ?
+                                        { primary: topColors.great, secondary: topColors.greatDark } :
+                                        index > 2 && index < 7 ?
+                                            { primary: topColors.good, secondary: topColors.goodDark } :
+                                            { primary: topColors.ok, secondary: topColors.okDark }
+                                }
+                            ></RankCard>
+                        )) :
+                        <Typography variant={'h4'}>
+                            Loading...
+                        </Typography>
+                    }
 
-                    {topGames.map((game, index) => (
-                        <RankCard statInfo={game} key={index}
-                        color={ index === 0 ?
-                            {primary: topColors.best, secondary: topColors.bestDark} :
-                            index > 0 && index < 3 ?
-                            {primary: topColors.great, secondary: topColors.greatDark} :
-                            index > 2 && index < 7 ?
-                            {primary: topColors.good, secondary: topColors.goodDark} :
-                            {primary: topColors.ok, secondary: topColors.okDark}
-                        }
-                        ></RankCard>
-                    ))}
 
                 </Grid>
 
 
                 <Grid item xs={6}>
 
-                    <Typography variant={'h4'} textAlign='center'>
-                        Streamers
-                    </Typography>
+                    <Grid item xs={12} textAlign="center">
+                        <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={indigo[700]} textAlign='center'
+                            style={styles.title}
+                            fontSize={{ xs: '1.35rem', sm: '2.1rem' }}
+                        >
+                            Streamers
+                        </Typography>
+                    </Grid>
 
-                    {topStreamers.map((streamer, index) => (
-                        <RankCard statInfo={streamer} key={index}
-                        color={ index === 0 ?
-                            {primary: topColors.best, secondary: topColors.bestDark} :
-                            index > 0 && index < 3 ?
-                            {primary: topColors.great, secondary: topColors.greatDark} :
-                            index > 2 && index < 7 ?
-                            {primary: topColors.good, secondary: topColors.goodDark} :
-                            {primary: topColors.ok, secondary: topColors.okDark}
-                        }
-                        ></RankCard>
-                    ))}
+                    {canMount === true ?
+                        topStreamers.map((streamer, index) => (
+                            <RankCard statInfo={streamer} key={index} viewType="peak"
+                                color={{ primary: indigo[700], secondary: indigo[900] }}
+                                rankIndex={index}
+                                rankColor={index === 0 ?
+                                    { primary: topColors.best, secondary: topColors.bestDark } :
+                                    index > 0 && index < 3 ?
+                                        { primary: topColors.great, secondary: topColors.greatDark } :
+                                        index > 2 && index < 7 ?
+                                            { primary: topColors.good, secondary: topColors.goodDark } :
+                                            { primary: topColors.ok, secondary: topColors.okDark }
+                                }
+                            ></RankCard>
+                        )) :
+                        <Typography variant={'h4'}>
+                            Loading...
+                        </Typography>
+                    }
+
 
                 </Grid>
 
