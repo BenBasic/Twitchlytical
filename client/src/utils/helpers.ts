@@ -1,10 +1,18 @@
 // Importing the Stats type for use within the Comparator function
-import { Stats, TopProps, TopGames, TopStreams, TopBroadcasters, } from '../components/TypesAndInterfaces';
+import { Stats, TopGames, TopStreams, TopBroadcasters, BroadcasterArchive, } from '../components/TypesAndInterfaces';
+
+const now = new Date();
 
 // Comparator function which will sort cards by views highest to lowest
 export function Comparator(a: Stats, b: Stats) {
     if (a.views < b.views) return 1;
     if (a.views > b.views) return -1;
+    return 0;
+};
+
+export function miniComparator(a: number, b: number) {
+    if (a < b) return 1;
+    if (a > b) return -1;
     return 0;
 };
 
@@ -87,6 +95,96 @@ export const createShortStreamerList = (array: TopStreams[]) => {
             name: array[i]?.user_name,
             views: array[i]?.peak_views,
         })
+    };
+    return finalResult;
+};
+
+export function miniGetAverage(refArray: number[]) {
+    let total = 0;
+    let count = 0;
+    for (let j = 0; j < refArray.length; j++) {
+        total = total + refArray[j];
+        count++;
+    };
+    // Getting the average value by dividing total and count
+    let average = total / count;
+    // Rounding the average, without this the database tends to throw errors due to long decimal values
+    let averageRounded = average.toFixed();
+
+    return averageRounded;
+};
+
+export const createBroadcasterPerformanceList = (array: BroadcasterArchive[]) => {
+    let finalResult = [];
+    let peakNum: number = 0;
+    let refArray: number[] = [];
+
+
+    for (let i = 0; i < array?.length; i++) {
+        if (i > 0) {
+            if (array[i].stream_id === array[i - 1].stream_id &&
+                array[i].view_count > array[i - 1].view_count &&
+                array[i].view_count > peakNum) {
+                peakNum = array[i].view_count
+                refArray.push(array[i].view_count)
+                if (i === (array.length - 1)) {
+                    finalResult.push({
+                        peak: peakNum,
+                        avg: miniGetAverage(refArray),
+                        date: array[i].createdAt
+                    })
+                }
+            } else if (array[i].stream_id !== array[i - 1].stream_id) {
+                if (refArray.length === 1) {
+                    finalResult.push({
+                        peak: refArray[0],
+                        avg: refArray[0],
+                        date: array[i - 1]?.createdAt
+                    });
+                    if (i === (array.length - 1)) {
+                        finalResult.push({
+                            peak: array[i].view_count,
+                            avg: array[i].view_count,
+                            date: array[i].createdAt
+                        });
+                    }
+                    peakNum = array[i].view_count
+                    refArray = [array[i].view_count]
+                } else {
+
+                    finalResult.push({
+                        peak: peakNum,
+                        avg: miniGetAverage(refArray),
+                        date: array[i - 1]?.createdAt
+                    })
+
+                    peakNum = array[i].view_count
+                    refArray = [array[i].view_count]
+                };
+
+            } else if (array[i].stream_id === array[i - 1].stream_id &&
+                array[i].view_count < array[i - 1].view_count) {
+                refArray.push(array[i].view_count)
+                if (i === (array.length - 1)) {
+                    finalResult.push({
+                        peak: peakNum,
+                        avg: miniGetAverage(refArray),
+                        date: array[i].createdAt
+                    })
+                }
+            };
+        } else if (i === 0) {
+            refArray.push(array[i].view_count)
+            peakNum = array[i].view_count
+            if (i === (array.length - 1)) {
+                finalResult.push({
+                    peak: array[i].view_count,
+                    avg: array[i].view_count,
+                    date: array[i].createdAt
+                })
+            };
+
+        };
     };
     return finalResult;
 };

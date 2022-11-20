@@ -55,6 +55,14 @@ export type TopTotalDB = {
     archive: [ArchiveTotals];
 }
 
+export type BroadcasterArchive = {
+    _id: string;
+    user_id: string;
+    stream_id: string;
+    view_count: number;
+    createdAt: Date;
+}
+
 
 export interface GetTotal {
     totalVal: TopTotalDB;

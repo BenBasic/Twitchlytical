@@ -140,6 +140,7 @@ const typeDefs = gql`
 	type Query {
 		Broadcaster: [Broadcaster]
 		getBroadcaster(_id: [String]): [Broadcaster]
+		getBroadcasterPerformance(_id: String): Broadcaster
 		Games: [Game]
 		getGame(_id: ID): Game
 		Clips: [Clips]

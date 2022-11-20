@@ -118,6 +118,7 @@ function calculateDate(time) {
 
 // // Gets videos (currently testing with videos for Overwatch 2, sorting by views)
 // getData(process.env.GET_VIDEOS + '?sort=views&game_id=515025')
+// getData(process.env.GET_VIDEOS + '?user_id=15564828&type=archive&first=5')
 
 // getData(process.env.GET_STREAMS + '?game_id=515025');
 
