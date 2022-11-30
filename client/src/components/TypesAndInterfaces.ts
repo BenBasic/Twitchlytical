@@ -63,6 +63,22 @@ export type BroadcasterArchive = {
     createdAt: Date;
 }
 
+export type ProfileHeaderData = {
+    user_id: string;
+    name: string;
+    profile_image_url: string;
+    description: string;
+    total_views: number;
+    createdAt: string;
+    broadcaster_type: string;
+    lastLive: string | undefined;
+}
+
+
+export interface ProfileHeaderProps {
+    data: ProfileHeaderData;
+}
+
 
 export interface BroadcasterStatProps {
     data: [BroadcasterArchive];

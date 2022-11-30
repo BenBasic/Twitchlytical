@@ -201,7 +201,7 @@ export const createBroadcasterPerformanceList = (array: BroadcasterArchive[]) =>
 // ****** Example ******
 // input: [1,2,3,4], 0, 3
 // result: [2,3,4,1]
-export const moveArrIndex = (array: any[], refIndex: number, finalIndex:number) => {
+export const moveArrIndex = (array: any[], refIndex: number, finalIndex: number) => {
 
     if (refIndex === finalIndex) {
         return array;
@@ -233,7 +233,7 @@ export const checkArrIsNum = (array: any[], replaceVal: number) => {
 
     for (let i = length - 1; i > -1; i--) {
 
-        if (isNaN(array[i]) && (!array[i-1] || !isNaN(array[i-1]))) {
+        if (isNaN(array[i]) && (!array[i - 1] || !isNaN(array[i - 1]))) {
             console.log("TRIGGERED NAN CHECK")
             console.log(i)
             isNumStatus = false;
@@ -279,3 +279,28 @@ export const checkArrIsNum = (array: any[], replaceVal: number) => {
 //     console.log(array)
 //     return array;
 // }
+
+
+
+// Calculates difference between current time and previous date string which is passed in
+// ****** Example ******
+// current date: 2022-11-30T12:49:57Z
+
+// input: '2020-11-28T15:49:57Z'
+// result: 2 years ago
+// input: '2022-11-30T09:49:57Z'
+// result: 3 hours ago
+export const timeSince = (date: string) => {
+
+    const prevDate: any = new Date(date);
+    const currentDate: any = now;
+    const diffTime = Math.abs(currentDate - prevDate);
+    const diffTotalHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffTotalHours / 24);
+    const diffHoursWithoutDays = diffTotalHours % 24;
+
+    if (diffDays <= 1) return `${diffHoursWithoutDays} hours ago`;
+    if (diffDays > 1 && diffDays < 61) return `${diffDays} days ago`;
+    if (diffDays >= 61 && diffDays < 366) return `${diffDays % 30} months ago`;
+    if (diffDays >= 366) return diffDays % 365 === 1 ? `${diffDays % 365} year ago` : `${diffDays % 365} years ago`;
+};

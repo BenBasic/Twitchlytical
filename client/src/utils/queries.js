@@ -131,6 +131,13 @@ export const GET_TOP_CLIPS_WEEK = gql`
 export const GET_BROADCASTER_PERFORMANCE = gql`
     query Query($id: String) {
         getBroadcasterPerformance(_id: $id) {
+            user_id
+            name
+            profile_image_url
+            total_views
+            createdAt
+            broadcaster_type
+            description
             archive {
             _id
             user_id

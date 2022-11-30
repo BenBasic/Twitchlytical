@@ -4,7 +4,8 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 import BroadcasterPerformanceChart from './BroadcasterPerformanceChart';
 import { BroadcasterStatProps, ProfileData } from './TypesAndInterfaces';
-import { createBroadcasterPerformanceList } from '../utils/helpers'
+import { createBroadcasterPerformanceList } from '../utils/helpers';
+import { getData } from '../utils/clientFetches';
 
 // Importing colors from Material UI
 import { indigo, deepPurple } from '@mui/material/colors';
@@ -13,48 +14,6 @@ console.log("env checks are")
 console.log(process.env.REACT_APP_CLIENT_ID)
 console.log(process.env.REACT_APP_CLIENT_SECRET)
 console.log(process.env.REACT_APP_GET_VIDEOS)
-
-// Generates token to be used for fetching data from the twitch api
-const getToken = async () => {
-    const tokenResponse = await fetch(
-        `https://id.twitch.tv/oauth2/token?client_id=${process.env.REACT_APP_CLIENT_ID}&client_secret=${process.env.REACT_APP_CLIENT_SECRET}&grant_type=client_credentials`,
-        {
-            method: "POST",
-        }
-    );
-
-    // Grabbing the access_token from the returned json
-    const tokenJson = await tokenResponse.json();
-    const token = tokenJson.access_token;
-
-    // Returning the token to be referenced in api calls
-    return token;
-};
-
-const getData = async (reqUrl: string) => {
-    const url = reqUrl
-    const token = await getToken();
-
-    console.log(`client token is ${token}`)
-
-    const requestHeaders: HeadersInit = new Headers();
-    requestHeaders.set('client-id', `${process.env.REACT_APP_CLIENT_ID}`);
-    requestHeaders.set('Authorization', `Bearer ${token}`);
-    requestHeaders.set('Accept', `application/json`);
-    requestHeaders.set('Content-Type', 'application/json');
-
-    const res = await fetch(url, {
-        method: "GET",
-        headers: requestHeaders
-    })
-    let twitch_data = await res.json();
-
-    // Use this to keep track of all data being fetched during calls, if its annoying then just comment it out
-    console.log("Twitch Data is -------")
-    console.log(twitch_data);
-
-    return twitch_data;
-};
 
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {
@@ -92,7 +51,7 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
 
         if (dataList !== undefined && apiCheck === undefined) setApiCheck(dataList);
 
-        const apiData = (apiCheck === undefined ? await apiCall(`?user_id=${userId}&type=archive&first=5`) : undefined);
+        const apiData = (apiCheck === undefined ? await apiCall(`?user_id=${userId}&type=archive&first=7`) : undefined);
 
         const apiDataNested = (apiCheck === undefined ? await apiData?.data : undefined);
 
@@ -166,22 +125,36 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                         </Typography>
                     </Grid>
                     <Grid item xs={12}>
-                        {dataList === undefined || dataList?.length === 0 ?
-                            <h4>Did this show up?</h4>
-                            :
-                            <Grid item xs={12} className="homeChartItem">
-                                <Typography variant={'h5'} textAlign='center' style={styles.title}
-                                    width={'100%'}
-                                >
-                                    Recent Stream Performance
-                                </Typography>
-                                <BroadcasterPerformanceChart
-                                    profileData={dataList}
-                                    type={'view'}
-                                />
-                            </Grid>
 
-                        }
+                        <Grid item xs={12} className="homeChartItem">
+                            <Typography variant={'h5'} textAlign='center' style={styles.title}
+                                width={'100%'}
+                            >
+                                Recent Stream Performance
+                            </Typography>
+                            {dataList === undefined || dataList?.length === 0 ?
+                                <Typography className='areaChart' variant={'h4'} textAlign='center'>
+                                    Loading Chart...
+                                </Typography>
+                                :
+                                dataList?.length < 2 ?
+                                    <>
+                                        <Typography className='areaChart' variant={'h4'} textAlign='center'>
+                                            User Streams Unavailable
+                                        </Typography>
+                                        <Typography className='areaChart' variant={'subtitle2'} textAlign='center'>
+                                            This is caused by the user having VODs disabled, or user hasn't streamed at least twice recently
+                                        </Typography>
+                                    </>
+                                    :
+                                    <BroadcasterPerformanceChart
+                                        profileData={dataList}
+                                        type={'view'}
+                                    />
+                            }
+                        </Grid>
+
+
 
                     </Grid>
                     <Grid item xs={12}>

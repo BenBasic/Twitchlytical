@@ -266,9 +266,8 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                 // Bar Chart
                 bar.append("rect")
                     .attr('x', (d) => x(`${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' })}`)!)
-                    .attr('y', (d) => barHeightCalc(d))
-                    .attr("height", (d) => dimensions.height! - (dimensions.height! / 8 * 1.2) - barHeightCalc(d))
-                    //.attr("height", (d) => dimensions.height! - (dimensions.height! / 8 * 1.2) - yBar(parseInt(d.duration.replace(/[^0-9\.]+/g, ''))!)!)
+                    .attr('y', (d) => resizeCheckState > 0 ? barHeightCalc(d) : dimensions.height! - (dimensions.height! / 8 * 1.2))
+                    .attr("height", (d) => resizeCheckState > 0 ? dimensions.height! - (dimensions.height! / 8 * 1.2) - barHeightCalc(d) : 0)
                     .attr("width", Math.round(dimensions.width! / 40 / 3 + (dimensions.width! / 40)))
                     .attr('transform', `translate(${dimensions.width! / 20}, 0)`)
                     .attr('fill', `url(#hourG)`)
@@ -276,6 +275,12 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                     .attr('stroke-width', '.15rem')
                     .style("opacity", .65)
 
+                    .transition()
+                    .duration(1000)
+                    .ease(easeElastic)
+
+                    .attr('y', (d) => barHeightCalc(d))
+                    .attr("height", (d) => dimensions.height! - (dimensions.height! / 8 * 1.2) - barHeightCalc(d))
 
 
                 // // Bar Chart labels
@@ -392,47 +397,48 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                                 colorClassDuration = `lower`
                             };
                         }
-
+                        // Makes tooltip visible when mouse enters tooltip area
                         tooltip.transition()
                             .duration(200)
                             .style("opacity", .9);
                         tooltip.html(
+                            // Tooltip Date
                             `<p class='toolDate'>
                             ${new Date(d.date).toDateString()}
                             </p>` +
-
+                            // Tooltip Stream Title
                             `<p class='toolStreamTitle'>
                             ${(d.title)}
                             </p>` +
-
+                            // Tooltip Peak Title
                             `<p class='toolTitle'>
                             Peak
                             </p>` +
-
+                            // Tooltip Peak Value
                             `<p class='toolInfo' style=background-color:${colorPicker.peak[2]};>
                             ${d.peak.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             </p>` +
-
+                            // Tooltip Peak Percentage Comparison
                             `<p class=${i === 0 ? 'hiddenElem' : colorClassPeak}>
                             ${greatCheckPeak}
                             </p>` +
-
+                            // Tooltip Average Title
                             `<p class='toolTitle'>
                             Average
                             </p>` +
-
+                            // Tooltip Average Value
                             `<p class='toolInfo' style=background-color:${colorPicker.avg[2]};>
                             ${d.avg.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             </p>` +
-
+                            // Tooltip Average Percentage Comparison
                             `<p class=${i === 0 ? 'hiddenElem' : colorClassAvg}>
                             ${greatCheckAvg}
                             </p>` +
-
+                            // Tooltip Duration Title
                             `<p class='toolTitle'>
                             Duration
                             </p>` +
-
+                            // Tooltip Duration Value
                             `<p class='toolInfo' style=background-color:${colorPicker.hour[2]};>
                             ${d.duration.replace(/([s])+/gi, ` ${plurals[2]}`)
                                 .replace(/([m])+/gi, ` ${plurals[1]}<br>`)
@@ -441,17 +447,19 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                                 .replace(/\b0/g, '')
                             }
                             </p>` +
-
+                            // Tooltip Date Percentage Comparison
                             `<p class=${i === 0 ? 'hiddenElem' : colorClassDuration}>
                             ${greatCheckDuration}
                             </p>`
                         )
                     })
+                    // Allows tooltip to follow mouse position, will swap sides if too close to page edge
                     .on("mousemove", function (event) {
                         tooltip
                             .style("left", (event.pageX > (window.innerWidth - 150) ? event.pageX - 120 : event.pageX + 10) + "px")
                             .style("top", (event.pageY - 40) + "px");
                     })
+                    // Hides tooltip when mouse leaves tooltip area
                     .on("mouseout", function (d) {
                         tooltip.transition()
                             .duration(500)

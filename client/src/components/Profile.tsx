@@ -1,7 +1,9 @@
-import React from 'react'
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
+import React, { useState } from 'react';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
+import { ProfileHeaderProps, ProfileHeaderData } from './TypesAndInterfaces';
+import { getData } from '../utils/clientFetches';
 import { indigo, deepPurple } from '@mui/material/colors';
 
 const styles = {
@@ -61,20 +63,55 @@ const styles = {
     },
 };
 
-const Profile: React.FC = () => {
+function capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
+const Profile: React.FC<ProfileHeaderProps> = (props) => {
+
+    let userData: ProfileHeaderData = props.data;
+
+    //////
+
+    const [apiCheck, setApiCheck] = useState<number | undefined>(undefined);
+
+    const apiCall = async (reqUrl: string) => {
+        return await getData(process.env.REACT_APP_GET_FOLLOWS + reqUrl);
+    }
+
+    const [dataCheck, setDataCheck] = useState<number>(0);
+
+    (async () => {
+
+        if (dataCheck !== 0 && apiCheck === undefined) setApiCheck(dataCheck);
+
+        const apiData = (apiCheck === undefined ? await apiCall(`?to_id=${userData.user_id}&first=1`) : undefined);
+
+        const apiDataNested = (apiCheck === undefined ? await apiData?.total : undefined);
+
+        if (apiCheck === undefined) {
+            setDataCheck(apiDataNested)
+            console.log("Profile Component if triggered")
+            console.log(dataCheck)
+        } else {
+            console.log("Profile Component ELSE TRIGGERED")
+            console.log(dataCheck)
+        }
+    })()
+
     return (
         <Grid container alignItems="center" justifyContent="center">
             <Grid container spacing={0} m={0} maxWidth="md" justifyContent="center" style={styles.container}>
                 <Grid item xs={3} alignItems='center' mt={2} sx={{ justifyContent: "center", display: "flex" }}>
                     <Avatar style={styles.profilePic}
-                        src={'https://static-cdn.jtvnw.net/jtv_user_pictures/b3c347ed-1a7a-40a2-8bee-8a7c4426eb33-profile_image-300x300.png'} />
+                        src={userData.profile_image_url} />
                 </Grid>
                 <Grid item xs={9} mt={2} textAlign="left">
                     <Typography variant={'h4'} mt={2} mb={0} textAlign='center'
                         style={styles.mainTitle}
                         fontSize={{ xs: '1.85rem', sm: '2.13rem' }}
                     >
-                        HelloName
+                        {userData.name}
                     </Typography>
                     <Grid container maxWidth="md" mt={2} mb={4} alignItems="left" justifyContent="left"
                         style={styles.infoContainer}
@@ -84,7 +121,7 @@ const Profile: React.FC = () => {
                                 Followers
                             </Typography>
                             <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={{ xs: '1.4rem', sm: '2.1rem' }}>
-                                902,310
+                                { apiCheck !== undefined ? apiCheck.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "Loading..."}
                             </Typography>
                         </Grid>
                         <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} style={styles.liveStats}>
@@ -97,10 +134,10 @@ const Profile: React.FC = () => {
                         </Grid>
                         <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} style={styles.liveStats}>
                             <Typography variant={'subtitle2'} textAlign='center' style={styles.heading} fontSize={{ xs: '.6rem', sm: '.8rem' }}>
-                                Partner
+                                Status
                             </Typography>
                             <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={{ xs: '1.4rem', sm: '2.1rem' }}>
-                                Yes
+                                {userData.broadcaster_type === "" ? "Standard" : capitalizeFirstLetter(userData.broadcaster_type)}
                             </Typography>
                         </Grid>
 
@@ -109,7 +146,7 @@ const Profile: React.FC = () => {
                                 Channel Created
                             </Typography>
                             <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={{ xs: '1.4rem', sm: '2.1rem' }}>
-                                Mar 23, 2018
+                                {new Date(userData.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
                             </Typography>
                         </Grid>
                         <Grid item xs={6} sm={4.95} md={4.5} mx={{ xs: 0, sm: 1 }} mt={2} style={styles.liveStats}>
@@ -117,7 +154,7 @@ const Profile: React.FC = () => {
                                 Last Live
                             </Typography>
                             <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={{ xs: '1.4rem', sm: '2.1rem' }}>
-                                3 Hours Ago
+                                {userData.lastLive}
                             </Typography>
                         </Grid>
 
