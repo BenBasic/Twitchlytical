@@ -29,43 +29,10 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     // };
     // This contains all the prop data to be referenced in data visualization
     // const data = profileData;
-    const data = [
-        {
-            peak: 1000,
-            avg: 585,
-            date: "10-10-10",
-            duration: "30m20s",
-            title: "cool title i think",
-        },
-        {
-            peak: 2500,
-            avg: 1305,
-            date: "11-10-10",
-            duration: "1h12m20s",
-            title: "even cooler title maybe",
-        },
-        {
-            peak: 1300,
-            avg: 805,
-            date: "12-10-10",
-            duration: "1h01m10s",
-            title: "lame title yeah",
-        },
-        {
-            peak: 1900,
-            avg: 1105,
-            date: "13-10-10",
-            duration: "51m10s",
-            title: "lame title yeah2",
-        },
-        {
-            peak: 2400,
-            avg: 995,
-            date: "14-10-10",
-            duration: "1h30m10s",
-            title: "lame title yeah3",
-        },
-    ]
+    console.log("-------------------- Profile Data Is --------------------")
+    console.log(profileData)
+
+    const data = profileData;
 
     console.log("Data2 is")
     console.log(data)
@@ -134,24 +101,24 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
     // Values and sizing referenced for the x axis
     let x = scaleBand()
-        .domain((dataState === undefined ? "" : dataState.map(d => `${d.date}`)))
+        .domain((dataState === undefined ? "" : dataState.map(d => `${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' })}`)))
         .range([0, dimensions.width! - (dimensions.width! / 15) * 2])
         .paddingInner(1)
         .paddingOuter(.1)
 
     // Y axis placement and tick settings
     const yAxis = axisLeft(y).ticks(3, "s")
-    .tickPadding(dimensions.width! > 350 ? Math.round(dimensions.width! / 60) : Math.round(dimensions.width! / 100))
+        .tickPadding(dimensions.width! > 350 ? Math.round((dimensions.width! / 100) - dimensions.width! / 150) : Math.round((dimensions.width! / 100) - dimensions.width! / 80))
 
     // X axis placement and tick settings
     const xAxis = axisBottom(x).ticks((dataState === undefined ? 0 : dataState.length, '%a %e'))
-    .tickPadding(Math.round(dimensions.height! / 40))
-    .tickSizeOuter(0)
+        .tickPadding(Math.round(dimensions.height! / 40))
+        .tickSizeOuter(0)
 
     // Placement settings for starting position of chart appearing animation
     const startAreaRef: any = area()
         .x((d: any) => {
-            const xValue = x(d.date)
+            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' }))
             if (xValue) {
                 return xValue
             } else {
@@ -164,7 +131,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     // Placement settings for dataset 1 (final position, after animation)
     const areaRef: any = area()
         .x((d: any) => {
-            const xValue = x(d.date)
+            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' }))
             if (xValue) {
                 return xValue
             } else {
@@ -177,7 +144,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     // Placement settings for dataset 2 (final position, after animation)
     const channelAreaRef: any = area()
         .x((d: any) => {
-            const xValue = x(d.date)
+            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' }))
             if (xValue) {
                 return xValue
             } else {
@@ -186,6 +153,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
         })
         .y0(y(0))
         .y1((d: any) => y(d.avg))
+
 
     useEffect(() => {
 
@@ -223,7 +191,15 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                 // .style('background-color', '#DDD4E3');
 
 
-
+                // Calculates height for bar graphs [NEEDS TYPE ASSIGNMENT FOR PEREMETER]
+                const barHeightCalc = (d: any) => {
+                    let durationArr: any[] = d.duration.split(/[hms]+/gi, 3);
+                    for (let k = 0; k < durationArr.length; k++) {
+                        durationArr[k] = parseInt(durationArr[k], 10);
+                    };
+                    checkArrIsNum(durationArr, 0);
+                    return yBar(((durationArr[0] * 3600) + (durationArr[1] * 60) + durationArr[2]) * 1.2)
+                }
 
 
                 // Visualizes multiple data sets (Currently 2, can support more)
@@ -289,9 +265,10 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
                 // Bar Chart
                 bar.append("rect")
-                    .attr('x', (d) => x(d.date)!)
-                    .attr('y', (d) => yBar(parseInt(d.duration.replace(/[^0-9\.]+/g, ''))!)!)
-                    .attr("height", (d) => dimensions.height! - (dimensions.height! / 8 * 1.2) - yBar(parseInt(d.duration.replace(/[^0-9\.]+/g, ''))!)!)
+                    .attr('x', (d) => x(`${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' })}`)!)
+                    .attr('y', (d) => barHeightCalc(d))
+                    .attr("height", (d) => dimensions.height! - (dimensions.height! / 8 * 1.2) - barHeightCalc(d))
+                    //.attr("height", (d) => dimensions.height! - (dimensions.height! / 8 * 1.2) - yBar(parseInt(d.duration.replace(/[^0-9\.]+/g, ''))!)!)
                     .attr("width", Math.round(dimensions.width! / 40 / 3 + (dimensions.width! / 40)))
                     .attr('transform', `translate(${dimensions.width! / 20}, 0)`)
                     .attr('fill', `url(#hourG)`)
@@ -329,7 +306,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                     .append('g')
                     .attr('transform', `translate(${dimensions.width! / 20}, 0)`)
                     .style('stroke-width', '0rem')
-                    .style("font-size", Math.round(dimensions.width! / 40 / 3 + (dimensions.width! / 40)))
+                    .style("font-size", Math.round(dimensions.width! / 40 / 3 + (dimensions.width! / 60)))
                     .style("text-anchor", "middle")
                     .call(yAxis);
 
@@ -342,7 +319,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                     .classed("tipArea", true)
                     .attr("width", dimensions.width! / 25)
                     .attr("height", '86%')
-                    .attr("x", function (d) { return x(d.date)!; })
+                    .attr("x", function (d) { return x(`${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' })}`)!; })
                     .attr("y", 0)
                     .attr('transform', `translate(${dimensions.width! / 21.3}, 0)`)
                     .on("mouseover", function (event, d) {
@@ -396,36 +373,11 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                                 if (currentDuration[h] <= 1) plurals[h] = plurals[h].slice(0, -1);
                             };
 
-
-                            // ▼▼▼▼▼▼ REFACTOR NEEDED ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-
+                            // Reformats array if Current Stream doesnt contain hours or minutes
                             checkArrIsNum(currentDuration, 0);
-                            // // Reformats array if Current Stream doesnt contain hours or minutes
-                            // if (isNaN(currentDuration[2]) && !isNaN(currentDuration[1])) {
-                            //     currentDuration[2] = currentDuration[1];
-                            //     currentDuration[1] = currentDuration[0];
-                            //     currentDuration[0] = 0;
-                            // } else if (isNaN(currentDuration[2]) && isNaN(currentDuration[1])) {
-                            //     currentDuration[2] = currentDuration[0];
-                            //     currentDuration[1] = 0;
-                            //     currentDuration[0] = 0;
-                            // };
-                            checkArrIsNum(prevDuration, 0);
-                            // // Reformats array if Previous Stream doesnt contain hours or minutes
-                            // if (isNaN(prevDuration[2]) && !isNaN(prevDuration[1])) {
-                            //     prevDuration[2] = prevDuration[1];
-                            //     prevDuration[1] = prevDuration[0];
-                            //     prevDuration[0] = 0;
-                            // } else if (isNaN(prevDuration[2]) && isNaN(prevDuration[1])) {
-                            //     prevDuration[2] = prevDuration[0];
-                            //     prevDuration[1] = 0;
-                            //     prevDuration[0] = 0;
-                            // };
 
-                            // ▲▲▲▲▲▲ REFACTOR NEEDED ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-                            console.log("Array Checking")
-                            console.log(currentDuration)
-                            console.log(prevDuration)
+                            // Reformats array if Previous Stream doesnt contain hours or minutes
+                            checkArrIsNum(prevDuration, 0);
 
                             // Converts hours and minutes into seconds and adds the total of hours, minutes, and seconds
                             let currentDurCalc = (currentDuration[0] * 3600) + (currentDuration[1] * 60) + currentDuration[2];
@@ -446,7 +398,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                             .style("opacity", .9);
                         tooltip.html(
                             `<p class='toolDate'>
-                            ${(d.date)}
+                            ${new Date(d.date).toDateString()}
                             </p>` +
 
                             `<p class='toolStreamTitle'>
