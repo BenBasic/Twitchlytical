@@ -64,6 +64,11 @@ export type BroadcasterArchive = {
 }
 
 
+export interface BroadcasterStatProps {
+    data: [BroadcasterArchive];
+}
+
+
 export interface GetTotal {
     totalVal: TopTotalDB;
     loading: boolean;
@@ -139,3 +144,16 @@ export interface WeeklyViewProps {
     dayProps: WeeklyViewData;
     type: string;
 };
+
+export type ProfileData = {
+    peak: number;
+    avg: number;
+    date: Date;
+    duration: string;
+    title: string;
+};
+
+export interface BroadcasterLatest {
+    profileData: ProfileData[] | undefined;
+    type: string;
+}
