@@ -61,6 +61,11 @@ const styles = {
         fontWeight: 700,
         color: 'white',
     },
+    allTimeTitle: {
+        display: 'inline-block',
+        fontFamily: 'Outfit, sans-serif',
+        fontWeight: 700,
+    }
 };
 
 function capitalizeFirstLetter(string: string) {
@@ -99,6 +104,8 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
         }
     })()
 
+    console.log("TOTAL VIEWS IS " + userData.total_views)
+
     return (
         <Grid container alignItems="center" justifyContent="center">
             <Grid container spacing={0} m={0} maxWidth="md" justifyContent="center" style={styles.container}>
@@ -120,8 +127,20 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
                             <Typography variant={'subtitle2'} textAlign='center' style={styles.heading} fontSize={{ xs: '.6rem', sm: '.8rem' }}>
                                 Followers
                             </Typography>
-                            <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={{ xs: '1.4rem', sm: '2.1rem' }}>
-                                { apiCheck !== undefined ? apiCheck.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "Loading..."}
+                            <Typography variant={'h4'} textAlign='center' style={styles.heading}
+                                // Font size and margin adjustment based on follower number size
+                                mt={apiCheck !== undefined && apiCheck < 1000000 ?
+                                    { xs: 0, sm: 0, md: 0 } :
+                                    apiCheck !== undefined && apiCheck >= 1000000 && apiCheck < 10000000 ?
+                                        { xs: 0.5, sm: 1, md: 0.3 } :
+                                        { xs: 0.75, sm: 1, md: 0.6 }}
+                                fontSize={apiCheck !== undefined && apiCheck < 1000000 ?
+                                    { xs: '1.4rem', sm: '1.8rem', md: '2.1rem' } :
+                                    apiCheck !== undefined && apiCheck >= 1000000 && apiCheck < 10000000 ?
+                                        { xs: '1rem', sm: '1.4rem', md: '1.8rem' } :
+                                        { xs: '0.7rem', sm: '1rem', md: '1.4rem' }}
+                            >
+                                {apiCheck !== undefined ? apiCheck.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "Loading..."}
                             </Typography>
                         </Grid>
                         <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} style={styles.liveStats}>
@@ -161,6 +180,21 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
                     </Grid>
                 </Grid>
             </Grid>
+
+            <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>
+                <Grid item xs={12}>
+                    <Typography variant={'h4'} mb={2} mt={1} borderBottom={5} borderTop={5} borderColor={deepPurple[700]} style={styles.allTimeTitle}>
+                        {/* Broadcaster Total Views is depreciated from API, maybe include disclaimer about it being out of date */}
+                        All Time Views
+                    </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                    <Typography variant={'h2'} mb={2} mt={0} style={styles.allTimeTitle}>
+                        {userData.total_views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                    </Typography>
+                </Grid>
+            </Grid>
+
         </Grid>
     )
 }

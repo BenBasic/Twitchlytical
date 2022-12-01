@@ -623,7 +623,7 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 				findMatchingId.creationDate = resUserData[key].created_at;
 
 
-				// Defining variables to pass in to add/update games and game related archive data
+				// Defining variables to pass in to add/update users and user related archive data
 				const variables = {
 					broadcasterData: {
 						user_id: findMatchingId.id,

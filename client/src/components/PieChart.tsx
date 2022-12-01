@@ -5,8 +5,8 @@ import { select, selectAll, Selection } from 'd3-selection'
 import { easeBounce, easeElastic } from 'd3-ease'
 import { Stats, PieProps } from './TypesAndInterfaces'
 
-const colorTest = ['#1de441', '#EA7369', '#1ac9e6', '#d8ac2d', '#e7e35e', '#AF4BCE']
-const colorOutline = ["#084914", "#A5194D", "#142459", "#991212", "#de542c", "#29066B"]
+const colorTest = ['#AF4BCE', '#1de441', '#EA7369', '#1ac9e6', '#d8ac2d', '#e7e35e']
+const colorOutline = ["#29066B", "#084914", "#A5194D", "#142459", "#991212", "#de542c"]
 const colorToolTip = ["#29066B", "#084914", "#A5194D", "#142459", "#991212", "#de542c"]
 
 const PieChart: React.FC<PieProps> = (props) => {
@@ -17,7 +17,10 @@ const PieChart: React.FC<PieProps> = (props) => {
         top5Total += props.dataSet[i].views;
     };
 
-    const dataFinal = [...props.dataSet, { name: "Other", views: (props.totalVal - top5Total) }]
+    // If prop type isnt day, then add "Other" object for remaining value left
+    const dataFinal = (props.type === "day") ?
+    props.dataSet :
+    [...props.dataSet, { name: "Other", views: (props.totalVal - top5Total) }]
 
     const pieChart = useRef<SVGSVGElement | null>(null)
 
@@ -106,8 +109,8 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .data(piedata)
                 .join('path')
                 .attr('d', arc)
-                .attr('fill', (d, i) => colorTest[i])
-                .attr('stroke', (d, i) => colorOutline[i])
+                .attr('fill', (d, i) => colorTest[d.index])
+                .attr('stroke', (d, i) => colorOutline[d.index])
                 .attr('stroke-width', '.25rem')
 
                 .on("mouseenter", function (d) {
@@ -133,10 +136,14 @@ const PieChart: React.FC<PieProps> = (props) => {
 
                         `<p class='percentage' >
                         ${d.data.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        ${props.type === "day" && d.data.views > 1 ? "streams" :
+                        props.type === "day" && d.data.views === 1 ? "stream" :
+                        ""}
                         </p>` +
 
                         `<p class='toolDate'>
-                        ${d.index === 0 ? 'remaining views' : '7 day ' + props.type}
+                        ${props.type === "day" ? `Out of last ${props.totalVal} streams` :
+                        d.index === 0 ? 'remaining views' : '7 day ' + props.type}
                         </p>`
 
 
@@ -165,9 +172,10 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .enter()
                 .append('text')
                 .attr('class', 'pieLabel')
-                .text(function (d) { return (d.index === 0 ? d.data.name : '') })
+                .text(function (d) { return (props.type === "day" ? d.data.name : d.index === 0 ? d.data.name : '') })
                 .attr("transform", function (d) {
-                    return "translate(" + (arc.centroid(d)[0] / 2) +
+                    return "translate(" +
+                    (props.type === "day" ? arc.centroid(d)[0] - dimensions.width! / 20 : arc.centroid(d)[0] / 2) +
                         "," + arc.centroid(d)[1] + ")";
                 })
                 .style("text-anchor", "center")
