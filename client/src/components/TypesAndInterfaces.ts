@@ -82,6 +82,7 @@ export interface ProfileHeaderProps {
 
 export interface BroadcasterStatProps {
     data: [BroadcasterArchive];
+    username: string;
 }
 
 
@@ -135,6 +136,7 @@ export interface PieProps {
     dataSet: Stats[];
     totalVal: number;
     type: string;
+    user?: {name: string, views: number};
 }
 
 // Assigning StatCardProps interface for passing values into RankCard component

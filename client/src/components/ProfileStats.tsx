@@ -4,9 +4,12 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 import BroadcasterPerformanceChart from './BroadcasterPerformanceChart';
 import PieChart from './PieChart';
-import { BroadcasterStatProps, ProfileData, Stats } from './TypesAndInterfaces';
-import { createBroadcasterPerformanceList } from '../utils/helpers';
+import { BroadcasterStatProps, ProfileData, Stats, TopStreams } from './TypesAndInterfaces';
+import { createBroadcasterPerformanceList, createShortStreamerList, Comparator } from '../utils/helpers';
 import { getData } from '../utils/clientFetches';
+
+import { useQuery } from "@apollo/client";
+import { GET_TOP_STREAM_WEEK } from "../utils/queries";
 
 // Importing colors from Material UI
 import { indigo, deepPurple } from '@mui/material/colors';
@@ -38,7 +41,7 @@ const styles = {
 
 const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
 
-    let userId: string = "15564828";
+    let userId: string = "71092938";
 
     const [apiCheck, setApiCheck] = useState<ProfileData[] | undefined>(undefined);
 
@@ -51,6 +54,25 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
     const [dayDataState, setDayDataState] = useState<Stats[]>([]);
 
     const streamAmount: number = 7;
+
+    const { loading: loadingStream, data: dataStream, error: errorStream } = useQuery(GET_TOP_STREAM_WEEK);
+
+    const topStreamData: TopStreams[] = dataStream?.getTopStreams[0]?.topStreams;
+
+    let streamerData: Stats[] = createShortStreamerList(topStreamData).sort(Comparator).slice(0, 5);
+
+    let streamerViewTotal: number = 0;
+
+    if (streamerViewTotal === 0 && streamerData?.length > 0) {
+        for (let v = 0; v < streamerData?.length; v++) {
+            streamerViewTotal += streamerData[v]?.views;
+        };
+    };
+
+
+
+    console.log("streamerData is");
+    console.log(streamerData);
 
 
     (async () => {
@@ -212,11 +234,36 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                     </Grid>
 
 
-                    <Grid item xs={12}>
-                        <Typography variant={'h2'} mb={2} mt={0} style={styles.mainTitle}>
-                            2 Pie Charts, 1: Most Streamed Games, 2: Most Streamed Days /use counter for percentage calc/
+                    <Grid item xs={10} sm={5.9} md={5.7} mb={2} ml={{ sm: .2, md: .6 }} mr={{ sm: .2, md: .6 }} pb={{ xs: '1.7rem', sm: '.5rem' }} className="homeChartItem">
+                        <Typography variant={'h5'} mb={{ xs: 3, sm: 1.5 }} textAlign='center' style={styles.title}
+                            width={'100%'}
+                        >
+                            View Comparison
                         </Typography>
+                        {dataList === undefined || dataList?.length === 0 ?
+                            <Typography className='areaChart' variant={'h4'} textAlign='center'>
+                                Loading Chart...
+                            </Typography>
+                            :
+                            dataList?.length < 2 ?
+                                <>
+                                    <Typography className='areaChart' variant={'h4'} textAlign='center'>
+                                        Day Breakdown Unavailable
+                                    </Typography>
+                                    <Typography className='areaChart' variant={'subtitle2'} textAlign='center'>
+                                        This is caused by the user having VODs disabled, or user hasn't streamed at least twice recently
+                                    </Typography>
+                                </>
+                                :
+                                <PieChart
+                                    dataSet={streamerData}
+                                    totalVal={streamerViewTotal}
+                                    type={"vs"}
+                                    user={{name: props.username, views: Math.max(...dataList.map(o => o.peak))}}
+                                />
+                        }
                     </Grid>
+
                     <Grid item xs={12}>
                         <Typography variant={'h2'} mb={2} mt={0} style={styles.mainTitle}>
                             All Time Most Popular Clips Goes Here

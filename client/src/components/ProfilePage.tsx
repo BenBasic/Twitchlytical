@@ -14,7 +14,7 @@ const ProfilePage: React.FC = () => {
     console.log("PROFILE PAGE RENDER!!!")
 
     const { loading, data, error } = useQuery(GET_BROADCASTER_PERFORMANCE, {
-        variables: { id: "15564828" }
+        variables: { id: "71092938" }
     });
 
     console.log("DATA IS !")
@@ -61,6 +61,7 @@ const ProfilePage: React.FC = () => {
                     />
                     <ProfileStats
                         data={performanceData}
+                        username={broadcasterData.name}
                     />
                 </> :
                 <Grid container alignItems="center" justifyContent="center">

@@ -20,6 +20,8 @@ const PieChart: React.FC<PieProps> = (props) => {
     // If prop type isnt day, then add "Other" object for remaining value left
     const dataFinal = (props.type === "day") ?
     props.dataSet :
+    (props.type === "vs" && props.user) ?
+    [{name: props.user?.name, views: props.user?.views}, { name: "Top 5", views: (props.totalVal - props.user?.views!) }] :
     [...props.dataSet, { name: "Other", views: (props.totalVal - top5Total) }]
 
     const pieChart = useRef<SVGSVGElement | null>(null)
@@ -141,10 +143,23 @@ const PieChart: React.FC<PieProps> = (props) => {
                         ""}
                         </p>` +
 
+                        (props.type === "vs" ?
+                        `<p class='toolDate'>
+                        ${
+                        d.index === 0 ?
+                        props.dataSet.map((streamer: Stats, index: number) => (
+                            streamer.name === props.user?.name ?
+                            `<li class='toolList topLine'>${streamer.name} is in the Top 5</li>` :
+
+                            `<li class='toolList topLine'>${index + 1}. ${streamer.name}</li>` +
+                            `<li class='toolList'>${streamer.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</li>`
+                        )).join('') :
+                        '7 day peak'}
+                        ` :
                         `<p class='toolDate'>
                         ${props.type === "day" ? `Out of last ${props.totalVal} streams` :
                         d.index === 0 ? 'remaining views' : '7 day ' + props.type}
-                        </p>`
+                        </p>`)
 
 
                     )

@@ -152,6 +152,15 @@ div.tooltip {
                                 supported by Chrome, Edge, Opera and Firefox */
 }
 
+.toolList {
+  list-style-type: none;
+  font-size: .7rem;
+}
+
+.topLine {
+  border-top: .1rem solid gray;
+}
+
 .hiddenElem {
   display: none;
 }
