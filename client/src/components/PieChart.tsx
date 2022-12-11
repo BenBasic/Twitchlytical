@@ -13,15 +13,18 @@ const PieChart: React.FC<PieProps> = (props) => {
 
     let top5Total = 0;
 
+    let matchingCheck = false;
+
     for (let i = 0; i < props?.dataSet.length; i++) {
         top5Total += props.dataSet[i].views;
+        if (props.user?.name === props.dataSet[i].name) matchingCheck = true;
     };
 
     // If prop type isnt day, then add "Other" object for remaining value left
     const dataFinal = (props.type === "day") ?
     props.dataSet :
     (props.type === "vs" && props.user) ?
-    [{name: props.user?.name, views: props.user?.views}, { name: "Top 5", views: (props.totalVal - props.user?.views!) }] :
+    [{name: props.user?.name, views: props.user?.views}, { name: "Top 5", views: (props.totalVal - (matchingCheck === true ? props.user?.views! : 0)) }] :
     [...props.dataSet, { name: "Other", views: (props.totalVal - top5Total) }]
 
     const pieChart = useRef<SVGSVGElement | null>(null)
@@ -128,21 +131,30 @@ const PieChart: React.FC<PieProps> = (props) => {
                         .duration(200)
                         .style("opacity", .9);
                     tooltip.html(
+                        // Name of data being displayed on tooltip
                         `<p class='toolTitle'>
                         ${d.data.name}
                         </p>` +
-
-                        `<p class="toolInfo" style='background-color: ${colorToolTip[d.index]};'>
+                        // Percentage of total value (ex: 2 out of 10 will show 20%)
+                        // Checks if prop type is "vs", if so then it will hide the remainder percentage if item isnt in the top 5 to
+                        // avoid 100% displaying on remainder of the pie chart
+                        `<p class="${props.type !== "vs" ? 'toolInfo' :
+                        (matchingCheck === false && d.index === 0 ? 'hiddenElem' : 'toolInfo')}" style='background-color: ${colorToolTip[d.index]};'>
                         ${(d.data.views / props.totalVal * 100).toFixed(2)}%
                         </p>` +
-
+                        // Value of item (ex: 2500), will add commas to large numbers for readability (ex: 2,500)
+                        // Checks if prop type is "day", if so then it will add "stream(s)" after value (ex: 4 streams)
                         `<p class='percentage' >
                         ${d.data.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                         ${props.type === "day" && d.data.views > 1 ? "streams" :
                         props.type === "day" && d.data.views === 1 ? "stream" :
                         ""}
                         </p>` +
-
+                        // Context info for item value (out of last x streams, x day peak, etc)
+                        // Checks if prop type is "vs" if so it will map through the data to display
+                        // the names and view value. It will also check if the name of streamer is in the
+                        // top 5 list, if so it will display text letting the user know. Otherwise it will
+                        // display context info for other prop types.
                         (props.type === "vs" ?
                         `<p class='toolDate'>
                         ${
