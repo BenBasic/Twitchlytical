@@ -14,11 +14,6 @@ import { GET_TOP_STREAM_WEEK } from "../utils/queries";
 // Importing colors from Material UI
 import { indigo, deepPurple } from '@mui/material/colors';
 
-console.log("env checks are")
-console.log(process.env.REACT_APP_CLIENT_ID)
-console.log(process.env.REACT_APP_CLIENT_SECRET)
-console.log(process.env.REACT_APP_GET_VIDEOS)
-
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {
     container: {
@@ -150,24 +145,6 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
 
     })()
 
-    // const apiData = apiCall('?user_id=15564828&type=archive&first=5');
-
-    // // const apiDataNested = apiData?.data;
-
-    // const performanceStats = createBroadcasterPerformanceList(props.data)
-
-    // console.log("Api Data is")
-    // console.log(apiData)
-    // console.log("Api Data NESTED is")
-    // console.log(apiData.length)
-    // console.log("performanceStats is")
-    // console.log(performanceStats)
-
-    // for (let i = 0; i < performanceStats?.length; i++) {
-    //     for (let j = 0; j < apiData)
-    // }
-
-
 
     return (
         <Box sx={{ flexGrow: 1 }} style={styles.container}>
@@ -262,12 +239,6 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                                     user={{name: props.username, views: Math.max(...dataList.map(o => o.peak))}}
                                 />
                         }
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <Typography variant={'h2'} mb={2} mt={0} style={styles.mainTitle}>
-                            All Time Most Popular Clips Goes Here
-                        </Typography>
                     </Grid>
                 </Grid>
             </Grid>

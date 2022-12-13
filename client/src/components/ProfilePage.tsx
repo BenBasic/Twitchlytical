@@ -3,6 +3,7 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 import Profile from './Profile'
 import ProfileStats from './ProfileStats'
+import ProfileClips from './ProfileClips';
 import { timeSince } from '../utils/helpers'
 import { ProfileHeaderData } from './TypesAndInterfaces'
 
@@ -63,6 +64,7 @@ const ProfilePage: React.FC = () => {
                         data={performanceData}
                         username={broadcasterData.name}
                     />
+                    <ProfileClips />
                 </> :
                 <Grid container alignItems="center" justifyContent="center">
                     <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>

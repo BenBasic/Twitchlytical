@@ -9,7 +9,7 @@ import HomePies from './HomePies';
 import { Stats } from './TypesAndInterfaces';
 
 import { useQuery } from "@apollo/client";
-import { GET_TOP_GAME_WEEK, GET_TOP_STREAM_WEEK, GET_BROADCASTER_USER_ID, GET_DATA_DATE } from "../utils/queries";
+import { GET_TOP_GAME_WEEK, GET_TOP_STREAM_WEEK, GET_BROADCASTER_USER_ID, GET_DATA_DATE, GET_TOP_CLIPS_WEEK } from "../utils/queries";
 
 const HomePage: React.FC = () => {
 
@@ -45,8 +45,12 @@ const HomePage: React.FC = () => {
 
     const topUserData = dataUser?.getBroadcaster;
 
+    const { loading: loadingClips, data: dataClips, error: errorClips } = useQuery(GET_TOP_CLIPS_WEEK);
 
-    const [loadingState, setLoadingState] = useState<boolean[]>([loading, loadingStream, loadingUser]);
+    const topClipData = dataClips?.getTopClips?.[0]?.topClips;
+
+
+    const [loadingState, setLoadingState] = useState<boolean[]>([loading, loadingStream, loadingUser, loadingClips]);
 
     const [canMount, setCanMount] = useState<boolean>(false);
 
@@ -56,10 +60,10 @@ const HomePage: React.FC = () => {
 
 
     // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
-    if (loading === false && loadingStream === false && loadingUser === false &&
-        loadingState[0] === true && loadingState[1] === true && loadingState[2] === true &&
+    if (loading === false && loadingStream === false && loadingUser === false && loadingClips === false &&
+        loadingState[0] === true && loadingState[1] === true && loadingState[2] === true && loadingState[3] === true &&
         canMount === false) {
-        setLoadingState([false, false, false])
+        setLoadingState([false, false, false, false])
         setCanMount(true);
     };
 
@@ -88,7 +92,11 @@ const HomePage: React.FC = () => {
                 totalVal={totalObject?.avgTotalViewers}
                 loading={canMount === true && canMountTopData === true ? false : true}
             />
-            <TopClips />
+            <TopClips
+                data={topClipData}
+                home={true}
+                loading={canMount === true ? false : true}
+            />
         </>
     )
 }

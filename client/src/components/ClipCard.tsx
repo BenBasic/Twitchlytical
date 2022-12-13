@@ -147,7 +147,9 @@ const ClipCard: React.FC<ClipModalProps> = (props) => {
                                 display: "block"
                             }}
                         >
-                            {new Date(props.createdAt).toLocaleDateString(undefined, { weekday: "long" })}
+                            {new Date(props.createdAt).toLocaleDateString(undefined, (props.home === true ?
+                            { weekday: "long" } :
+                            { year: "numeric", month: "numeric", day: "numeric" }))}
                         </Typography>
                     </Box>
 

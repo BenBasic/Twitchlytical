@@ -25,6 +25,7 @@ export type ClipModalProps = {
     thumbnail: string;
     createdAt: string;
     views: number;
+    home: boolean;
 }
 
 export type ArchiveViews = {
@@ -137,6 +138,12 @@ export interface PieProps {
     totalVal: number;
     type: string;
     user?: {name: string, views: number};
+}
+
+export interface ClipCollectionProps {
+    data: any[];
+    home: boolean;
+    loading: boolean;
 }
 
 // Assigning StatCardProps interface for passing values into RankCard component
