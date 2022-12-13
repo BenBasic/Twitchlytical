@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box';
 import ClipCard from './ClipCard';
 import { indigo, deepPurple } from '@mui/material/colors';
+import { ClipCollectionProps } from './TypesAndInterfaces'
 
 const styles = {
     container: {
@@ -26,14 +27,14 @@ const styles = {
     },
 };
 
-const TopClips: React.FC = () => {
+const TopClips: React.FC<ClipCollectionProps> = (props) => {
 
-    const { loading, data, error } = useQuery(GET_TOP_CLIPS_WEEK);
+    // const { loading, data, error } = useQuery(GET_TOP_CLIPS_WEEK);
 
-    const topClipData = data?.getTopClips?.[0]?.topClips;
+    // const topClipData = data?.getTopClips?.[0]?.topClips;
 
-    console.log("TOP CLIP DATA -----------------------------")
-    console.log(topClipData)
+    // console.log("TOP CLIP DATA -----------------------------")
+    // console.log(topClipData)
 
     return (
 
@@ -45,12 +46,12 @@ const TopClips: React.FC = () => {
                         style={styles.mainTitle}
                         fontSize={{ xs: '1.85rem', sm: '2.13rem' }}
                     >
-                        Top Clips
+                        {props.home === true ? "Top Clips" : "All Time Top Clips"}
                     </Typography>
                 </Grid>
 
-                {loading === false ?
-                    topClipData.map((clip: any, index: any) => (
+                {props.loading === false ?
+                    props.data.map((clip: any, index: any) => (
                         <Grid item xs={ index === 0 ? 10 : 4} sm={2.4} py={2} px={1} key={index}>
                             <ClipCard
                                 key={index}
@@ -60,6 +61,7 @@ const TopClips: React.FC = () => {
                                 thumbnail={clip.thumbnail_url}
                                 createdAt={clip.created_at}
                                 views={clip.view_count}
+                                home={props.home}
                             />
                         </Grid>
 

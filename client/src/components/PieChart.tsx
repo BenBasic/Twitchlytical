@@ -5,19 +5,27 @@ import { select, selectAll, Selection } from 'd3-selection'
 import { easeBounce, easeElastic } from 'd3-ease'
 import { Stats, PieProps } from './TypesAndInterfaces'
 
-const colorTest = ['#1de441', '#EA7369', '#1ac9e6', '#d8ac2d', '#e7e35e', '#AF4BCE']
-const colorOutline = ["#084914", "#A5194D", "#142459", "#991212", "#de542c", "#29066B"]
+const colorTest = ['#AF4BCE', '#1de441', '#EA7369', '#1ac9e6', '#d8ac2d', '#e7e35e']
+const colorOutline = ["#29066B", "#084914", "#A5194D", "#142459", "#991212", "#de542c"]
 const colorToolTip = ["#29066B", "#084914", "#A5194D", "#142459", "#991212", "#de542c"]
 
 const PieChart: React.FC<PieProps> = (props) => {
 
     let top5Total = 0;
 
+    let matchingCheck = false;
+
     for (let i = 0; i < props?.dataSet.length; i++) {
         top5Total += props.dataSet[i].views;
+        if (props.user?.name === props.dataSet[i].name) matchingCheck = true;
     };
 
-    const dataFinal = [...props.dataSet, { name: "Other", views: (props.totalVal - top5Total) }]
+    // If prop type isnt day, then add "Other" object for remaining value left
+    const dataFinal = (props.type === "day") ?
+    props.dataSet :
+    (props.type === "vs" && props.user) ?
+    [{name: props.user?.name, views: props.user?.views}, { name: "Top 5", views: (props.totalVal - (matchingCheck === true ? props.user?.views! : 0)) }] :
+    [...props.dataSet, { name: "Other", views: (props.totalVal - top5Total) }]
 
     const pieChart = useRef<SVGSVGElement | null>(null)
 
@@ -106,8 +114,8 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .data(piedata)
                 .join('path')
                 .attr('d', arc)
-                .attr('fill', (d, i) => colorTest[i])
-                .attr('stroke', (d, i) => colorOutline[i])
+                .attr('fill', (d, i) => colorTest[d.index])
+                .attr('stroke', (d, i) => colorOutline[d.index])
                 .attr('stroke-width', '.25rem')
 
                 .on("mouseenter", function (d) {
@@ -123,21 +131,47 @@ const PieChart: React.FC<PieProps> = (props) => {
                         .duration(200)
                         .style("opacity", .9);
                     tooltip.html(
+                        // Name of data being displayed on tooltip
                         `<p class='toolTitle'>
                         ${d.data.name}
                         </p>` +
-
-                        `<p class="toolInfo" style='background-color: ${colorToolTip[d.index]};'>
+                        // Percentage of total value (ex: 2 out of 10 will show 20%)
+                        // Checks if prop type is "vs", if so then it will hide the remainder percentage if item isnt in the top 5 to
+                        // avoid 100% displaying on remainder of the pie chart
+                        `<p class="${props.type !== "vs" ? 'toolInfo' :
+                        (matchingCheck === false && d.index === 0 ? 'hiddenElem' : 'toolInfo')}" style='background-color: ${colorToolTip[d.index]};'>
                         ${(d.data.views / props.totalVal * 100).toFixed(2)}%
                         </p>` +
-
+                        // Value of item (ex: 2500), will add commas to large numbers for readability (ex: 2,500)
+                        // Checks if prop type is "day", if so then it will add "stream(s)" after value (ex: 4 streams)
                         `<p class='percentage' >
                         ${d.data.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        ${props.type === "day" && d.data.views > 1 ? "streams" :
+                        props.type === "day" && d.data.views === 1 ? "stream" :
+                        ""}
                         </p>` +
-
+                        // Context info for item value (out of last x streams, x day peak, etc)
+                        // Checks if prop type is "vs" if so it will map through the data to display
+                        // the names and view value. It will also check if the name of streamer is in the
+                        // top 5 list, if so it will display text letting the user know. Otherwise it will
+                        // display context info for other prop types.
+                        (props.type === "vs" ?
                         `<p class='toolDate'>
-                        ${d.index === 0 ? 'remaining views' : '7 day ' + props.type}
-                        </p>`
+                        ${
+                        d.index === 0 ?
+                        props.dataSet.map((streamer: Stats, index: number) => (
+                            streamer.name === props.user?.name ?
+                            `<li class='toolList topLine'>${streamer.name} is in the Top 5</li>` :
+
+                            `<li class='toolList topLine'>${index + 1}. ${streamer.name}</li>` +
+                            `<li class='toolList'>${streamer.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</li>`
+                        )).join('') :
+                        '7 day peak'}
+                        ` :
+                        `<p class='toolDate'>
+                        ${props.type === "day" ? `Out of last ${props.totalVal} streams` :
+                        d.index === 0 ? 'remaining views' : '7 day ' + props.type}
+                        </p>`)
 
 
                     )
@@ -165,9 +199,10 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .enter()
                 .append('text')
                 .attr('class', 'pieLabel')
-                .text(function (d) { return (d.index === 0 ? d.data.name : '') })
+                .text(function (d) { return (props.type === "day" ? d.data.name : d.index === 0 ? d.data.name : '') })
                 .attr("transform", function (d) {
-                    return "translate(" + (arc.centroid(d)[0] / 2) +
+                    return "translate(" +
+                    (props.type === "day" ? arc.centroid(d)[0] - dimensions.width! / 20 : arc.centroid(d)[0] / 2) +
                         "," + arc.centroid(d)[1] + ")";
                 })
                 .style("text-anchor", "center")

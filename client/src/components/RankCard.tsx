@@ -1,4 +1,5 @@
 import React from 'react'
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography'
 
@@ -62,6 +63,7 @@ const styles = {
 const RankCard: React.FC<StatCardProps> = (props) => {
     return (
         <CardActionArea style={styles.card}
+            component={Link} to={`${ props.viewType === 'peak' ? '/profile/' : '/game/'}${props.statInfo.name}`}
             sx={{
                 '&:hover': {
                     transform: 'scale(1.08)',

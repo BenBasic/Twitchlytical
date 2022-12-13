@@ -109,10 +109,11 @@ export function miniGetAverage(refArray: number[]) {
     // Getting the average value by dividing total and count
     let average = total / count;
     // Rounding the average, without this the database tends to throw errors due to long decimal values
-    let averageRounded = average.toFixed();
+    let averageRounded = parseFloat(average.toFixed());
 
     return averageRounded;
 };
+
 
 export const createBroadcasterPerformanceList = (array: BroadcasterArchive[]) => {
     let finalResult = [];
@@ -129,6 +130,7 @@ export const createBroadcasterPerformanceList = (array: BroadcasterArchive[]) =>
                 refArray.push(array[i].view_count)
                 if (i === (array.length - 1)) {
                     finalResult.push({
+                        stream_id: array[i].stream_id,
                         peak: peakNum,
                         avg: miniGetAverage(refArray),
                         date: array[i].createdAt
@@ -137,12 +139,14 @@ export const createBroadcasterPerformanceList = (array: BroadcasterArchive[]) =>
             } else if (array[i].stream_id !== array[i - 1].stream_id) {
                 if (refArray.length === 1) {
                     finalResult.push({
+                        stream_id: array[i - 1]?.stream_id,
                         peak: refArray[0],
                         avg: refArray[0],
                         date: array[i - 1]?.createdAt
                     });
                     if (i === (array.length - 1)) {
                         finalResult.push({
+                            stream_id: array[i].stream_id,
                             peak: array[i].view_count,
                             avg: array[i].view_count,
                             date: array[i].createdAt
@@ -153,6 +157,7 @@ export const createBroadcasterPerformanceList = (array: BroadcasterArchive[]) =>
                 } else {
 
                     finalResult.push({
+                        stream_id: array[i - 1]?.stream_id,
                         peak: peakNum,
                         avg: miniGetAverage(refArray),
                         date: array[i - 1]?.createdAt
@@ -167,6 +172,7 @@ export const createBroadcasterPerformanceList = (array: BroadcasterArchive[]) =>
                 refArray.push(array[i].view_count)
                 if (i === (array.length - 1)) {
                     finalResult.push({
+                        stream_id: array[i].stream_id,
                         peak: peakNum,
                         avg: miniGetAverage(refArray),
                         date: array[i].createdAt
@@ -178,6 +184,7 @@ export const createBroadcasterPerformanceList = (array: BroadcasterArchive[]) =>
             peakNum = array[i].view_count
             if (i === (array.length - 1)) {
                 finalResult.push({
+                    stream_id: array[i].stream_id,
                     peak: array[i].view_count,
                     avg: array[i].view_count,
                     date: array[i].createdAt
@@ -187,4 +194,135 @@ export const createBroadcasterPerformanceList = (array: BroadcasterArchive[]) =>
         };
     };
     return finalResult;
+};
+
+
+// Updates an array by placing an item from one index to a new index placement.
+// ****** Example ******
+// input: [1,2,3,4], 0, 3
+// result: [2,3,4,1]
+export const moveArrIndex = (array: any[], refIndex: number, finalIndex: number) => {
+
+    if (refIndex === finalIndex) {
+        return array;
+    };
+    const refItem = array[refIndex];
+    const increment = finalIndex < refIndex ? -1 : 1;
+
+    for (let i = refIndex; i !== finalIndex; i += increment) {
+        array[i] = array[i + increment];
+    };
+
+    array[finalIndex] = refItem;
+    return array;
+};
+
+// Checks if elements in an array are not numbers, if they are then
+// the array will be reformatted in reverse order (first is now last) and
+// the remaining array items will be re-assigned the desired replacement value
+// ****** Example ******
+// input: [1,2,NaN,NaN], 0
+// result: [0,0,2,1]
+export const checkArrIsNum = (array: any[], replaceVal: number) => {
+
+    console.log("/////// array is ///////")
+    console.log(array)
+    const length = array.length;
+    let isNumStatus: boolean = true;
+    let isNumIndex: number = 0;
+
+    for (let i = length - 1; i > -1; i--) {
+
+        if (isNaN(array[i]) && (!array[i - 1] || !isNaN(array[i - 1]))) {
+            console.log("TRIGGERED NAN CHECK")
+            console.log(i)
+            isNumStatus = false;
+            isNumIndex = i;
+            for (let j = i; j < length; j++) {
+                array[j] = replaceVal;
+            };
+        };
+
+        if (isNumStatus === false) {
+            for (let h = i; h > isNumIndex - 1; h--) {
+                console.log("****** for loop ******")
+                console.log([array, i, h - i])
+                moveArrIndex(array, i, h - i)
+            };
+        };
+    };
+    return array;
+}
+
+
+// export const checkArrIsNum = (array: any[], replaceVal: number) => {
+
+//     console.log("/////// array is ///////")
+//     console.log(array)
+//     const length = array.length;
+//     let isNumStatus: boolean = true;
+
+//     for (let i = length - 1; i > -1; i--) {
+
+//         if (isNaN(array[i])) {
+//             console.log("TRIGGERED NAN CHECK")
+//             console.log(i)
+//             array[i] = replaceVal;
+//         };
+
+//         if (!array[i]) {
+//             isNumStatus = false;
+//             console.log("**** triggered if 1 ****")
+//         }
+//     };
+//     console.log("ARR RETURN")
+//     console.log(array)
+//     return array;
+// }
+
+
+
+// Calculates difference between current time and previous date string which is passed in
+// ****** Example ******
+// current date: 2022-11-30T12:49:57Z
+
+// input: '2020-11-28T15:49:57Z'
+// result: 2 years ago
+// input: '2022-11-30T09:49:57Z'
+// result: 3 hours ago
+export const timeSince = (date: string) => {
+
+    const prevDate: any = new Date(date);
+    const currentDate: any = now;
+    const diffTime = Math.abs(currentDate - prevDate);
+    const diffTotalHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffTotalHours / 24);
+    const diffHoursWithoutDays = diffTotalHours % 24;
+
+    if (diffDays <= 1) return `${diffHoursWithoutDays} hours ago`;
+    if (diffDays > 1 && diffDays < 61) return `${diffDays} days ago`;
+    if (diffDays >= 61 && diffDays < 366) return `${diffDays % 30} months ago`;
+    if (diffDays >= 366) return diffDays % 365 === 1 ? `${diffDays % 365} year ago` : `${diffDays % 365} years ago`;
+};
+
+export function numShortFormat(num: number) {
+    if (num < 1000) {
+        return num;
+    };
+
+    let si = [
+      {v: 1E3, s: "K"},
+      {v: 1E6, s: "M"},
+      {v: 1E9, s: "B"},
+      {v: 1E12, s: "T"},
+      {v: 1E15, s: "P"},
+      {v: 1E18, s: "E"}
+      ];
+    let index;
+    for (index = si.length - 1; index > 0; index--) {
+        if (num >= si[index].v) {
+            break;
+        }
+    }
+    return (num / si[index].v).toFixed(2).replace(/\.0+$|(\.[0-9]*[1-9])0+$/, "$1") + si[index].s;
 };

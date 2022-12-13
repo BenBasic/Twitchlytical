@@ -278,7 +278,7 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
                         d.avg.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }
                         </p>` +
 
-                        `<p class=${colorClass}>
+                        `<p class=${ i === 0 ? 'hiddenElem' : colorClass }>
                         ${greatCheck}
                         </p>`
                         )

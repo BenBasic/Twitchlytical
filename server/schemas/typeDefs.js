@@ -141,6 +141,7 @@ const typeDefs = gql`
 		Broadcaster: [Broadcaster]
 		getBroadcaster(_id: [String]): [Broadcaster]
 		getBroadcasterPerformance(_id: String): Broadcaster
+		getBroadcasterPerformanceName(_id: String): Broadcaster
 		Games: [Game]
 		getGame(_id: ID): Game
 		Clips: [Clips]

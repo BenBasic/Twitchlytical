@@ -25,6 +25,7 @@ export type ClipModalProps = {
     thumbnail: string;
     createdAt: string;
     views: number;
+    home: boolean;
 }
 
 export type ArchiveViews = {
@@ -61,6 +62,34 @@ export type BroadcasterArchive = {
     stream_id: string;
     view_count: number;
     createdAt: Date;
+}
+
+export type ProfileHeaderData = {
+    user_id: string;
+    name: string;
+    profile_image_url: string;
+    description: string;
+    total_views: number;
+    createdAt: string;
+    broadcaster_type: string;
+    lastLive: string | undefined;
+}
+
+
+export interface ProfileHeaderProps {
+    data: ProfileHeaderData;
+    views: number[];
+}
+
+
+export interface BroadcasterStatProps {
+    data: [BroadcasterArchive];
+    userId: string;
+    username: string;
+}
+
+export interface ProfileClipsProps {
+    userId: string;
 }
 
 
@@ -114,6 +143,13 @@ export interface PieProps {
     dataSet: Stats[];
     totalVal: number;
     type: string;
+    user?: {name: string, views: number};
+}
+
+export interface ClipCollectionProps {
+    data: any[];
+    home: boolean;
+    loading: boolean;
 }
 
 // Assigning StatCardProps interface for passing values into RankCard component
@@ -139,3 +175,16 @@ export interface WeeklyViewProps {
     dayProps: WeeklyViewData;
     type: string;
 };
+
+export type ProfileData = {
+    peak: number;
+    avg: number;
+    date: Date;
+    duration: string;
+    title: string;
+};
+
+export interface BroadcasterLatest {
+    profileData: ProfileData[] | undefined;
+    type: string;
+}

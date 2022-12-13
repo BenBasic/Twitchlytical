@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -70,7 +71,7 @@ const LogoButton = styled(Button)(({ theme }) => ({
     '&:hover': {
         backgroundColor: indigo[700],
     },
-}));
+})) as typeof Button;
 
 const pages = ['Channels', 'Games', 'Clips', 'Global'];
 
@@ -80,6 +81,7 @@ const NavBar: React.FC = () => {
             <AppBar position="static" sx={{ backgroundColor: indigo[900] }}>
                 <Toolbar>
                     <LogoButton variant="contained" startIcon={<Avatar src={AppLogo} variant="square" />} disableElevation
+                    component={Link} to={`/`}
                     >
                         <Typography
                             variant="h6"

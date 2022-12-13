@@ -34,7 +34,7 @@ div.tooltip {
   z-index: 1;
 }
 
-.toolDate, .toolInfo, .toolTitle, .higher, .lower, .percentage {
+.toolDate, .toolInfo, .toolTitle, .toolStreamTitle, .higher, .lower, .percentage {
   margin-block-start: 0em;
   margin-block-end: 0em;
 }
@@ -43,6 +43,17 @@ div.tooltip {
   font-size: .7rem;
   font-family: var(--fontFam);
   font-weight: var(--fontWeightRegular);
+}
+
+.toolStreamTitle {
+  font-size: .8rem;
+  font-weight: var(--fontWeightRegular);
+  margin-bottom: .2rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: left;
+  display: "block";
 }
 
 .toolTitle {
@@ -139,4 +150,17 @@ div.tooltip {
       -ms-user-select: none; /* Internet Explorer/Edge */
           user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome, Edge, Opera and Firefox */
+}
+
+.toolList {
+  list-style-type: none;
+  font-size: .7rem;
+}
+
+.topLine {
+  border-top: .1rem solid gray;
+}
+
+.hiddenElem {
+  display: none;
 }
