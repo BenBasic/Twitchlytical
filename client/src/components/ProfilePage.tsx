@@ -12,22 +12,10 @@ import { GET_BROADCASTER_PERFORMANCE } from "../utils/queries";
 
 const ProfilePage: React.FC = () => {
 
-    console.log("PROFILE PAGE RENDER!!!")
-
     const { loading, data, error } = useQuery(GET_BROADCASTER_PERFORMANCE, {
         variables: { id: "71092938" }
     });
 
-    console.log("DATA IS !")
-    console.log("DATA IS !")
-    console.log("DATA IS !")
-    console.log("DATA IS !")
-    console.log("DATA IS !")
-    console.log("DATA IS !")
-    console.log("DATA IS !")
-    console.log("DATA IS !")
-    console.log("DATA IS !")
-    console.log(data)
 
     const performanceData = data?.getBroadcasterPerformance?.archive;
 

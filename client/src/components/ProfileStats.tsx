@@ -73,7 +73,7 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
     (async () => {
 
         if (dataList !== undefined && apiCheck === undefined) setApiCheck(dataList);
-        
+
         const apiData = (apiCheck === undefined ? await apiCall(process.env.REACT_APP_GET_VIDEOS, `?user_id=${userId}&type=archive&first=${streamAmount}`) : undefined);
 
         const apiDataNested = (apiCheck === undefined ? await apiData?.data : undefined);
@@ -181,6 +181,14 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                         </Grid>
                     </Grid>
 
+                    <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>
+                        <Grid item xs={12}>
+                            <Typography variant={'h4'} mb={2} mt={1} borderBottom={5} borderTop={5} borderColor={deepPurple[700]} style={styles.mainTitle}>
+                                Stream Breakdown
+                            </Typography>
+                        </Grid>
+                    </Grid>
+
                     <Grid item xs={10} sm={5.9} md={5.7} mb={2} ml={{ sm: .2, md: .6 }} mr={{ sm: .2, md: .6 }} pb={{ xs: '1.7rem', sm: '.5rem' }} className="homeChartItem">
                         <Typography variant={'h5'} mb={{ xs: 3, sm: 1.5 }} textAlign='center' style={styles.title}
                             width={'100%'}
@@ -236,7 +244,7 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                                     dataSet={streamerData}
                                     totalVal={streamerViewTotal}
                                     type={"vs"}
-                                    user={{name: props.username, views: Math.max(...dataList.map(o => o.peak))}}
+                                    user={{ name: props.username, views: Math.max(...dataList.map(o => o.peak)) }}
                                 />
                         }
                     </Grid>
