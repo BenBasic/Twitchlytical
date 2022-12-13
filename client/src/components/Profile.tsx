@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import Avatar from '@mui/material/Avatar';
 import { ProfileHeaderProps, ProfileHeaderData } from './TypesAndInterfaces';
-import { numShortFormat } from '../utils/helpers';
+import { numShortFormat, miniGetAverage } from '../utils/helpers';
 import { getData } from '../utils/clientFetches';
 import { indigo, deepPurple } from '@mui/material/colors';
 
@@ -129,6 +129,8 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
     })()
 
     console.log("TOTAL VIEWS IS " + userData.total_views)
+    console.log("View Props is")
+    console.log(props.views)
 
     return (
         <Grid container alignItems="center" justifyContent="center">
@@ -162,7 +164,7 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
                                         TransitionProps={{ timeout: 600 }}>
                                         <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={styles.infoFonts}
                                         >
-                                            {apiCheck !== undefined ? numShortFormat(apiCheck) : "Loading..."}
+                                            {apiCheck !== undefined ? numShortFormat(apiCheck) : 0}
                                             {/* {apiCheck !== undefined ? apiCheck.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "Loading..."} */}
                                         </Typography>
                                     </Tooltip>
@@ -174,7 +176,7 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
                                         Average Views
                                     </Typography>
                                     <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={styles.infoFonts}>
-                                        219,032
+                                        {props.views.length > 0 ? miniGetAverage(props.views).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : 0}
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} style={styles.liveStats}

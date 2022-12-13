@@ -36,7 +36,7 @@ const styles = {
 
 const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
 
-    let userId: string = "71092938";
+    let userId: string = props.userId;
 
     const [apiCheck, setApiCheck] = useState<ProfileData[] | undefined>(undefined);
 

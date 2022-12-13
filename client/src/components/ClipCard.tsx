@@ -1,4 +1,5 @@
 import React from 'react'
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
@@ -117,12 +118,19 @@ const ClipCard: React.FC<ClipModalProps> = (props) => {
 
                     <Box style={styles.cardBox}>
                         <Typography style={styles.cardText} variant={'h5'}
+                            component={Link} to={`/profile/${props.broadcasterName}`}
                             sx={{
+                                textDecoration: "none",
                                 textOverflow: "ellipsis",
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textAlign: "left",
-                                display: "block"
+                                display: "block",
+                                transition: '0.1s',
+                                '&:hover': {
+                                    backgroundColor: 'black',
+                                    borderRadius: '.3rem .3rem 0rem 0rem',
+                                }
                             }}
                         >
                             {props.broadcasterName}

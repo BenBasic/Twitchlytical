@@ -2,10 +2,11 @@ import React, { useState } from 'react'
 import { getData } from '../utils/clientFetches';
 import Typography from '@mui/material/Typography'
 import TopClips from './TopClips';
+import { ProfileClipsProps } from './TypesAndInterfaces'
 
-const ProfileClips: React.FC = () => {
+const ProfileClips: React.FC<ProfileClipsProps> = (props) => {
 
-    let userId: string = "71092938";
+    let userId: string = props.userId;
 
     const [apiCheck, setApiCheck] = useState<any[] | undefined>(undefined);
 

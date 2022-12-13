@@ -78,12 +78,18 @@ export type ProfileHeaderData = {
 
 export interface ProfileHeaderProps {
     data: ProfileHeaderData;
+    views: number[];
 }
 
 
 export interface BroadcasterStatProps {
     data: [BroadcasterArchive];
+    userId: string;
     username: string;
+}
+
+export interface ProfileClipsProps {
+    userId: string;
 }
 
 

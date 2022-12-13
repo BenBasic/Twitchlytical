@@ -29,6 +29,19 @@ const resolvers = {
 				return streamer;
 			};
 		},
+		getBroadcasterPerformanceName: async (parent, { _id }) => {
+			const streamer = await Broadcaster.findOne({ name: _id })
+			.populate({
+				path: 'archive',
+				model: 'ArchiveData',
+			})
+
+			if (!streamer) {
+				console.log("No Streamer was found")
+			} else {
+				return streamer;
+			};
+		},
 		Games: async () => {
 			return Game.find();
 		},
