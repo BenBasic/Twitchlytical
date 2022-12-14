@@ -1,11 +1,11 @@
 import React from 'react';
-import logo from './logo.svg';
-import TopStats from './components/TopStats';
+// import logo from './logo.svg';
+// import TopStats from './components/TopStats';
 import NavBar from './components/NavBar';
-import Header from './components/Header';
-import HomeCharts from './components/HomeCharts';
-import TopClips from './components/TopClips';
-import HomePies from './components/HomePies';
+// import Header from './components/Header';
+// import HomeCharts from './components/HomeCharts';
+// import TopClips from './components/TopClips';
+// import HomePies from './components/HomePies';
 import HomePage from './components/HomePage';
 import ProfilePage from './components/ProfilePage';
 import {
