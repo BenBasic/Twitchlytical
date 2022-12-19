@@ -48,6 +48,19 @@ const resolvers = {
 		getGame: async (parent, { _id }) => {
 			return Game.findOne({ _id });
 		},
+		getGameName: async (parent, { _id }) => {
+			const game = await Game.findOne({ name: _id })
+			.populate({
+				path: 'archive',
+				model: 'ArchiveData',
+			})
+
+			if (!game) {
+				console.log("No Game was found")
+			} else {
+				return game;
+			};
+		},
 		Clips: async () => {
 			return Clips.find();
 		},

@@ -92,6 +92,19 @@ export interface ProfileClipsProps {
     userId: string;
 }
 
+export type GameHeaderData = {
+    game_id: string;
+    name: string;
+    liveViews: number;
+}
+
+export interface GameHeaderProps {
+    data: GameHeaderData;
+    views: number[];
+    channels: number[];
+    gameProps: [TopGames];
+}
+
 
 export interface GetTotal {
     totalVal: TopTotalDB;

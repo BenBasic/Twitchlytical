@@ -8,6 +8,7 @@ import NavBar from './components/NavBar';
 // import HomePies from './components/HomePies';
 import HomePage from './components/HomePage';
 import ProfilePage from './components/ProfilePage';
+import GamePage from './components/GamePage';
 import {
   ApolloClient,
   InMemoryCache,
@@ -65,8 +66,17 @@ function App() {
           path="profile/:profileId"
           element={
             <>
-            <NavBar />
-            <ProfilePage />
+              <NavBar />
+              <ProfilePage />
+            </>
+          }
+        />
+        <Route
+          path="game/:gameId"
+          element={
+            <>
+              <NavBar />
+              <GamePage />
             </>
           }
         />

@@ -325,9 +325,10 @@ const countTotalViews = async (reqUrl) => {
 						first detected stream that is streaming the game
 						*/
 						if (allGames.hasOwnProperty(`${gameId}`)) {
-							allGames[`${gameId}`].liveViews = allGames[`${gameId}`].liveViews + viewCount
+							allGames[`${gameId}`].liveViews = allGames[`${gameId}`].liveViews + viewCount;
+							allGames[`${gameId}`].channelCount = allGames[`${gameId}`].channelCount + 1;
 						} else {
-							const gameKeyValue = {[`${gameId}`]: {liveViews: viewCount, name: gameName}}
+							const gameKeyValue = {[`${gameId}`]: {liveViews: viewCount, name: gameName, channelCount: 1}}
 							allGames = {...allGames, ...gameKeyValue};
 						}
 
@@ -408,7 +409,8 @@ const countTotalViews = async (reqUrl) => {
 				},
 				archiveData: {
 					game_id: key,
-					view_count: allGames[key].liveViews
+					view_count: allGames[key].liveViews,
+					totalChannels: allGames[key].channelCount
 				},
 			};
 
@@ -857,7 +859,17 @@ const getTopClipsAll = async (gameUrl, clipUrl, date) => {
 	await postData(`http://localhost:3001/graphql`, queryPost, variables);
 };
 
+// COMMENTED OUT FOR TESTING PURPOSES
+// COMMENTED OUT FOR TESTING PURPOSES
+// COMMENTED OUT FOR TESTING PURPOSES
+
 //getTopClipsAll(process.env.GET_GAMES, process.env.GET_CLIPS, 'week')
+
+// COMMENTED OUT FOR TESTING PURPOSES
+// COMMENTED OUT FOR TESTING PURPOSES
+// COMMENTED OUT FOR TESTING PURPOSES
+
+
 
 //getData(process.env.GET_GAMES + '?first=100');
 

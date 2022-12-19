@@ -144,6 +144,7 @@ const typeDefs = gql`
 		getBroadcasterPerformanceName(_id: String): Broadcaster
 		Games: [Game]
 		getGame(_id: ID): Game
+		getGameName(_id: String): Game
 		Clips: [Clips]
 		getStream: [Stream]
 		getTotalData(date: Date): [TotalData]
