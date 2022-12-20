@@ -11,6 +11,9 @@ const colorToolTip = ["#29066B", "#084914", "#A5194D", "#142459", "#991212", "#d
 
 const PieChart: React.FC<PieProps> = (props) => {
 
+    let extraPropExists: boolean = false;
+    if (props.extraTip !== undefined) extraPropExists = true;
+
     let top5Total = 0;
 
     let matchingCheck = false;
@@ -21,7 +24,7 @@ const PieChart: React.FC<PieProps> = (props) => {
     };
 
     // If prop type isnt day, then add "Other" object for remaining value left
-    const dataFinal = (props.type === "day") ?
+    const dataFinal = (props.type === "day" || props.type === "dayRatio") ?
     props.dataSet :
     (props.type === "vs" && props.user) ?
     [{name: props.user?.name, views: props.user?.views}, { name: "Top 5", views: (props.totalVal - (matchingCheck === true ? props.user?.views! : 0)) }] :
@@ -170,8 +173,32 @@ const PieChart: React.FC<PieProps> = (props) => {
                         ` :
                         `<p class='toolDate'>
                         ${props.type === "day" ? `Out of last ${props.totalVal} streams` :
+                        props.type === "dayRatio" ? `views per stream` :
                         d.index === 0 ? 'remaining views' : '7 day ' + props.type}
-                        </p>`)
+                        </p>`) +
+
+                        (extraPropExists === true && props.type === "dayRatio" && props?.extraTip ?
+                        `<p class='toolTitle'>
+                        
+                        </p>` +
+                        `<p class='toolTitle'>
+                        Totals
+                        </p>` +
+                        `<p class='percentage' >
+                        ${props.extraTip[(props.extraTip.length - 1) - d.index]?.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        </p>` +
+                        `<p class='toolDate'>
+                        average live views
+                        </p>` +
+
+                        `<p class='percentage' >
+                        ${props.extraTip[(props.extraTip.length - 1) - d.index]?.streams.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        </p>` +
+                        `<p class='toolDate'>
+                        average streams
+                        </p>` :
+                        ``
+                        )
 
 
                     )
@@ -199,10 +226,10 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .enter()
                 .append('text')
                 .attr('class', 'pieLabel')
-                .text(function (d) { return (props.type === "day" ? d.data.name : d.index === 0 ? d.data.name : '') })
+                .text(function (d) { return ((props.type === "day" || props.type === "dayRatio") ? d.data.name : d.index === 0 ? d.data.name : '') })
                 .attr("transform", function (d) {
                     return "translate(" +
-                    (props.type === "day" ? arc.centroid(d)[0] - dimensions.width! / 20 : arc.centroid(d)[0] / 2) +
+                    ((props.type === "day" || props.type === "dayRatio") ? arc.centroid(d)[0] - dimensions.width! / 20 : arc.centroid(d)[0] / 2) +
                         "," + arc.centroid(d)[1] + ")";
                 })
                 .style("text-anchor", "center")

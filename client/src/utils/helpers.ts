@@ -343,6 +343,14 @@ export function nestedArrayAverageCalc(arr: any[], nestedArr: string) {
             };
             arr[k][nestedArr] = parseFloat((newAvg / arr[k][nestedArr].length).toFixed());
         };
+        // If there is only 1 item in the array, convert to regular value so it isnt in an array anymore
+        if (arr[k]?.[nestedArr]?.length === 1) arr[k][nestedArr] = arr[k][nestedArr][0];
     };
     return arr;
-}
+};
+
+// Checks if a key value pair exists in an array of objects
+export const checkKeyValue = (key: string, val: any, arr: any[]) => arr.some(el => el[key] === val);
+
+// Finds index of a matching value in a key value pair in an array of objects
+export const indexKeyVal = (arr: any[], key: string, val: any) => arr.findIndex(x => x[key] === val);

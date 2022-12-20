@@ -4,8 +4,8 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 import BroadcasterPerformanceChart from './BroadcasterPerformanceChart';
 import PieChart from './PieChart';
-import { BroadcasterStatProps, ProfileData, Stats, TopStreams, GameStatProps } from './TypesAndInterfaces';
-import { createBroadcasterPerformanceList, createShortStreamerList, Comparator } from '../utils/helpers';
+import { ExtraDayData, Stats, GameStatProps } from './TypesAndInterfaces';
+import { nestedArrayAverageCalc, indexKeyVal } from '../utils/helpers';
 import { getData } from '../utils/clientFetches';
 
 import { useQuery } from "@apollo/client";
@@ -38,7 +38,60 @@ const now = new Date();
 
 const GameStats: React.FC<GameStatProps> = (props) => {
 
+    const [dayChartFinal, setDayChartFinal] = useState<Stats[]>([])
+
+    const [totalValState, setTotalValState] = useState<number>(0)
+
+    const [toolTipInfo, setToolTipInfo] = useState<ExtraDayData[]>([])
+
     let chartData = props?.chartData;
+
+    let dayData: any[] = [];
+
+    let dayChartData: Stats[] = [];
+
+    let totalVal:number = 0;
+
+    for (let i = 0; i < chartData?.length; i++) {
+        let refDate = new Date(chartData[i]?.date).toLocaleDateString(undefined, ({ weekday: "long" }));
+        
+        let findIndex = indexKeyVal(dayData, refDate, 'name');
+        // If weekday already exists, add additional viewAvg and channelAvg to the view and streams arrays
+        if (findIndex > -1) {
+            dayData[findIndex]?.views.push(chartData[i]?.viewAvg);
+            dayData[findIndex]?.streams.push(chartData[i]?.channelAvg);
+        };
+
+        // If weekday doesnt exist yet, add a new object to the dayData array of objects
+        if (findIndex <= -1) {
+            dayData.push(
+                {
+                    name: refDate,
+                    views: [chartData[i]?.viewAvg],
+                    streams: [chartData[i]?.channelAvg],
+                }
+            )
+        };
+    };
+
+    dayData = nestedArrayAverageCalc(dayData, 'views');
+    dayData = nestedArrayAverageCalc(dayData, 'streams');
+
+    console.log("dayData is");
+    console.log(dayData);
+
+    for (let j = 0; j < dayData?.length; j++) {
+        let avgVal: number = parseFloat((dayData[j].views / dayData[j].streams).toFixed());
+        dayChartData.push({
+            name: dayData[j].name,
+            views: avgVal,
+        })
+        totalVal += avgVal;
+    };
+
+    if (dayChartFinal === undefined || dayChartFinal?.length === 0) setDayChartFinal(dayChartData);
+    if (totalValState === 0) setTotalValState(totalVal);
+    if (toolTipInfo === undefined || toolTipInfo?.length === 0) setToolTipInfo(dayData);
 
     return (
         <Box sx={{ flexGrow: 1 }} style={styles.container}>
@@ -68,7 +121,7 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                                     </>
                                     :
                                     <BroadcasterPerformanceChart
-                                        profileData={[{peak: 1, avg: 1, date: now, duration: 'null', title: 'test'}]}
+                                        profileData={[{ peak: 1, avg: 1, date: now, duration: 'null', title: 'test' }]}
                                         gameData={chartData}
                                         type={'view'}
                                     />
@@ -76,7 +129,7 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                         </Grid>
                     </Grid>
 
-                    {/* <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>
+                    <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>
                         <Grid item xs={12}>
                             <Typography variant={'h4'} mb={2} mt={1} borderBottom={5} borderTop={5} borderColor={deepPurple[700]} style={styles.mainTitle}>
                                 Stream Breakdown
@@ -88,14 +141,14 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                         <Typography variant={'h5'} mb={{ xs: 3, sm: 1.5 }} textAlign='center' style={styles.title}
                             width={'100%'}
                         >
-                            Days Streamed
+                            Daily Views Per Stream
                         </Typography>
-                        {dataList === undefined || dataList?.length === 0 ?
+                        {dayChartFinal === undefined || dayChartFinal?.length === 0 ?
                             <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                 Loading Chart...
                             </Typography>
                             :
-                            dataList?.length < 2 ?
+                            dayChartFinal?.length < 2 ?
                                 <>
                                     <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                         Day Breakdown Unavailable
@@ -106,15 +159,16 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                                 </>
                                 :
                                 <PieChart
-                                    dataSet={dayDataState}
-                                    totalVal={streamAmount}
-                                    type={"day"}
+                                    dataSet={dayChartFinal}
+                                    totalVal={totalValState}
+                                    type={"dayRatio"}
+                                    extraTip={toolTipInfo}
                                 />
                         }
                     </Grid>
 
 
-                    <Grid item xs={10} sm={5.9} md={5.7} mb={2} ml={{ sm: .2, md: .6 }} mr={{ sm: .2, md: .6 }} pb={{ xs: '1.7rem', sm: '.5rem' }} className="homeChartItem">
+                    {/* <Grid item xs={10} sm={5.9} md={5.7} mb={2} ml={{ sm: .2, md: .6 }} mr={{ sm: .2, md: .6 }} pb={{ xs: '1.7rem', sm: '.5rem' }} className="homeChartItem">
                         <Typography variant={'h5'} mb={{ xs: 3, sm: 1.5 }} textAlign='center' style={styles.title}
                             width={'100%'}
                         >

@@ -157,6 +157,7 @@ export interface PieProps {
     totalVal: number;
     type: string;
     user?: {name: string, views: number};
+    extraTip?: ExtraDayData[];
 }
 
 export interface ClipCollectionProps {
@@ -208,6 +209,12 @@ export type GameData = {
 
 export interface GameStatProps {
     chartData: GameData[];
+};
+
+export type ExtraDayData = {
+    name: string;
+    views: number;
+    streams: number;
 };
 
 export interface BroadcasterLatest {
