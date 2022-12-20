@@ -5,11 +5,11 @@ import Typography from '@mui/material/Typography'
 import BroadcasterPerformanceChart from './BroadcasterPerformanceChart';
 import PieChart from './PieChart';
 import { ExtraDayData, Stats, GameStatProps } from './TypesAndInterfaces';
-import { nestedArrayAverageCalc, indexKeyVal } from '../utils/helpers';
+import { nestedArrayAverageCalc, indexKeyVal, createMiniListData, Comparator } from '../utils/helpers';
 import { getData } from '../utils/clientFetches';
 
 import { useQuery } from "@apollo/client";
-import { GET_TOP_STREAM_WEEK } from "../utils/queries";
+import { GET_TOP_GAME_WEEK } from "../utils/queries";
 
 // Importing colors from Material UI
 import { indigo, deepPurple } from '@mui/material/colors';
@@ -38,11 +38,24 @@ const now = new Date();
 
 const GameStats: React.FC<GameStatProps> = (props) => {
 
+    const { loading, data, error } = useQuery(GET_TOP_GAME_WEEK);
+
+    const topGameData = data?.getTopGames[0]?.topGames;
+
+    let topGameSorted: Stats[] = createMiniListData(topGameData).sort(Comparator).slice(0, 5)
+
+
+    const [topGames, setTopGames] = useState<Stats[]>(topGameSorted);
+
     const [dayChartFinal, setDayChartFinal] = useState<Stats[]>([])
 
     const [totalValState, setTotalValState] = useState<number>(0)
 
+    const [topGameValState, setTopGameValState] = useState<number>(0)
+
     const [toolTipInfo, setToolTipInfo] = useState<ExtraDayData[]>([])
+
+    const [canMount, setCanMount] = useState<boolean>(false);
 
     let chartData = props?.chartData;
 
@@ -50,11 +63,13 @@ const GameStats: React.FC<GameStatProps> = (props) => {
 
     let dayChartData: Stats[] = [];
 
-    let totalVal:number = 0;
+    let totalVal: number = 0;
+
+    let topGameVal: number = 0;
 
     for (let i = 0; i < chartData?.length; i++) {
         let refDate = new Date(chartData[i]?.date).toLocaleDateString(undefined, ({ weekday: "long" }));
-        
+
         let findIndex = indexKeyVal(dayData, refDate, 'name');
         // If weekday already exists, add additional viewAvg and channelAvg to the view and streams arrays
         if (findIndex > -1) {
@@ -89,9 +104,22 @@ const GameStats: React.FC<GameStatProps> = (props) => {
         totalVal += avgVal;
     };
 
+    if (topGameVal === 0 && topGameSorted?.length > 0 && topGameValState === 0) {
+        for (let v = 0; v < topGameSorted?.length; v++) {
+            topGameVal += topGameSorted[v]?.views;
+        };
+        setTopGameValState(topGameVal);
+    };
+
     if (dayChartFinal === undefined || dayChartFinal?.length === 0) setDayChartFinal(dayChartData);
     if (totalValState === 0) setTotalValState(totalVal);
     if (toolTipInfo === undefined || toolTipInfo?.length === 0) setToolTipInfo(dayData);
+
+    // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
+    if (loading === false && canMount === false) {
+        setTopGames(topGameSorted)
+        setCanMount(true);
+    };
 
     return (
         <Box sx={{ flexGrow: 1 }} style={styles.container}>
@@ -103,7 +131,7 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                             <Typography variant={'h5'} textAlign='center' style={styles.title}
                                 width={'100%'}
                             >
-                                Recent Stream Performance
+                                Recent Game Performance
                             </Typography>
                             {chartData === undefined || chartData?.length === 0 ?
                                 <Typography className='areaChart' variant={'h4'} textAlign='center'>
@@ -132,7 +160,7 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                     <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>
                         <Grid item xs={12}>
                             <Typography variant={'h4'} mb={2} mt={1} borderBottom={5} borderTop={5} borderColor={deepPurple[700]} style={styles.mainTitle}>
-                                Stream Breakdown
+                                Game Breakdown
                             </Typography>
                         </Grid>
                     </Grid>
@@ -168,18 +196,18 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                     </Grid>
 
 
-                    {/* <Grid item xs={10} sm={5.9} md={5.7} mb={2} ml={{ sm: .2, md: .6 }} mr={{ sm: .2, md: .6 }} pb={{ xs: '1.7rem', sm: '.5rem' }} className="homeChartItem">
+                    <Grid item xs={10} sm={5.9} md={5.7} mb={2} ml={{ sm: .2, md: .6 }} mr={{ sm: .2, md: .6 }} pb={{ xs: '1.7rem', sm: '.5rem' }} className="homeChartItem">
                         <Typography variant={'h5'} mb={{ xs: 3, sm: 1.5 }} textAlign='center' style={styles.title}
                             width={'100%'}
                         >
                             View Comparison
                         </Typography>
-                        {dataList === undefined || dataList?.length === 0 ?
+                        {topGames === undefined || topGames?.length === 0 ?
                             <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                 Loading Chart...
                             </Typography>
                             :
-                            dataList?.length < 2 ?
+                            topGames?.length < 2 ?
                                 <>
                                     <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                         Day Breakdown Unavailable
@@ -190,13 +218,13 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                                 </>
                                 :
                                 <PieChart
-                                    dataSet={streamerData}
-                                    totalVal={streamerViewTotal}
+                                    dataSet={topGames}
+                                    totalVal={topGameValState}
                                     type={"vs"}
-                                    user={{ name: props.username, views: Math.max(...dataList.map(o => o.peak)) }}
+                                    user={{ name: chartData[0]?.title, views: Math.max(...chartData.map(o => o.viewPeak)) }}
                                 />
                         }
-                    </Grid> */}
+                    </Grid>
                 </Grid>
             </Grid>
 

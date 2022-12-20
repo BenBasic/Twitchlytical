@@ -69,6 +69,38 @@ export const createListData = (array: TopGames[]) => {
     return finalResult;
 };
 
+// Modified version of createListData, adjusted to return a result with a Stats[] type
+export const createMiniListData = (array: TopGames[]) => {
+
+    let finalResult = [];
+
+    // Cycles through the returned list of archive data and adds them to the total and count values
+    for (let i = 0; i < array?.length; i++) {
+        // Total and Count will keep track of total values and how many of them there are to divide them into an average number
+        let total = 0;
+        let count = 0;
+        let name = array[i]?.name
+        for (let j = 0; j < array[i].archive.length; j++) {
+            total = total + array[i].archive[j].view_count;
+
+            count++
+        }
+        // Getting the average value by dividing total and count
+        let average: any = total / count;
+
+        // Rounding the average, without this the database tends to throw errors due to long decimal values
+        let averageRounded: number = average.toFixed() * 1;
+
+        finalResult.push({
+            name: name,
+            views: averageRounded,
+        })
+    };
+
+    // Returning the rounded average result
+    return finalResult;
+};
+
 export const createStreamerData = (array: TopStreams[], array2: TopBroadcasters[]) => {
     let finalResult = [];
 
