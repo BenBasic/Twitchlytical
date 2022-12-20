@@ -305,6 +305,7 @@ export const timeSince = (date: string) => {
     if (diffDays >= 366) return diffDays % 365 === 1 ? `${diffDays % 365} year ago` : `${diffDays % 365} years ago`;
 };
 
+// Shortens number format of large numbers (ex: 1000 turns to 1k, 3000000 turns to 3M)
 export function numShortFormat(num: number) {
     if (num < 1000) {
         return num;
@@ -327,6 +328,21 @@ export function numShortFormat(num: number) {
     return (num / si[index].v).toFixed(2).replace(/\.0+$|(\.[0-9]*[1-9])0+$/, "$1") + si[index].s;
 };
 
+// Adds ordinal ending to numbers (ex: 1st, 2nd, 3rd, 4th)
 export function numOrdinalFormat(num: number) {
     return["st","nd","rd"][(((num<0?-num:num)+90)%100-10)%10-1]||"th"
+};
+
+// Calculates and assigns an average value of a nested array within an array of objects
+export function nestedArrayAverageCalc(arr: any[], nestedArr: string) {
+    for (let k = 0; k < arr?.length; k++) {
+        if (arr[k]?.[nestedArr]?.length > 1) {
+            let newAvg: number = 0;
+            for (let l = 0; l < arr[k][nestedArr].length; l++) {
+                newAvg += arr[k][nestedArr][l];
+            };
+            arr[k][nestedArr] = parseFloat((newAvg / arr[k][nestedArr].length).toFixed());
+        };
+    };
+    return arr;
 }

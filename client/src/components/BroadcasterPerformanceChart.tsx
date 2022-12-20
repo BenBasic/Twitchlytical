@@ -19,7 +19,9 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     let isGame: boolean = false;
     if (gameData !== undefined) isGame = true;
 
+    // Checks if the passed in values are of the ProfileData[] type
     const isProfileType = (x: any, y: any): x is ProfileData[] => y.includes(x);
+    // Checks if the passed in values are of the ProfileData type
     const isProfileTypeItem = (x: any, y: any): x is ProfileData => y.includes(x);
 
     // // Function that creates the array containing all peak, avg, and date data for the last week (from dayProps)

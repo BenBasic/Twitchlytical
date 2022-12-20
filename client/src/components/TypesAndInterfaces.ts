@@ -206,8 +206,12 @@ export type GameData = {
     title: string;
 };
 
+export interface GameStatProps {
+    chartData: GameData[];
+};
+
 export interface BroadcasterLatest {
     profileData: ProfileData[] | undefined;
     gameData?: GameData[] | undefined;
     type: string;
-}
+};

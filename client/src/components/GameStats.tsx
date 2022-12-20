@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 import BroadcasterPerformanceChart from './BroadcasterPerformanceChart';
 import PieChart from './PieChart';
-import { BroadcasterStatProps, ProfileData, Stats, TopStreams } from './TypesAndInterfaces';
+import { BroadcasterStatProps, ProfileData, Stats, TopStreams, GameStatProps } from './TypesAndInterfaces';
 import { createBroadcasterPerformanceList, createShortStreamerList, Comparator } from '../utils/helpers';
 import { getData } from '../utils/clientFetches';
 
@@ -35,37 +35,11 @@ const styles = {
 };
 
 const now = new Date();
-const newDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-const newDate2 = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2);
 
-const tempData = [
-    {
-        viewPeak: 229615,
-        viewAvg: 115562,
-        channelPeak: 2482,
-        channelAvg: 2104,
-        date: newDate2,
-        title: "gta",
-    },
-    {
-        viewPeak: 299615,
-        viewAvg: 199615,
-        channelPeak: 2950,
-        channelAvg: 2440,
-        date: newDate,
-        title: "gta",
-    },
-    {
-        viewPeak: 259615,
-        viewAvg: 209615,
-        channelPeak: 1900,
-        channelAvg: 1568,
-        date: now,
-        title: "gta",
-    },
-]
+const GameStats: React.FC<GameStatProps> = (props) => {
 
-const GameStats: React.FC = () => {
+    let chartData = props?.chartData;
+
     return (
         <Box sx={{ flexGrow: 1 }} style={styles.container}>
             <Grid container alignItems="center" justifyContent="center">
@@ -78,12 +52,12 @@ const GameStats: React.FC = () => {
                             >
                                 Recent Stream Performance
                             </Typography>
-                            {tempData === undefined || tempData?.length === 0 ?
+                            {chartData === undefined || chartData?.length === 0 ?
                                 <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                     Loading Chart...
                                 </Typography>
                                 :
-                                tempData?.length < 2 ?
+                                chartData?.length < 2 ?
                                     <>
                                         <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                             User Streams Unavailable
@@ -95,7 +69,7 @@ const GameStats: React.FC = () => {
                                     :
                                     <BroadcasterPerformanceChart
                                         profileData={[{peak: 1, avg: 1, date: now, duration: 'null', title: 'test'}]}
-                                        gameData={tempData}
+                                        gameData={chartData}
                                         type={'view'}
                                     />
                             }
