@@ -40,7 +40,8 @@ const styles = {
     profilePic: {
         // width: '10rem',
         // height: '10rem',
-        border: '.5rem solid ' + indigo[300]
+        border: '.5rem solid ' + indigo[300],
+        borderRadius: '1rem',
     },
     infoContainer: {
         backgroundColor: indigo[300],
@@ -156,7 +157,7 @@ const GameProfile: React.FC<GameHeaderProps> = (props) => {
                         <Grid container spacing={0} m={0} maxWidth="md" justifyContent="center" style={styles.container}>
                             {/* Profile Picture */}
                             <Grid item xs={3} alignItems='center' mt={2} sx={{ justifyContent: "center", display: { xs: "none", sm: "flex" } }}>
-                                <Avatar style={styles.profilePic} sx={{ width: { sm: "9rem", md: "10.5rem" }, height: { sm: "12rem", md: "14rem" } }}
+                                <Avatar style={styles.profilePic} sx={{ width: { sm: "7.5rem", md: "10.5rem" }, height: { sm: "10rem", md: "14rem" } }}
                                     src={gameImage} variant="square" />
                             </Grid>
                             <Grid item xs={9} mt={2} textAlign="left">
@@ -208,7 +209,7 @@ const GameProfile: React.FC<GameHeaderProps> = (props) => {
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} mt={2} style={styles.liveStats}
-                                        sx={{ borderRadius: styles.infoBorderRight }}
+                                        sx={{ borderRadius: styles.infoBorderMid }}
                                     >
                                         <Typography variant={'subtitle2'} textAlign='center' style={styles.heading} fontSize={{ xs: '.6rem', sm: '.8rem' }}>
                                             Average Streams

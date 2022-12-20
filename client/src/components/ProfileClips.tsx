@@ -6,6 +6,11 @@ import { ProfileClipsProps } from './TypesAndInterfaces'
 
 const ProfileClips: React.FC<ProfileClipsProps> = (props) => {
 
+    let isGame: boolean = false;
+    if (props.game !== undefined && props.game === true) isGame = true;
+
+    let gameOrBroadcaster: string = isGame === true ? `?game_id=` : `?broadcaster_id=`
+
     let userId: string = props.userId;
 
     const [apiCheck, setApiCheck] = useState<any[] | undefined>(undefined);
@@ -22,7 +27,7 @@ const ProfileClips: React.FC<ProfileClipsProps> = (props) => {
 
         if (dataList !== undefined && apiCheck === undefined) setApiCheck(dataList);
 
-        const apiData = (apiCheck === undefined ? await apiCall(process.env.REACT_APP_GET_CLIPS, `?broadcaster_id=${userId}&first=${clipAmount}`) : undefined);
+        const apiData = (apiCheck === undefined ? await apiCall(process.env.REACT_APP_GET_CLIPS, `${gameOrBroadcaster}${userId}&first=${clipAmount}`) : undefined);
 
         const apiDataNested = (apiCheck === undefined ? await apiData?.data : undefined);
 

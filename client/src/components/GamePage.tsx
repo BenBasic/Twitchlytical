@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 import GameProfile from './GameProfile';
 import GameStats from './GameStats';
+import ProfileClips from './ProfileClips';
 
 import { GameHeaderData, GameData } from './TypesAndInterfaces';
 import { nestedArrayAverageCalc } from '../utils/helpers';
@@ -23,6 +24,8 @@ const GamePage: React.FC = () => {
     });
 
     const gameArchive = data?.getGameName?.archive;
+
+    const dbGameId = data?.getGameName?._id;
 
     const { loading: loadingTop, data: dataTop, error: errorTop } = useQuery(GET_TOP_GAME_WEEK);
 
@@ -122,6 +125,10 @@ const GamePage: React.FC = () => {
                     />
                     <GameStats
                         chartData={gameChartData}
+                    />
+                    <ProfileClips
+                        userId={dbGameId}
+                        game={true}
                     />
                 </> :
                 <Grid container alignItems="center" justifyContent="center">

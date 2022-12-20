@@ -90,6 +90,7 @@ export interface BroadcasterStatProps {
 
 export interface ProfileClipsProps {
     userId: string;
+    game?: boolean;
 }
 
 export type GameHeaderData = {
