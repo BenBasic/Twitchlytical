@@ -8,12 +8,19 @@ import { easeBounce, easeElastic } from 'd3-ease'
 import { area } from 'd3-shape'
 import { ScaleTime } from 'd3-scale'
 import * as d3 from 'd3'
-import { BroadcasterLatest } from './TypesAndInterfaces'
+import { BroadcasterLatest, GameData, ProfileData } from './TypesAndInterfaces'
 import { percentDifference, moveArrIndex, checkArrIsNum } from '../utils/helpers'
+import ProfileStats from './ProfileStats'
 
 
 
-const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData, type }) => {
+const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData, gameData, type }) => {
+
+    let isGame: boolean = false;
+    if (gameData !== undefined) isGame = true;
+
+    const isProfileType = (x: any, y: any): x is ProfileData[] => y.includes(x);
+    const isProfileTypeItem = (x: any, y: any): x is ProfileData => y.includes(x);
 
     // // Function that creates the array containing all peak, avg, and date data for the last week (from dayProps)
     // function assignPropData() {
@@ -32,7 +39,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     console.log("-------------------- Profile Data Is --------------------")
     console.log(profileData)
 
-    const data = profileData;
+    const data = isGame === false ? profileData : gameData;
 
     console.log("Data2 is")
     console.log(data)
@@ -84,11 +91,15 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     const dimensions = { width: widthState, height: heightState }
 
     // Assigning maxValue to the maximum result from the data, used for sizing and axis labels
-    const maxValue = (dataState === undefined ? 0 : max(dataState, d => d.peak))
+    const maxValue = (dataState === undefined ? 0 : isProfileType(dataState, [profileData]) ? max(dataState, d => d.peak) : max(dataState, d => d.viewPeak))
 
     // Assigning maxValue to the maximum result from the data, used for sizing and axis labels
-    const maxValueBar = (dataState === undefined ? 0 : max(dataState, d => parseInt(d.duration.replace(/[^0-9\.]+/g, ''))!))
-
+    const maxValueBar = (dataState === undefined ? 0 : isProfileType(dataState, [profileData]) ? max(dataState, d => parseInt(d.duration.replace(/[^0-9\.]+/g, ''))!) : max(dataState, d => d.channelPeak))
+    console.log("maxValueBar is")
+    console.log("maxValueBar test is " + isProfileType(dataState, [profileData]))
+    console.log(dataState)
+    console.log(profileData)
+    console.log(maxValueBar)
     // Values and sizing referenced for the y axis
     let y = scaleLinear()
         .domain([0, maxValue!])
@@ -97,7 +108,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     // Values and sizing referenced for the y axis
     let yBar = scaleLinear()
         .domain([0, maxValueBar!])
-        .range([dimensions.height! - (dimensions.height! / 8) * 1.2, dimensions.height! / 12])
+        .range([dimensions.height! - (dimensions.height! / 8) * 1.2, dimensions.height! / (isProfileType(dataState, [profileData]) ? 12 : 4)])
 
     // Values and sizing referenced for the x axis
     let x = scaleBand()
@@ -139,7 +150,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
             }
         })
         .y0(y(0))
-        .y1((d: any) => y(d.peak))
+        .y1((d: any) => y(isProfileType(dataState, [profileData]) ? d.peak : d.viewPeak))
 
     // Placement settings for dataset 2 (final position, after animation)
     const channelAreaRef: any = area()
@@ -152,7 +163,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
             }
         })
         .y0(y(0))
-        .y1((d: any) => y(d.avg))
+        .y1((d: any) => y(isProfileType(dataState, [profileData]) ? d.avg : d.viewAvg))
 
 
     useEffect(() => {
@@ -193,12 +204,37 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
                 // Calculates height for bar graphs [NEEDS TYPE ASSIGNMENT FOR PEREMETER]
                 const barHeightCalc = (d: any) => {
-                    let durationArr: any[] = d.duration.split(/[hms]+/gi, 3);
-                    for (let k = 0; k < durationArr.length; k++) {
-                        durationArr[k] = parseInt(durationArr[k], 10);
-                    };
-                    checkArrIsNum(durationArr, 0);
-                    return yBar(((durationArr[0] * 3600) + (durationArr[1] * 60) + durationArr[2]) * 1.2)
+                    // let durationArr: any[] = ["nope"];
+
+                    if (isProfileTypeItem(d, profileData)) {
+                        console.log("yuck1")
+                        let durationArr: any[] = d.duration.split(/[hms]+/gi, 3);
+                        console.log("yuck durationArr is")
+                        console.log(durationArr)
+
+                        for (let k = 0; k < durationArr.length; k++) {
+                            durationArr[k] = parseInt(durationArr[k], 10);
+                        };
+                        checkArrIsNum(durationArr, 0);
+                        console.log("checkArrIsNum check")
+                        console.log(durationArr)
+                        console.log("yuck g " + yBar(((durationArr[0] * 3600) + (durationArr[1] * 60) + durationArr[2]) * 1.2))
+                        console.log("yuck g check")
+                        console.log(yBar(((durationArr[0] * 3600) + (durationArr[1] * 60) + durationArr[2]) * 1.2))
+                        return yBar(((durationArr[0] * 3600) + (durationArr[1] * 60) + durationArr[2]) * 1.2)
+                    }
+                    console.log("yuck2")
+                    console.log("yuck " + isProfileTypeItem(d, profileData))
+
+                    if (!isProfileTypeItem(d, profileData)) {
+                        console.log("yuck3")
+                        console.log("yuck f " + yBar(d.channelPeak * 1.2))
+                        return yBar(d.channelPeak * 1.2)
+                    }
+                    console.log("yuck4")
+
+                    return yBar(0)
+
                 }
 
 
@@ -260,7 +296,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
 
                 var bar = selectionState.selectAll("rect")
-                    .data(dataState)
+                    .data<ProfileData | GameData>(dataState)
                     .enter().append("g");
 
                 // Bar Chart
@@ -318,7 +354,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
                 selectionState
                     .selectAll("dot")
-                    .data(dataState)
+                    .data<ProfileData | GameData>(dataState)
                     .enter()
                     .append("rect")
                     .classed("tipArea", true)
@@ -329,7 +365,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                     .attr('transform', `translate(${dimensions.width! / 21.3}, 0)`)
                     .on("mouseover", function (event, d) {
                         // Assigning i to find the index of matching data (this functions as the index)
-                        const i: number = dataState.indexOf(d);
+                        const i: number = dataState.indexOf(d as any);
                         // Assigning lets, both used for displaying percentage difference between results
                         let greatCheckPeak: string = "";
                         let greatCheckAvg: string = "";
@@ -343,6 +379,27 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                         console.log(event.pageY)
                         console.log(i)
 
+                        let peakVal: number = 0;
+                        let avgVal: number = 0;
+                        let dataPeak: number = 0;
+                        let dataAvg: number = 0;
+                        let channelPeakVal: number = 0;
+                        let channelAvgVal: number = 0;
+                        let currentDuration: any[] = ["nope"];
+                        let prevDuration: any[] = ["nope"];
+
+                        if (isProfileType(dataState, [profileData]) && isProfileTypeItem(d, profileData)) {
+                            peakVal = d.peak;
+                            avgVal = d.avg;
+                        };
+
+                        if (!isProfileType(dataState, [profileData]) && !isProfileTypeItem(d, profileData)) {
+                            peakVal = d.viewPeak;
+                            avgVal = d.viewAvg;
+                            channelPeakVal = d.channelPeak;
+                            channelAvgVal = d.channelAvg;
+                        }
+
 
                         /* Checks if tooltip has previous data to reference, if it does then 
                         it will compare the current and previous data to check for a percentage difference.
@@ -350,52 +407,70 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                         or lower than the previous data
                         */
                         if (i > 0) {
-                            if (d.peak > dataState[i - 1].peak) {
-                                greatCheckPeak = `▲ ${percentDifference(dataState[i - 1].peak, d.peak)}%`
+                            console.log("tool check " + isProfileType(dataState, [profileData]) + " " + isProfileTypeItem(d, profileData))
+
+                            if (isProfileType(dataState, [profileData]) && isProfileTypeItem(d, profileData)) {
+
+                                dataPeak = dataState[i - 1].peak;
+                                dataAvg = dataState[i - 1].avg;
+                                currentDuration = d.duration.split(/[hms]+/gi, 3);
+                                prevDuration = dataState[i - 1].duration.split(/[hms]+/gi, 3);
+                            };
+                            console.log("tool check 2 is " + peakVal)
+
+                            if (!isProfileType(dataState, [profileData]) && !isProfileTypeItem(d, profileData)) {
+                                peakVal = d.viewPeak;
+                                avgVal = d.viewAvg;
+                                dataPeak = dataState[i - 1].viewPeak;
+                                dataAvg = dataState[i - 1].viewAvg;
+                            }
+
+                            if (peakVal > dataPeak) {
+                                greatCheckPeak = `▲ ${percentDifference(dataPeak, peakVal)}%`
                                 colorClassPeak = `higher`
-                            } else if (d.peak < dataState[i - 1].peak) {
-                                greatCheckPeak = `▼ ${percentDifference(dataState[i - 1].peak, d.peak)}%`
+                            } else if (peakVal < dataPeak) {
+                                greatCheckPeak = `▼ ${percentDifference(dataPeak, peakVal)}%`
                                 colorClassPeak = `lower`
                             };
-                            if (d.avg > dataState[i - 1].avg) {
-                                greatCheckAvg = `▲ ${percentDifference(dataState[i - 1].avg, d.avg)}%`
+                            if (avgVal > dataAvg) {
+                                greatCheckAvg = `▲ ${percentDifference(dataAvg, avgVal)}%`
                                 colorClassAvg = `higher`
-                            } else if (d.avg < dataState[i - 1].avg) {
-                                greatCheckAvg = `▼ ${percentDifference(dataState[i - 1].avg, d.avg)}%`
+                            } else if (avgVal < dataAvg) {
+                                greatCheckAvg = `▼ ${percentDifference(dataAvg, avgVal)}%`
                                 colorClassAvg = `lower`
                             };
 
-                            let currentDuration: any[] = d.duration.split(/[hms]+/gi, 3);
-                            let prevDuration: any[] = dataState[i - 1].duration.split(/[hms]+/gi, 3);
+                            if (currentDuration[0] !== "nope" && prevDuration[0] !== "nope") {
+                                /* Loops through previous and current streams duration arrays and
+                                turning the string values into number values for comparison calculation
+                                */
+                                for (let h = 0; h < currentDuration.length; h++) {
+                                    currentDuration[h] = parseInt(currentDuration[h], 10);
+                                    prevDuration[h] = parseInt(prevDuration[h], 10);
+                                    // Removes plural if value is 1 or smaller (ex: 1 hour vs 1 hours)
+                                    if (currentDuration[h] <= 1) plurals[h] = plurals[h].slice(0, -1);
+                                };
 
-                            /* Loops through previous and current streams duration arrays and
-                            turning the string values into number values for comparison calculation
-                            */
-                            for (let h = 0; h < currentDuration.length; h++) {
-                                currentDuration[h] = parseInt(currentDuration[h], 10);
-                                prevDuration[h] = parseInt(prevDuration[h], 10);
-                                // Removes plural if value is 1 or smaller (ex: 1 hour vs 1 hours)
-                                if (currentDuration[h] <= 1) plurals[h] = plurals[h].slice(0, -1);
-                            };
+                                // Reformats array if Current Stream doesnt contain hours or minutes
+                                checkArrIsNum(currentDuration, 0);
 
-                            // Reformats array if Current Stream doesnt contain hours or minutes
-                            checkArrIsNum(currentDuration, 0);
+                                // Reformats array if Previous Stream doesnt contain hours or minutes
+                                checkArrIsNum(prevDuration, 0);
 
-                            // Reformats array if Previous Stream doesnt contain hours or minutes
-                            checkArrIsNum(prevDuration, 0);
+                                // Converts hours and minutes into seconds and adds the total of hours, minutes, and seconds
+                                let currentDurCalc = (currentDuration[0] * 3600) + (currentDuration[1] * 60) + currentDuration[2];
+                                let prevDurCalc = (prevDuration[0] * 3600) + (prevDuration[1] * 60) + prevDuration[2];
 
-                            // Converts hours and minutes into seconds and adds the total of hours, minutes, and seconds
-                            let currentDurCalc = (currentDuration[0] * 3600) + (currentDuration[1] * 60) + currentDuration[2];
-                            let prevDurCalc = (prevDuration[0] * 3600) + (prevDuration[1] * 60) + prevDuration[2];
+                                // Calculates percentage difference between current and previous stream durations
+                                if (currentDurCalc > prevDurCalc) {
+                                    greatCheckDuration = `▲ ${percentDifference(prevDurCalc, currentDurCalc)}%`
+                                    colorClassDuration = `higher`
+                                } else if (currentDurCalc < prevDurCalc) {
+                                    greatCheckDuration = `▼ ${percentDifference(prevDurCalc, currentDurCalc)}%`
+                                    colorClassDuration = `lower`
+                                };
+                            }
 
-                            // Calculates percentage difference between current and previous stream durations
-                            if (currentDurCalc > prevDurCalc) {
-                                greatCheckDuration = `▲ ${percentDifference(prevDurCalc, currentDurCalc)}%`
-                                colorClassDuration = `higher`
-                            } else if (currentDurCalc < prevDurCalc) {
-                                greatCheckDuration = `▼ ${percentDifference(prevDurCalc, currentDurCalc)}%`
-                                colorClassDuration = `lower`
-                            };
                         }
                         // Makes tooltip visible when mouse enters tooltip area
                         tooltip.transition()
@@ -412,11 +487,11 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                             </p>` +
                             // Tooltip Peak Title
                             `<p class='toolTitle'>
-                            Peak
+                            ${isProfileType(dataState, [profileData]) ? 'Peak' : 'View Peak'}
                             </p>` +
                             // Tooltip Peak Value
                             `<p class='toolInfo' style=background-color:${colorPicker.peak[2]};>
-                            ${d.peak.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                            ${peakVal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             </p>` +
                             // Tooltip Peak Percentage Comparison
                             `<p class=${i === 0 ? 'hiddenElem' : colorClassPeak}>
@@ -424,33 +499,61 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                             </p>` +
                             // Tooltip Average Title
                             `<p class='toolTitle'>
-                            Average
+                            ${isProfileType(dataState, [profileData]) ? 'Average' : 'View Average'}
                             </p>` +
                             // Tooltip Average Value
                             `<p class='toolInfo' style=background-color:${colorPicker.avg[2]};>
-                            ${d.avg.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                            ${avgVal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                             </p>` +
                             // Tooltip Average Percentage Comparison
                             `<p class=${i === 0 ? 'hiddenElem' : colorClassAvg}>
                             ${greatCheckAvg}
                             </p>` +
-                            // Tooltip Duration Title
-                            `<p class='toolTitle'>
-                            Duration
-                            </p>` +
-                            // Tooltip Duration Value
-                            `<p class='toolInfo' style=background-color:${colorPicker.hour[2]};>
-                            ${d.duration.replace(/([s])+/gi, ` ${plurals[2]}`)
-                                .replace(/([m])+/gi, ` ${plurals[1]}<br>`)
-                                .replace(/([h])+/gi, ` ${plurals[0]}<br>`)
-                                // Replaces leading 0s in number (ex: 01 vs 1 )
-                                .replace(/\b0/g, '')
-                            }
-                            </p>` +
-                            // Tooltip Date Percentage Comparison
-                            `<p class=${i === 0 ? 'hiddenElem' : colorClassDuration}>
-                            ${greatCheckDuration}
-                            </p>`
+
+                            (isProfileType(dataState, [profileData]) && isProfileTypeItem(d, profileData) ?
+                                // Tooltip Duration Title
+                                `<p class='toolTitle'>
+                                Duration
+                                </p>` +
+                                // Tooltip Duration Value
+                                `<p class='toolInfo' style=background-color:${colorPicker.hour[2]};>
+                                ${d.duration.replace(/([s])+/gi, ` ${plurals[2]}`)
+                                    .replace(/([m])+/gi, ` ${plurals[1]}<br>`)
+                                    .replace(/([h])+/gi, ` ${plurals[0]}<br>`)
+                                    // Replaces leading 0s in number (ex: 01 vs 1 )
+                                    .replace(/\b0/g, '')
+                                }
+                                </p>` +
+                                // Tooltip Date Percentage Comparison
+                                `<p class=${i === 0 ? 'hiddenElem' : colorClassDuration}>
+                                ${greatCheckDuration}
+                                </p>` :
+
+                                // Tooltip Peak Title
+                                `<p class='toolTitle'>
+                                Streamer Peak
+                                </p>` +
+                                // Tooltip Peak Value
+                                `<p class='toolInfo' style=background-color:${colorPicker.peak[2]};>
+                                ${channelPeakVal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                </p>` +
+                                // Tooltip Peak Percentage Comparison
+                                `<p class=${i === 0 ? 'hiddenElem' : colorClassPeak}>
+                                ${greatCheckPeak}
+                                </p>` +
+                                // Tooltip Average Title
+                                `<p class='toolTitle'>
+                                Streamer Average
+                                </p>` +
+                                // Tooltip Average Value
+                                `<p class='toolInfo' style=background-color:${colorPicker.avg[2]};>
+                                ${channelAvgVal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                </p>` +
+                                // Tooltip Average Percentage Comparison
+                                `<p class=${i === 0 ? 'hiddenElem' : colorClassAvg}>
+                                ${greatCheckAvg}
+                                </p>`
+                            )
                         )
                     })
                     // Allows tooltip to follow mouse position, will swap sides if too close to page edge

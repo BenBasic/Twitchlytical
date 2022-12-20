@@ -3,9 +3,8 @@ import { useParams } from 'react-router-dom'
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 import GameProfile from './GameProfile';
-import ProfileStats from './ProfileStats'
-import ProfileClips from './ProfileClips';
-import { timeSince } from '../utils/helpers'
+import GameStats from './GameStats';
+
 import { GameHeaderData } from './TypesAndInterfaces'
 
 import { useQuery } from "@apollo/client";
@@ -13,15 +12,13 @@ import { GET_GAME_NAME, GET_TOP_GAME_WEEK } from "../utils/queries";
 
 const GamePage: React.FC = () => {
 
-    // // Assigns the profileId used for api and database calls (references the url of page, ex: /auronplay or /pokimane)
-    // const { profileId } = useParams();
-    // console.log("profileId is " + profileId)
+    // Assigns the gameId used for api and database calls (references the url of page, ex: /auronplay or /pokimane)
+    const { gameId } = useParams();
+    console.log("gameId is " + gameId)
 
-    const profileId = "Grand Theft Auto V"
-
-    // Grabs the data from the database for the specific streamer based on their profileId
+    // Grabs the data from the database for the specific streamer based on their gameId
     const { loading, data, error } = useQuery(GET_GAME_NAME, {
-        variables: { id: profileId }
+        variables: { id: gameId }
     });
 
     const gameArchive = data?.getGameName?.archive;
@@ -80,6 +77,7 @@ const GamePage: React.FC = () => {
                         channels={channelData}
                         gameProps={topGameData}
                     />
+                    <GameStats />
                 </> :
                 <Grid container alignItems="center" justifyContent="center">
                     <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>

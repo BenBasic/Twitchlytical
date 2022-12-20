@@ -197,7 +197,17 @@ export type ProfileData = {
     title: string;
 };
 
+export type GameData = {
+    viewPeak: number;
+    viewAvg: number;
+    channelPeak: number;
+    channelAvg: number;
+    date: Date;
+    title: string;
+};
+
 export interface BroadcasterLatest {
     profileData: ProfileData[] | undefined;
+    gameData?: GameData[] | undefined;
     type: string;
 }
