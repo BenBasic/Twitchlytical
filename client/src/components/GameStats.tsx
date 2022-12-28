@@ -121,6 +121,11 @@ const GameStats: React.FC<GameStatProps> = (props) => {
         setCanMount(true);
     };
 
+    console.log("chart data is !!!!!!!!!!!")
+    console.log(chartData)
+    console.log("topGames !!!!!!!!!!!")
+    console.log(topGames)
+
     return (
         <Box sx={{ flexGrow: 1 }} style={styles.container}>
             <Grid container alignItems="center" justifyContent="center">

@@ -16,19 +16,28 @@ const PieChart: React.FC<PieProps> = (props) => {
 
     let top5Total = 0;
 
-    let matchingCheck = false;
+    let matchingCheck: boolean = false;
+    let mcIndex: number = 0;
 
     for (let i = 0; i < props?.dataSet.length; i++) {
         top5Total += props.dataSet[i].views;
-        if (props.user?.name === props.dataSet[i].name) matchingCheck = true;
+        if (props.user?.name === props.dataSet[i].name) {
+            matchingCheck = true;
+            mcIndex = i;
+        }
     };
 
     // If prop type isnt day, then add "Other" object for remaining value left
     const dataFinal = (props.type === "day" || props.type === "dayRatio") ?
     props.dataSet :
     (props.type === "vs" && props.user) ?
-    [{name: props.user?.name, views: props.user?.views}, { name: "Top 5", views: (props.totalVal - (matchingCheck === true ? props.user?.views! : 0)) }] :
+    [{name: props.user?.name, views: props.user?.views}, { name: "Top 5", views: (props.totalVal - (matchingCheck === true ? props.dataSet[mcIndex].views : 0)) }] :
     [...props.dataSet, { name: "Other", views: (props.totalVal - top5Total) }]
+
+    console.log("dataFinal is")
+    console.log(dataFinal)
+
+    // if (props.type === "vs" && props.user && dataFinal[0].views > dataFinal[1].views) dataFinal.reverse();
 
     const pieChart = useRef<SVGSVGElement | null>(null)
 
@@ -139,11 +148,12 @@ const PieChart: React.FC<PieProps> = (props) => {
                         ${d.data.name}
                         </p>` +
                         // Percentage of total value (ex: 2 out of 10 will show 20%)
-                        // Checks if prop type is "vs", if so then it will hide the remainder percentage if item isnt in the top 5 to
-                        // avoid 100% displaying on remainder of the pie chart
-                        `<p class="${props.type !== "vs" ? 'toolInfo' :
-                        (matchingCheck === false && d.index === 0 ? 'hiddenElem' : 'toolInfo')}" style='background-color: ${colorToolTip[d.index]};'>
-                        ${(d.data.views / props.totalVal * 100).toFixed(2)}%
+                        // Checks if prop type is "vs", if so then it will calculate percentage based on view values
+                        // from data instead of passed in totalVal prop to prevent inaccurate percentage values
+                        `<p class="toolInfo" style='background-color: ${colorToolTip[d.index]};'>
+                        ${(d.data.views /
+                        (matchingCheck === false && props.type !== "vs" ? props.totalVal :
+                        dataFinal[0].views + dataFinal[1].views) * 100).toFixed(2)}%
                         </p>` +
                         // Value of item (ex: 2500), will add commas to large numbers for readability (ex: 2,500)
                         // Checks if prop type is "day", if so then it will add "stream(s)" after value (ex: 4 streams)
@@ -161,10 +171,10 @@ const PieChart: React.FC<PieProps> = (props) => {
                         (props.type === "vs" ?
                         `<p class='toolDate'>
                         ${
-                        d.index === 0 ?
+                        (dataFinal[0].views > dataFinal[1].views && d.index === 1) || (dataFinal[0].views < dataFinal[1].views && d.index === 0) ?
                         props.dataSet.map((streamer: Stats, index: number) => (
                             streamer.name === props.user?.name ?
-                            `<li class='toolList topLine'>${streamer.name} is in the Top 5</li>` :
+                            `<li class='toolList topLine' style='background-color: black; color: white'>${index + 1}. ${streamer.name}</li>` :
 
                             `<li class='toolList topLine'>${index + 1}. ${streamer.name}</li>` +
                             `<li class='toolList'>${streamer.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</li>`
@@ -226,12 +236,17 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .enter()
                 .append('text')
                 .attr('class', 'pieLabel')
-                .text(function (d) { return ((props.type === "day" || props.type === "dayRatio") ? d.data.name : d.index === 0 ? d.data.name : '') })
+                .text(function (d) { return ((props.type === "day" || props.type === "dayRatio") ? d.data.name.replace("urday", "").replace("nesday", "").replace("day", "") :
+                props.type === "vs" && props.user && dataFinal[0].views > dataFinal[1].views && d.index === 1 ? d.data.name :
+                props.type === "vs" && props.user && dataFinal[0].views > dataFinal[1].views && d.index === 0 ? '' :
+                d.index === 0 ? d.data.name : '') })
                 .attr("transform", function (d) {
                     return "translate(" +
                     ((props.type === "day" || props.type === "dayRatio") ? arc.centroid(d)[0] - dimensions.width! / 20 : arc.centroid(d)[0] / 2) +
                         "," + arc.centroid(d)[1] + ")";
                 })
+                .attr('dx', props.type === "vs" && props.user && dataFinal[0].views > dataFinal[1].views ? '-2rem' :
+                '0rem')
                 .style("text-anchor", "center")
                 .style("font-size", '.9rem')
                 .attr('fill', 'white')
