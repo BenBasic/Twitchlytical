@@ -69,16 +69,19 @@ const GameStats: React.FC<GameStatProps> = (props) => {
 
     for (let i = 0; i < chartData?.length; i++) {
         let refDate = new Date(chartData[i]?.date).toLocaleDateString(undefined, ({ weekday: "long" }));
+        console.log("chartData date: " + chartData[i]?.date + " // refDate: " + refDate)
 
-        let findIndex = indexKeyVal(dayData, refDate, 'name');
+        let findIndex = indexKeyVal(dayData, 'name', refDate);
         // If weekday already exists, add additional viewAvg and channelAvg to the view and streams arrays
         if (findIndex > -1) {
+            console.log("Found " + dayData[findIndex].name + " with " + refDate);
             dayData[findIndex]?.views.push(chartData[i]?.viewAvg);
             dayData[findIndex]?.streams.push(chartData[i]?.channelAvg);
         };
 
         // If weekday doesnt exist yet, add a new object to the dayData array of objects
         if (findIndex <= -1) {
+            console.log("Not Found " + refDate);
             dayData.push(
                 {
                     name: refDate,
@@ -103,6 +106,8 @@ const GameStats: React.FC<GameStatProps> = (props) => {
         })
         totalVal += avgVal;
     };
+    console.log("dayChartData is")
+    console.log(dayChartData)
 
     if (topGameVal === 0 && topGameSorted?.length > 0 && topGameValState === 0) {
         for (let v = 0; v < topGameSorted?.length; v++) {

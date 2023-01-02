@@ -4,10 +4,11 @@ import { PieArcDatum } from 'd3-shape';
 import { select, selectAll, Selection } from 'd3-selection'
 import { easeBounce, easeElastic } from 'd3-ease'
 import { Stats, PieProps } from './TypesAndInterfaces'
+import { indexKeyVal } from '../utils/helpers';
 
-const colorTest = ['#AF4BCE', '#1de441', '#EA7369', '#1ac9e6', '#d8ac2d', '#e7e35e']
-const colorOutline = ["#29066B", "#084914", "#A5194D", "#142459", "#991212", "#de542c"]
-const colorToolTip = ["#29066B", "#084914", "#A5194D", "#142459", "#991212", "#de542c"]
+const colorTest = ['#AF4BCE', '#1de441', '#EA7369', '#1ac9e6', '#d8ac2d', "#de542c", '#E113B4']
+const colorOutline = ["#29066B", "#084914", "#A5194D", "#142459", "#991212", "#8F2000", '#A2007E']
+const colorToolTip = ["#29066B", "#084914", "#A5194D", "#142459", "#991212", "#de542c", '#A2007E']
 
 const PieChart: React.FC<PieProps> = (props) => {
 
@@ -139,6 +140,17 @@ const PieChart: React.FC<PieProps> = (props) => {
                 })
 
                 .on('mouseover', (e, d) => {
+                    console.log('WHY ---------------------------')
+                    console.log(d.data)
+                    console.log(d.index)
+
+                    let findDayIndex:number = 0
+                    if (props?.extraTip !== undefined) {
+                        findDayIndex = indexKeyVal(props.extraTip, 'name', d.data.name);
+                        console.log("Found dayIndex as " + findDayIndex);
+                    }
+                    console.log(props?.extraTip?.[findDayIndex])
+
                     tooltip.transition()
                         .duration(200)
                         .style("opacity", .9);
@@ -195,22 +207,20 @@ const PieChart: React.FC<PieProps> = (props) => {
                         Totals
                         </p>` +
                         `<p class='percentage' >
-                        ${props.extraTip[(props.extraTip.length - 1) - d.index]?.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        ${props.extraTip[findDayIndex]?.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                         </p>` +
                         `<p class='toolDate'>
                         average live views
                         </p>` +
 
                         `<p class='percentage' >
-                        ${props.extraTip[(props.extraTip.length - 1) - d.index]?.streams.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        ${props.extraTip[findDayIndex]?.streams.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                         </p>` +
                         `<p class='toolDate'>
                         average streams
                         </p>` :
                         ``
                         )
-
-
                     )
                 })
                 .on("mousemove", function (event) {
@@ -242,8 +252,8 @@ const PieChart: React.FC<PieProps> = (props) => {
                 d.index === 0 ? d.data.name : '') })
                 .attr("transform", function (d) {
                     return "translate(" +
-                    ((props.type === "day" || props.type === "dayRatio") ? arc.centroid(d)[0] - dimensions.width! / 20 : arc.centroid(d)[0] / 2) +
-                        "," + arc.centroid(d)[1] + ")";
+                    ((props.type === "day" || props.type === "dayRatio") ? arc.centroid(d)[0] - dimensions.width! / 25 : arc.centroid(d)[0] / 2) +
+                        "," + (arc.centroid(d)[1] + dimensions.height! / 50) + ")";
                 })
                 .attr('dx', props.type === "vs" && props.user && dataFinal[0].views > dataFinal[1].views ? '-2rem' :
                 '0rem')
