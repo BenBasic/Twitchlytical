@@ -252,13 +252,14 @@ const PieChart: React.FC<PieProps> = (props) => {
                 d.index === 0 ? d.data.name : '') })
                 .attr("transform", function (d) {
                     return "translate(" +
-                    ((props.type === "day" || props.type === "dayRatio") ? arc.centroid(d)[0] - dimensions.width! / 25 : arc.centroid(d)[0] / 2) +
+                    ((props.type === "day" || props.type === "dayRatio") ? arc.centroid(d)[0] - dimensions.width! / 35 : arc.centroid(d)[0] / 2) +
                         "," + (arc.centroid(d)[1] + dimensions.height! / 50) + ")";
                 })
                 .attr('dx', props.type === "vs" && props.user && dataFinal[0].views > dataFinal[1].views ? '-2rem' :
                 '0rem')
                 .style("text-anchor", "center")
-                .style("font-size", '.9rem')
+                //'.9rem'
+                .style("font-size", `${(dimensions.width! / 40)}px`)
                 .attr('fill', 'white')
         }
 
