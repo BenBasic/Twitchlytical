@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { select, Selection } from 'd3-selection'
 import { scaleLinear, scaleTime } from 'd3-scale'
-import { max } from 'd3-array'
+import { max, extent } from 'd3-array'
 import { axisLeft, axisBottom } from 'd3-axis'
 import 'd3-transition'
 import { easeElastic } from 'd3-ease'
 import { area } from 'd3-shape'
 // import * as d3 from 'd3'
-import { extent } from "d3-array";
 
 import { WeeklyViewProps } from './TypesAndInterfaces'
 import { percentDifference } from '../utils/helpers'

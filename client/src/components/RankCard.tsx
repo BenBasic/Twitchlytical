@@ -10,10 +10,10 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 
 import { StatCardProps } from './TypesAndInterfaces';
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
 
 import { ThemeProvider } from '@mui/material/styles';
-import { rankCard } from '../utils/themes'
+import { rankCard } from '../utils/themes';
 
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {

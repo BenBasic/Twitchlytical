@@ -4,7 +4,7 @@
 require('dotenv').config();
 
 const fetch = (...args) =>
-  import('node-fetch').then(({ default: fetch }) => fetch(...args));
+	import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 
 // Generates token to be used for fetching data from the twitch api
@@ -40,10 +40,11 @@ const getData = async (reqUrl) => {
 			"Authorization": `Bearer ${token}`,
 			'Accept': 'application/json',
 			'Content-Type': 'application/json',
+			'Accept-Encoding': 'gzip, deflate',
 		}
 	})
 	let twitch_data = await res.json();
-	
+
 	// Use this to keep track of all data being fetched during calls, if its annoying then just comment it out
 	console.log("Twitch Data is -------")
 	console.log(twitch_data);
@@ -67,13 +68,13 @@ const postData = async (reqUrl, reqQuery, reqVariables) => {
 			variables
 		})
 	})
-	.then(response => response.json())
-	.then(data => {
-		return data
-	})
-	.catch((e) => {
-		console.log(e)
-	})
+		.then(response => response.json())
+		.then(data => {
+			return data
+		})
+		.catch((e) => {
+			console.log(e)
+		})
 	console.log("DB UPDATE IS");
 	console.log(dbUpdate);
 	//return dbUpdate;
@@ -87,25 +88,25 @@ pass in that date value to get the top clips from last week in an api call
 function calculateDate(time) {
 	const now = new Date();
 	let value;
-	
-	switch(time) {
+
+	switch (time) {
 		case 'day':
 			value = 1;
 			break;
 		case 'week':
-		  	value = 7;
-		  	break;
+			value = 7;
+			break;
 		case 'month':
-		  	value = 30;
-		  	break;
+			value = 30;
+			break;
 		case 'year':
 			value = 365;
 			break;
 		default:
-		  	value = 0;
+			value = 0;
 			break;
 	}
-	
+
 	const newDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - value).toISOString();
 	return newDate;
 };
@@ -160,11 +161,11 @@ const countTotalViews = async (reqUrl) => {
 		/* If the fetch is past the 1st page of the api call, it will fetch using a url with the
 		pagination value included to continue to next page */
 		if (page >= 1) {
-			
+
 			// Checks if pagination has no value and stops the search if thats the case. This prevents errors which prevent posting to the database
 			if (paginationValue === undefined) {
 				stopSearch = true;
-			// Checks if a any parameters have been passed into reqUrl, if not then use ? instead of & for api call to prevent error
+				// Checks if a any parameters have been passed into reqUrl, if not then use ? instead of & for api call to prevent error
 			} else if (reqUrl === process.env.GET_STREAMS) {
 				resData = await getData(reqUrl + '?after=' + paginationValue + '&first=100');
 			} else {
@@ -251,10 +252,10 @@ const countTotalViews = async (reqUrl) => {
 			// Calling postData function to sort and update final top stream list in MongoDB database
 			await postData(`http://localhost:3001/graphql`, queryPost, variables);
 		};
-		
+
 		// Assigning to the value of the data array of objects from the api call
 		const resDataProp = resData?.data;
-	
+
 		// If the search hasnt been triggered to stop yet, then the viewer values will be collected and added up for total
 		if (stopSearch === false) {
 
@@ -279,12 +280,12 @@ const countTotalViews = async (reqUrl) => {
 				// Tells the function to stop searching for additional paginations in api call
 				stopSearch = true;
 			}
-	
+
 			// Cycles through all objects from the api response
 			for (var key in resDataProp) {
 				// Checks if the object from the response contains any properties
 				if (resDataProp.hasOwnProperty(key)) {
-		
+
 					// Assigning the value of the viewers the stream currently has
 					const viewCount = resDataProp[key].viewer_count;
 
@@ -294,10 +295,10 @@ const countTotalViews = async (reqUrl) => {
 					const gameId = resDataProp[key].game_id;
 
 					const gameName = resDataProp[key].game_name;
-			
+
 
 					// Checks if user_id already has been fetched from api call, prevents same streamer from having duplicates
-					if(!userIdArray.includes(userId)) {
+					if (!userIdArray.includes(userId)) {
 						// Pushes the user_id into the userIdArray, allowing it to be referenced in case there are duplicate results
 						userIdArray.push(userId);
 
@@ -328,8 +329,8 @@ const countTotalViews = async (reqUrl) => {
 							allGames[`${gameId}`].liveViews = allGames[`${gameId}`].liveViews + viewCount;
 							allGames[`${gameId}`].channelCount = allGames[`${gameId}`].channelCount + 1;
 						} else {
-							const gameKeyValue = {[`${gameId}`]: {liveViews: viewCount, name: gameName, channelCount: 1}}
-							allGames = {...allGames, ...gameKeyValue};
+							const gameKeyValue = { [`${gameId}`]: { liveViews: viewCount, name: gameName, channelCount: 1 } }
+							allGames = { ...allGames, ...gameKeyValue };
 						}
 
 						// If the viewer amount is less than or equal to specified value, stop from continuing to next page of data
@@ -370,9 +371,9 @@ const countTotalViews = async (reqUrl) => {
 					};
 				};
 			};
-	
+
 		} else {
-			console.log ("SEARCH STOPPED");
+			console.log("SEARCH STOPPED");
 		};
 
 		console.log("RESPROP LENGTH IS !!!!!")
@@ -555,7 +556,7 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 
 			// If user has live views lower than 5 then it will remove the user from users to save Database storage
 			if (userViews > 5) {
-				
+
 				// Checks if user_ids are in the userList, will change string added based on that for correct api call
 				if (userList === '?') {
 					userList = userList + 'id=' + userId
@@ -564,7 +565,7 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 				}
 
 				// Increases count by 1
-				count ++
+				count++
 
 				/* If 100 user_ids are added to the userList then push it into the userListArray,
 				then reset counter and userList to default values. This is done so only 100 user_ids are
@@ -749,7 +750,6 @@ const updateTopWeekGames = async (reqUrl) => {
 updateTopWeekGames(process.env.GET_GAMES)
 
 
-
 // This function will gather Top Clips from top games based on specified last day, week, month, year, or all time
 const getTopClipsAll = async (gameUrl, clipUrl, date) => {
 
@@ -898,6 +898,7 @@ const getTopClipsAll = async (gameUrl, clipUrl, date) => {
 // Twitch API code above -------------------
 
 const express = require("express");
+const compression = require("compression");
 const path = require("path");
 const { ApolloServer } = require("apollo-server-express");
 
@@ -912,6 +913,7 @@ const server = new ApolloServer({
 	resolvers,
 });
 
+app.use(compression());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
