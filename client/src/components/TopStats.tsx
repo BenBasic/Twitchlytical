@@ -2,19 +2,24 @@ import React, { useState } from 'react'
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { useQuery } from "@apollo/client";
-import { GET_TOP_GAME_WEEK, GET_TOP_STREAM_WEEK, GET_BROADCASTER_USER_ID } from "../utils/queries";
 
 import { createListData, createStreamerData, Comparator } from '../utils/helpers';
 
 // Importing the Stats type for use within the Comparator function
-import { Stats, TopProps, TopGames, TopStreams, TopBroadcasters, } from './TypesAndInterfaces';
+import { Stats, TopProps } from './TypesAndInterfaces';
 
 // Importing the RankCard component for use within the return of TopStats
 import RankCard from './RankCard';
 
 // Importing colors from Material UI
-import { amber, orange, deepPurple, blue, green, indigo, cyan } from '@mui/material/colors';
+// import { amber, orange, deepPurple, blue, green, indigo, cyan } from '@mui/material/colors';
+
+import amber from '@mui/material/colors/amber';
+import orange from '@mui/material/colors/orange';
+import indigo from '@mui/material/colors/indigo';
+import deepPurple from '@mui/material/colors/deepPurple';
+import blue from '@mui/material/colors/blue';
+import green from '@mui/material/colors/green';
 
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {

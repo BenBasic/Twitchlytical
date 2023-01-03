@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import * as d3 from 'd3';
-import { PieArcDatum } from 'd3-shape';
-import { select, selectAll, Selection } from 'd3-selection'
-import { easeBounce, easeElastic } from 'd3-ease'
+// import * as d3 from 'd3';
+
+import { PieArcDatum, arc, pie } from 'd3-shape';
+import { select, Selection } from 'd3-selection'
+import { easeElastic } from 'd3-ease'
 import { Stats, PieProps } from './TypesAndInterfaces'
 import { indexKeyVal } from '../utils/helpers';
 
@@ -96,9 +97,9 @@ const PieChart: React.FC<PieProps> = (props) => {
             console.log("NEW resize is " + resizeCheckState)
 
             // Get positions for each data object
-            const piedata = d3.pie<Stats>().value(d => d.views)(dataFinal)
+            const piedata = pie<Stats>().value(d => d.views)(dataFinal)
             // Define arcs for graphing 
-            const arc = d3.arc<PieArcDatum<Stats>>().innerRadius(0).outerRadius(dimensions.width! / 3.7)
+            const arcdata = arc<PieArcDatum<Stats>>().innerRadius(0).outerRadius(dimensions.width! / 3.7)
 
             console.log("DIMENTIONS PIE CHART")
             console.log("DIMENTIONS PIE CHART")
@@ -116,7 +117,7 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .attr('transform', `translate(${dimensions.width! / 2},${dimensions.height! / 2})`)
 
             // Add tooltip
-            const tooltip = d3.select('.pieContainer')
+            const tooltip = select('.pieContainer')
                 .append('div')
                 .attr('class', 'tooltip')
                 .style("opacity", 0);
@@ -126,13 +127,13 @@ const PieChart: React.FC<PieProps> = (props) => {
                 .selectAll('path')
                 .data(piedata)
                 .join('path')
-                .attr('d', arc)
+                .attr('d', arcdata)
                 .attr('fill', (d, i) => colorTest[d.index])
                 .attr('stroke', (d, i) => colorOutline[d.index])
                 .attr('stroke-width', '.25rem')
 
                 .on("mouseenter", function (d) {
-                    d3.select(this)
+                    select(this)
                         .transition()
                         .duration(200)
                         .ease(easeElastic)
@@ -229,7 +230,7 @@ const PieChart: React.FC<PieProps> = (props) => {
                         .style("top", (event.pageY - 40) + "px");
                 })
                 .on("mouseout", function (d) {
-                    d3.select(this)
+                    select(this)
                     .transition()
                     .duration(200)
                     .ease(easeElastic)
@@ -252,8 +253,8 @@ const PieChart: React.FC<PieProps> = (props) => {
                 d.index === 0 ? d.data.name : '') })
                 .attr("transform", function (d) {
                     return "translate(" +
-                    ((props.type === "day" || props.type === "dayRatio") ? arc.centroid(d)[0] - dimensions.width! / 35 : arc.centroid(d)[0] / 2) +
-                        "," + (arc.centroid(d)[1] + dimensions.height! / 50) + ")";
+                    ((props.type === "day" || props.type === "dayRatio") ? arcdata.centroid(d)[0] - dimensions.width! / 35 : arcdata.centroid(d)[0] / 2) +
+                        "," + (arcdata.centroid(d)[1] + dimensions.height! / 50) + ")";
                 })
                 .attr('dx', props.type === "vs" && props.user && dataFinal[0].views > dataFinal[1].views ? '-2rem' :
                 '0rem')

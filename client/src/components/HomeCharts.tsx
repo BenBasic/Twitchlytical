@@ -1,14 +1,13 @@
 import React, { useState } from 'react'
-import { useQuery } from "@apollo/client";
-import { GET_DATA_DATE } from "../utils/queries";
 import { GetTotal, WeeklyViewData } from './TypesAndInterfaces';
 import AreaChart from './AreaChart';
-import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 // Importing colors from Material UI
-import { indigo, deepPurple } from '@mui/material/colors';
+//import { indigo, deepPurple } from '@mui/material/colors';
+import indigo from '@mui/material/colors/indigo';
+import deepPurple from '@mui/material/colors/deepPurple';
 
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {

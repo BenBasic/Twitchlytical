@@ -7,7 +7,9 @@ import Avatar from '@mui/material/Avatar';
 import { ProfileHeaderProps, ProfileHeaderData } from './TypesAndInterfaces';
 import { numShortFormat, miniGetAverage } from '../utils/helpers';
 import { getData } from '../utils/clientFetches';
-import { indigo, deepPurple } from '@mui/material/colors';
+// import { indigo, deepPurple } from '@mui/material/colors';
+import indigo from '@mui/material/colors/indigo';
+import deepPurple from '@mui/material/colors/deepPurple';
 
 const styles = {
     headerBox: {

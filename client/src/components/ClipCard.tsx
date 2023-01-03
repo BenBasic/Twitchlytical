@@ -4,7 +4,6 @@ import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -12,7 +11,8 @@ import CardMedia from '@mui/material/CardMedia';
 import Tooltip from '@mui/material/Tooltip';
 import { ClipModalProps } from './TypesAndInterfaces';
 // Importing colors from Material UI
-import { indigo, deepPurple } from '@mui/material/colors';
+// import { indigo, deepPurple } from '@mui/material/colors';
+import indigo from '@mui/material/colors/indigo';
 
 const styles = {
     card: {

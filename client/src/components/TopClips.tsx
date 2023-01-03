@@ -1,12 +1,9 @@
-import React, { useState } from 'react'
-import { useQuery } from "@apollo/client";
-import { GET_TOP_CLIPS_WEEK } from "../utils/queries";
-import Container from '@mui/material/Container';
+import React from 'react'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box';
 import ClipCard from './ClipCard';
-import { indigo, deepPurple } from '@mui/material/colors';
+// import { indigo, deepPurple } from '@mui/material/colors';
+import indigo from '@mui/material/colors/indigo';
 import { ClipCollectionProps } from './TypesAndInterfaces'
 
 const styles = {

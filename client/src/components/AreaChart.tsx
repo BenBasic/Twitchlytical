@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { select, selectAll, Selection } from 'd3-selection'
-import { scaleLinear, scaleBand, scaleTime } from 'd3-scale'
-import { extent, max } from 'd3-array'
+import { select, Selection } from 'd3-selection'
+import { scaleLinear, scaleTime } from 'd3-scale'
+import { max } from 'd3-array'
 import { axisLeft, axisBottom } from 'd3-axis'
 import 'd3-transition'
-import { easeBounce, easeElastic } from 'd3-ease'
+import { easeElastic } from 'd3-ease'
 import { area } from 'd3-shape'
-import { ScaleTime } from 'd3-scale'
-import * as d3 from 'd3'
+// import * as d3 from 'd3'
+import { extent } from "d3-array";
+
 import { WeeklyViewProps } from './TypesAndInterfaces'
 import { percentDifference } from '../utils/helpers'
 
@@ -92,7 +93,7 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
     // Values and sizing referenced for the x axis
     let x = scaleTime()
     .domain(
-        d3.extent(dataState, (d) => {
+        extent(dataState, (d) => {
             return d.date
         }) as [Date, Date]
       )
@@ -139,8 +140,7 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
             console.log("NEW resize is " + resizeCheckState)
 
             // Creating a tooltip, default state is to have 0 opacity
-            const tooltip = d3
-                .select('.areaChart')
+            const tooltip = select('.areaChart')
                 .append('div')
                 .attr('class', 'tooltip')
                 .style("opacity", 0);

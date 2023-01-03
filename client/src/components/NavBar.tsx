@@ -13,7 +13,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 // Importing colors from Material UI
-import { indigo } from '@mui/material/colors';
+// import { indigo } from '@mui/material/colors';
+import indigo from '@mui/material/colors/indigo';
 
 
 const styles = {
