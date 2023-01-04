@@ -35,10 +35,10 @@ const TopClips: React.FC<ClipCollectionProps> = (props) => {
     return (
 
         <InView as="div" triggerOnce={true}
-        onChange={(inView, entry) => {
-            setIsInView(inView)
-            console.log("isInView2: " + isInView)
-        }}
+            onChange={(inView, entry) => {
+                setIsInView(inView)
+                console.log("isInView2: " + isInView)
+            }}
         >
             <Grid container alignItems="center" justifyContent="center">
                 <Grid container spacing={0} m={0} maxWidth="md" justifyContent="center" style={styles.container}>

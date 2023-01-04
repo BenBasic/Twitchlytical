@@ -21,6 +21,8 @@ import deepPurple from '@mui/material/colors/deepPurple';
 import blue from '@mui/material/colors/blue';
 import green from '@mui/material/colors/green';
 
+import { InView } from 'react-intersection-observer';
+
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {
     container: {
@@ -61,6 +63,9 @@ const topColors = {
 
 const TopStats: React.FC<TopProps> = (props) => {
 
+    const [isInView, setIsInView] = useState<boolean>(false);
+    console.log("isInViewTOP: " + isInView)
+
     // Let of test data using an array of the Stats type, this is only used for display testing purposes for now
     let testData: Stats[] = createListData(props.gameProps)
 
@@ -90,91 +95,97 @@ const TopStats: React.FC<TopProps> = (props) => {
 
     return (
 
-        <Container maxWidth="md" style={styles.container} className="topStatsContainer">
+        <InView as="div" triggerOnce={true}
+            onChange={(inView, entry) => {
+                setIsInView(inView)
+                console.log("isInViewTOP2: " + isInView)
+            }}
+        >
+            <Container maxWidth="md" style={styles.container} className="topStatsContainer">
 
-            <Grid item xs={12} textAlign="center">
-                <Typography variant={'h4'} mt={2} mb={1} textAlign='center'
-                    style={styles.mainTitle}
-                    fontSize={{ xs: '1.85rem', sm: '2.13rem' }}
-                >
-                    Most Popular
-                </Typography>
-            </Grid>
+                <Grid item xs={12} textAlign="center">
+                    <Typography variant={'h4'} mt={2} mb={1} textAlign='center'
+                        style={styles.mainTitle}
+                        fontSize={{ xs: '1.85rem', sm: '2.13rem' }}
+                    >
+                        Most Popular
+                    </Typography>
+                </Grid>
 
-            <Grid container spacing={2}>
+                <Grid container spacing={2}>
 
-                <Grid item xs={6}>
-                    <Grid item xs={12} textAlign="center">
-                        <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={indigo[700]} textAlign='center'
-                            style={styles.title}
-                            fontSize={{ xs: '1.35rem', sm: '2.1rem' }}
-                        >
-                            Games
-                        </Typography>
+                    <Grid item xs={6}>
+                        <Grid item xs={12} textAlign="center">
+                            <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={indigo[700]} textAlign='center'
+                                style={styles.title}
+                                fontSize={{ xs: '1.35rem', sm: '2.1rem' }}
+                            >
+                                Games
+                            </Typography>
+                        </Grid>
+
+                        {canMount === true && isInView === true ?
+                            topGames.slice(0, 10).map((game, index) => (
+                                <RankCard statInfo={game} key={index} viewType="avg"
+                                    color={{ primary: indigo[700], secondary: indigo[900] }}
+                                    rankIndex={index}
+                                    rankColor={index === 0 ?
+                                        { primary: topColors.best, secondary: topColors.bestDark } :
+                                        index > 0 && index < 3 ?
+                                            { primary: topColors.great, secondary: topColors.greatDark } :
+                                            index > 2 && index < 7 ?
+                                                { primary: topColors.good, secondary: topColors.goodDark } :
+                                                { primary: topColors.ok, secondary: topColors.okDark }
+                                    }
+                                ></RankCard>
+                            )) :
+                            <Typography variant={'h4'}>
+                                Loading...
+                            </Typography>
+                        }
+
+
                     </Grid>
 
-                    {canMount === true ?
-                        topGames.slice(0, 10).map((game, index) => (
-                            <RankCard statInfo={game} key={index} viewType="avg"
-                                color={{ primary: indigo[700], secondary: indigo[900] }}
-                                rankIndex={index}
-                                rankColor={index === 0 ?
-                                    { primary: topColors.best, secondary: topColors.bestDark } :
-                                    index > 0 && index < 3 ?
-                                        { primary: topColors.great, secondary: topColors.greatDark } :
-                                        index > 2 && index < 7 ?
-                                            { primary: topColors.good, secondary: topColors.goodDark } :
-                                            { primary: topColors.ok, secondary: topColors.okDark }
-                                }
-                            ></RankCard>
-                        )) :
-                        <Typography variant={'h4'}>
-                            Loading...
-                        </Typography>
-                    }
 
+                    <Grid item xs={6}>
+
+                        <Grid item xs={12} textAlign="center">
+                            <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={indigo[700]} textAlign='center'
+                                style={styles.title}
+                                fontSize={{ xs: '1.35rem', sm: '2.1rem' }}
+                            >
+                                Streamers
+                            </Typography>
+                        </Grid>
+
+                        {canMount === true && isInView === true ?
+                            topStreamers.map((streamer, index) => (
+                                <RankCard statInfo={streamer} key={index} viewType="peak"
+                                    color={{ primary: indigo[700], secondary: indigo[900] }}
+                                    rankIndex={index}
+                                    rankColor={index === 0 ?
+                                        { primary: topColors.best, secondary: topColors.bestDark } :
+                                        index > 0 && index < 3 ?
+                                            { primary: topColors.great, secondary: topColors.greatDark } :
+                                            index > 2 && index < 7 ?
+                                                { primary: topColors.good, secondary: topColors.goodDark } :
+                                                { primary: topColors.ok, secondary: topColors.okDark }
+                                    }
+                                ></RankCard>
+                            )) :
+                            <Typography variant={'h4'}>
+                                Loading...
+                            </Typography>
+                        }
+
+
+                    </Grid>
 
                 </Grid>
 
-
-                <Grid item xs={6}>
-
-                    <Grid item xs={12} textAlign="center">
-                        <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={indigo[700]} textAlign='center'
-                            style={styles.title}
-                            fontSize={{ xs: '1.35rem', sm: '2.1rem' }}
-                        >
-                            Streamers
-                        </Typography>
-                    </Grid>
-
-                    {canMount === true ?
-                        topStreamers.map((streamer, index) => (
-                            <RankCard statInfo={streamer} key={index} viewType="peak"
-                                color={{ primary: indigo[700], secondary: indigo[900] }}
-                                rankIndex={index}
-                                rankColor={index === 0 ?
-                                    { primary: topColors.best, secondary: topColors.bestDark } :
-                                    index > 0 && index < 3 ?
-                                        { primary: topColors.great, secondary: topColors.greatDark } :
-                                        index > 2 && index < 7 ?
-                                            { primary: topColors.good, secondary: topColors.goodDark } :
-                                            { primary: topColors.ok, secondary: topColors.okDark }
-                                }
-                            ></RankCard>
-                        )) :
-                        <Typography variant={'h4'}>
-                            Loading...
-                        </Typography>
-                    }
-
-
-                </Grid>
-
-            </Grid>
-
-        </Container>
-
+            </Container>
+        </InView>
     )
 }
 

@@ -15,6 +15,8 @@ import Box from '@mui/material/Box';
 import { ThemeProvider } from '@mui/material/styles';
 import { rankCard } from '../utils/themes';
 
+import MediaQuery from 'react-responsive';
+
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {
     card: {
@@ -136,13 +138,15 @@ const RankCard: React.FC<StatCardProps> = (props) => {
                         height: { xs: '7.5rem', mobileXs: '8rem' },
                     }}
                     >
-                        <CardMedia style={styles.media} image={props.statInfo.image}
-                            sx={{
-                                display: { xs: 'none', sm: 'block' },
-                                // Calculation allows for consistent image resizing with all cards (avoids content based image sizes)
-                                minWidth: (widthState! / 3.980952381),
-                            }}
-                        />
+                        <MediaQuery minWidth={600}>
+                            <CardMedia style={styles.media} image={props.statInfo.image}
+                                sx={{
+                                    display: { xs: 'none', sm: 'block' },
+                                    // Calculation allows for consistent image resizing with all cards (avoids content based image sizes)
+                                    minWidth: (widthState! / 3.980952381),
+                                }}
+                            />
+                        </MediaQuery>
                         <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                             <CardContent ref={textContainer}
                                 sx={{
@@ -168,7 +172,7 @@ const RankCard: React.FC<StatCardProps> = (props) => {
                                             // Calculations prevent inconsistent text centering (totals of left and right need to add up to 5)
                                             sm: ((textWidth! / widthState!) >= 0.86 && (textWidth! / widthState!) < 0.91 ? '2.75rem' :
                                                 (textWidth! / widthState!) >= 0.91 && (textWidth! / widthState!) < 0.95 ? '3.1rem' :
-                                                (textWidth! / widthState!) >= 0.95 ? '3.5rem' : '2.5rem')
+                                                    (textWidth! / widthState!) >= 0.95 ? '3.5rem' : '2.5rem')
                                         },
                                         paddingLeft:
                                         {
