@@ -5,9 +5,6 @@ import HomeCharts from './HomeCharts';
 import TopClips from './TopClips';
 import HomePies from './HomePies';
 
-// Importing the Stats type for use within the Comparator function
-import { Stats } from './TypesAndInterfaces';
-
 import { useQuery } from "@apollo/client";
 import { GET_TOP_GAME_WEEK, GET_TOP_STREAM_WEEK, GET_BROADCASTER_USER_ID, GET_DATA_DATE, GET_TOP_CLIPS_WEEK } from "../utils/queries";
 

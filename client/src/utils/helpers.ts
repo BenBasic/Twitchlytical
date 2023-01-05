@@ -69,6 +69,38 @@ export const createListData = (array: TopGames[]) => {
     return finalResult;
 };
 
+// Modified version of createListData, adjusted to return a result with a Stats[] type
+export const createMiniListData = (array: TopGames[]) => {
+
+    let finalResult = [];
+
+    // Cycles through the returned list of archive data and adds them to the total and count values
+    for (let i = 0; i < array?.length; i++) {
+        // Total and Count will keep track of total values and how many of them there are to divide them into an average number
+        let total = 0;
+        let count = 0;
+        let name = array[i]?.name
+        for (let j = 0; j < array[i].archive.length; j++) {
+            total = total + array[i].archive[j].view_count;
+
+            count++
+        }
+        // Getting the average value by dividing total and count
+        let average: any = total / count;
+
+        // Rounding the average, without this the database tends to throw errors due to long decimal values
+        let averageRounded: number = average.toFixed() * 1;
+
+        finalResult.push({
+            name: name,
+            views: averageRounded,
+        })
+    };
+
+    // Returning the rounded average result
+    return finalResult;
+};
+
 export const createStreamerData = (array: TopStreams[], array2: TopBroadcasters[]) => {
     let finalResult = [];
 
@@ -305,19 +337,20 @@ export const timeSince = (date: string) => {
     if (diffDays >= 366) return diffDays % 365 === 1 ? `${diffDays % 365} year ago` : `${diffDays % 365} years ago`;
 };
 
+// Shortens number format of large numbers (ex: 1000 turns to 1k, 3000000 turns to 3M)
 export function numShortFormat(num: number) {
     if (num < 1000) {
         return num;
     };
 
     let si = [
-      {v: 1E3, s: "K"},
-      {v: 1E6, s: "M"},
-      {v: 1E9, s: "B"},
-      {v: 1E12, s: "T"},
-      {v: 1E15, s: "P"},
-      {v: 1E18, s: "E"}
-      ];
+        { v: 1E3, s: "K" },
+        { v: 1E6, s: "M" },
+        { v: 1E9, s: "B" },
+        { v: 1E12, s: "T" },
+        { v: 1E15, s: "P" },
+        { v: 1E18, s: "E" }
+    ];
     let index;
     for (index = si.length - 1; index > 0; index--) {
         if (num >= si[index].v) {
@@ -326,3 +359,30 @@ export function numShortFormat(num: number) {
     }
     return (num / si[index].v).toFixed(2).replace(/\.0+$|(\.[0-9]*[1-9])0+$/, "$1") + si[index].s;
 };
+
+// Adds ordinal ending to numbers (ex: 1st, 2nd, 3rd, 4th)
+export function numOrdinalFormat(num: number) {
+    return["st","nd","rd"][(((num<0?-num:num)+90)%100-10)%10-1]||"th"
+};
+
+// Calculates and assigns an average value of a nested array within an array of objects
+export function nestedArrayAverageCalc(arr: any[], nestedArr: string) {
+    for (let k = 0; k < arr?.length; k++) {
+        if (arr[k]?.[nestedArr]?.length > 1) {
+            let newAvg: number = 0;
+            for (let l = 0; l < arr[k][nestedArr].length; l++) {
+                newAvg += arr[k][nestedArr][l];
+            };
+            arr[k][nestedArr] = parseFloat((newAvg / arr[k][nestedArr].length).toFixed());
+        };
+        // If there is only 1 item in the array, convert to regular value so it isnt in an array anymore
+        if (arr[k]?.[nestedArr]?.length === 1) arr[k][nestedArr] = arr[k][nestedArr][0];
+    };
+    return arr;
+};
+
+// Checks if a key value pair exists in an array of objects
+export const checkKeyValue = (key: string, val: any, arr: any[]) => arr.some(el => el[key] === val);
+
+// Finds index of a matching value in a key value pair in an array of objects
+export const indexKeyVal = (arr: any[], key: string, val: any) => arr.findIndex(x => x[key] === val);

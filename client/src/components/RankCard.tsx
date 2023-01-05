@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography'
@@ -10,9 +10,12 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 
 import { StatCardProps } from './TypesAndInterfaces';
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
 
+import { ThemeProvider } from '@mui/material/styles';
+import { rankCard } from '../utils/themes';
 
+import MediaQuery from 'react-responsive';
 
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {
@@ -20,38 +23,45 @@ const styles = {
         borderRadius: 16,
         marginTop: '2rem',
         transition: '0.1s',
+        maxWidth: '26.1rem',
     },
     cardContent: {
         borderRadius: 16,
         color: 'black',
-        height: '8rem',
+        // height: '8rem',
+        maxWidth: '26.1rem',
         //backgroundColor: 'white',
     },
     cardTitle: {
         fontFamily: 'Outfit, sans-serif',
         fontWeight: 700,
-        fontSize: '1rem',
+        // fontSize: '1rem',
         backgroundColor: 'white',
-        borderRadius: 16,
+        borderRadius: '16px 0px 0px 16px',
         paddingTop: '.5rem',
         paddingBottom: '.5rem',
+        // paddingRight: '2.5rem',
+        // paddingLeft: '2.5rem',
+        // maxWidth: '14.6rem',
     },
     media: {
-        width: '8.8rem',
+        // width: '8.8rem',
+        // minWidth: '6.5rem',
         paddingTop: '0%', // Aspect ratio, 100% means 1:1, 50% means 2:1, etc
         marginTop: '30'
     },
     viewTitle: {
         fontFamily: 'Outfit, sans-serif',
         fontWeight: 400,
-        fontSize: '.8rem',
+        // fontSize: '.8rem',
     },
     views: {
         color: 'white',
-        borderRadius: '1rem 1rem 1rem 0rem',
+        borderRadius: '1rem 0rem 1rem 0rem',
         paddingTop: '.4rem',
         paddingBottom: '.3rem',
         marginTop: '1rem',
+        // maxWidth: '20rem',
     },
     viewNum: {
         fontFamily: 'Outfit, sans-serif',
@@ -61,52 +71,164 @@ const styles = {
 
 
 const RankCard: React.FC<StatCardProps> = (props) => {
+
+    const [firstRender, setFirstRender] = useState<boolean>(true);
+
+    const container = useRef<HTMLDivElement | null>(null);
+    const textContainer = useRef<HTMLDivElement | null>(null);
+
+
+    // State tracks the updating width of the container
+    const [widthState, setWidthState] = useState<number>();
+    // State tracks the updating width of the card title typography component
+    const [textWidth, setTextWidth] = useState<number>();
+
+    // Calculates the width and height of the svgContainer
+    const getContainerSize = () => {
+        const newWidth = container.current?.clientWidth;
+        const newTextWidth = textContainer.current?.clientWidth;
+        setWidthState(newWidth);
+        setTextWidth(newTextWidth);
+    };
+
+    // This triggers the useEffect on page load to put title text in correct position,
+    // without this, text will appear in the incorrect position until window is manually resized
+    if (firstRender === true && widthState !== undefined) {
+        setFirstRender(false);
+    }
+
+    // When page loads, correct component width sizes will be loaded for reference throughout this component
+    // Without this, text will appear in the incorrect position until window is manually resized
+    useEffect(() => {
+        getContainerSize();
+    }, [firstRender]);
+
+    // Gathers width sizes needed for style related calculations in the component when window is resized
+    useEffect(() => {
+        // Detects the width on render (determined by container size, or window size if no container)
+        getContainerSize();
+        // Listens for resize changes, and detects dimensions again when they change
+        window.addEventListener("resize", getContainerSize);
+        // Cleanup the previously applied event listener
+        return () => window.removeEventListener("resize", getContainerSize);
+    }, []);
+
+    // console.log(`${props.statInfo.name} textWidth is ` + textWidth)
+    // console.log(`${props.statInfo.name} width is ` + widthState)
+    // console.log(`${props.statInfo.name} TEXT TEST calc is ` + (textWidth! / widthState!))
+
+
     return (
-        <CardActionArea style={styles.card}
-            href={`${ props.viewType === 'peak' ? '/profile/' : '/game/'}${props.statInfo.name}`}
-            sx={{
-                '&:hover': {
-                    transform: 'scale(1.08)',
-                }
-            }}>
+        <div ref={container}>
+            <ThemeProvider theme={rankCard}>
+                <CardActionArea style={styles.card}
+                    href={`${props.viewType === 'peak' ? '/profile/' : '/game/'}${props.statInfo.name}`}
+                    sx={{
+                        '&:hover': {
+                            transform: 'scale(1.08)',
+                        }
+                    }}>
 
-            <div className='rankCircle' style={{ backgroundColor: props.rankColor.secondary, borderColor: props.rankColor.primary }}>
-                <span>{props.rankIndex + 1}</span>
-            </div>
+                    <div className='rankCircle' style={{ backgroundColor: props.rankColor.secondary, borderColor: props.rankColor.primary }}>
+                        <span>{props.rankIndex + 1}</span>
+                    </div>
 
-            <Card style={styles.cardContent} sx={{ display: 'flex' }}>
-                <CardMedia sx={{display: { xs: 'none', sm: 'block' }}} style={styles.media} image={props.statInfo.image} />
-                <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                    <CardContent
-                        sx={{
-                            backgroundColor: props.color.primary,
-                            textAlign: 'center',
-                            flex: '1 0 auto',
-                            width: '100%',
-                        }}
+                    <Card style={styles.cardContent} sx={{
+                        display: 'flex',
+                        height: { xs: '7.5rem', mobileXs: '8rem' },
+                    }}
                     >
-                        <Typography style={styles.cardTitle} variant={'h5'}>
-                            {props.statInfo.name}
-                        </Typography>
+                        <MediaQuery minWidth={600}>
+                            <CardMedia style={styles.media} image={props.statInfo.image}
+                                sx={{
+                                    display: { xs: 'none', sm: 'block' },
+                                    // Calculation allows for consistent image resizing with all cards (avoids content based image sizes)
+                                    minWidth: (widthState! / 3.980952381),
+                                }}
+                            />
+                        </MediaQuery>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                            <CardContent ref={textContainer}
+                                sx={{
+                                    backgroundColor: props.color.primary,
+                                    textAlign: 'center',
+                                    flex: '1 0 auto',
+                                    width: '100%',
+                                }}
+                            >
 
-                        <Container style={styles.views}
-                            sx={{
-                                backgroundColor: props.color.secondary,
-                            }}
-                        >
-                            <Typography style={styles.viewTitle}>
-                                { props.viewType === "avg" ? "7 Day View Average" :
-                                "7 Day View Peak"}
-                            </Typography>
+                                <Typography style={styles.cardTitle} variant={'h5'}
+                                    sx={{
+                                        // Calculation prevents text cut-off, allows for '...' to appear in appropriate positions
+                                        maxWidth: { xs: '14.6rem', sm: (widthState! / 1.857122884) },
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        fontSize: { xs: '0.8rem', mobileMed: '1rem' },
+                                        paddingRight:
+                                        {
+                                            xs: '1.5rem',
+                                            mobileXs: '3rem',
+                                            // Calculations prevent inconsistent text centering (totals of left and right need to add up to 5)
+                                            sm: ((textWidth! / widthState!) >= 0.86 && (textWidth! / widthState!) < 0.91 ? '2.75rem' :
+                                                (textWidth! / widthState!) >= 0.91 && (textWidth! / widthState!) < 0.95 ? '3.1rem' :
+                                                    (textWidth! / widthState!) >= 0.95 ? '3.5rem' : '2.5rem')
+                                        },
+                                        paddingLeft:
+                                        {
+                                            xs: '.6rem',
+                                            mobileXs: '2rem',
+                                            // Calculations prevent inconsistent text centering (totals of left and right need to add up to 5)
+                                            sm: ((textWidth! / widthState!) >= 0.86 && (textWidth! / widthState!) < 0.91 ? '2.25rem' :
+                                                (textWidth! / widthState!) >= 0.91 && (textWidth! / widthState!) < 0.95 ? '1.9rem' :
+                                                    (textWidth! / widthState!) >= 0.95 ? '1.5rem' : '2.5rem')
+                                        },
+                                    }}
+                                >
+                                    {props.statInfo.name}
+                                </Typography>
 
-                            <Typography variant={'h6'} style={styles.viewNum}>
-                                {props.statInfo.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                            </Typography>
-                        </Container>
-                    </CardContent>
-                </Box>
-            </Card>
-        </CardActionArea>
+
+                                <Container style={styles.views}
+                                    sx={{
+                                        maxWidth:
+                                        {
+                                            xs: '20rem',
+                                            // Calculation prevents inconsistent container widths based on card content
+                                            sm: (widthState! / 1.416571764)
+                                        },
+                                        paddingLeft: {
+                                            xs: 0,
+                                            sm: `24px`,
+                                        },
+                                        marginX: {
+                                            xs: 0,
+                                            sm: 0
+                                        },
+                                        backgroundColor: props.color.secondary,
+                                    }}
+                                >
+
+                                    <Typography style={styles.viewTitle}
+                                        sx={{ fontSize: { xs: '0.65rem', mobileXs: '.8rem' } }}
+                                    >
+                                        {props.viewType === "avg" ? "7 Day View Average" :
+                                            "7 Day View Peak"}
+                                    </Typography>
+
+                                    <Typography variant={'h6'} style={styles.viewNum}
+                                        sx={{ fontSize: { xs: '1.1rem', mobileXs: '1.25rem' } }}
+                                    >
+                                        {props.statInfo.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                    </Typography>
+
+                                </Container>
+                            </CardContent>
+                        </Box>
+                    </Card>
+                </CardActionArea>
+            </ThemeProvider>
+        </div>
     );
 };
 

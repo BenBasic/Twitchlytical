@@ -4,12 +4,11 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 import BroadcasterPerformanceChart from './BroadcasterPerformanceChart';
 import PieChart from './PieChart';
-import { BroadcasterStatProps, ProfileData, Stats, TopStreams } from './TypesAndInterfaces';
-import { createBroadcasterPerformanceList, createShortStreamerList, Comparator } from '../utils/helpers';
-import { getData } from '../utils/clientFetches';
+import { ExtraDayData, Stats, GameStatProps } from './TypesAndInterfaces';
+import { nestedArrayAverageCalc, indexKeyVal, createMiniListData, Comparator } from '../utils/helpers';
 
 import { useQuery } from "@apollo/client";
-import { GET_TOP_STREAM_WEEK } from "../utils/queries";
+import { GET_TOP_GAME_WEEK } from "../utils/queries";
 
 // Importing colors from Material UI
 import { indigo, deepPurple } from '@mui/material/colors';
@@ -35,117 +34,102 @@ const styles = {
     },
 };
 
-const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
+const now = new Date();
 
-    let userId: string = props.userId;
+const GameStats: React.FC<GameStatProps> = (props) => {
 
-    const [apiCheck, setApiCheck] = useState<ProfileData[] | undefined>(undefined);
+    const { loading, data, error } = useQuery(GET_TOP_GAME_WEEK);
 
-    const apiCall = async (apiReq: string | undefined, reqUrl: string) => {
-        return await getData(apiReq + reqUrl);
-    };
+    const topGameData = data?.getTopGames[0]?.topGames;
 
-    const [dataList, setDataList] = useState<ProfileData[]>([]);
+    let topGameSorted: Stats[] = createMiniListData(topGameData).sort(Comparator).slice(0, 5)
 
-    const [dayDataState, setDayDataState] = useState<Stats[]>([]);
 
-    const streamAmount: number = 7;
+    const [topGames, setTopGames] = useState<Stats[]>(topGameSorted);
 
-    const { loading: loadingStream, data: dataStream, error: errorStream } = useQuery(GET_TOP_STREAM_WEEK);
+    const [dayChartFinal, setDayChartFinal] = useState<Stats[]>([])
 
-    const topStreamData: TopStreams[] = dataStream?.getTopStreams[0]?.topStreams;
+    const [totalValState, setTotalValState] = useState<number>(0)
 
-    let streamerData: Stats[] = createShortStreamerList(topStreamData).sort(Comparator).slice(0, 5);
+    const [topGameValState, setTopGameValState] = useState<number>(0)
 
-    let streamerViewTotal: number = 0;
+    const [toolTipInfo, setToolTipInfo] = useState<ExtraDayData[]>([])
 
-    if (streamerViewTotal === 0 && streamerData?.length > 0) {
-        for (let v = 0; v < streamerData?.length; v++) {
-            streamerViewTotal += streamerData[v]?.views;
+    const [canMount, setCanMount] = useState<boolean>(false);
+
+    let chartData = props?.chartData;
+
+    let dayData: any[] = [];
+
+    let dayChartData: Stats[] = [];
+
+    let totalVal: number = 0;
+
+    let topGameVal: number = 0;
+
+    for (let i = 0; i < chartData?.length; i++) {
+        let refDate = new Date(chartData[i]?.date).toLocaleDateString(undefined, ({ weekday: "long" }));
+        console.log("chartData date: " + chartData[i]?.date + " // refDate: " + refDate)
+
+        let findIndex = indexKeyVal(dayData, 'name', refDate);
+        // If weekday already exists, add additional viewAvg and channelAvg to the view and streams arrays
+        if (findIndex > -1) {
+            console.log("Found " + dayData[findIndex].name + " with " + refDate);
+            dayData[findIndex]?.views.push(chartData[i]?.viewAvg);
+            dayData[findIndex]?.streams.push(chartData[i]?.channelAvg);
         };
-    };
 
-
-
-    console.log("streamerData is");
-    console.log(streamerData);
-
-
-    (async () => {
-
-        if (dataList !== undefined && apiCheck === undefined) setApiCheck(dataList);
-
-        const apiData = (apiCheck === undefined ? await apiCall(process.env.REACT_APP_GET_VIDEOS, `?user_id=${userId}&type=archive&first=${streamAmount}`) : undefined);
-
-        const apiDataNested = (apiCheck === undefined ? await apiData?.data : undefined);
-
-        const performanceStats = createBroadcasterPerformanceList(props.data)
-
-        console.log("Api Data is")
-        console.log(apiData)
-        console.log("Api Data NESTED is")
-        console.log(apiDataNested)
-        console.log("performanceStats is")
-        console.log(performanceStats)
-
-        let finalList: ProfileData[] = [];
-
-        let dayData: Stats[] = [];
-
-        for (let i = 0; i < performanceStats?.length; i++) {
-            for (let j = 0; j < apiDataNested?.length; j++) {
-
-                if (performanceStats[i]?.stream_id === apiDataNested[j]?.stream_id) {
-                    finalList.push({
-                        title: apiDataNested[j]?.title,
-                        avg: performanceStats[i]?.avg,
-                        peak: performanceStats[i]?.peak,
-                        date: apiDataNested[j]?.published_at,
-                        duration: apiDataNested[j]?.duration,
-                    })
+        // If weekday doesnt exist yet, add a new object to the dayData array of objects
+        if (findIndex <= -1) {
+            console.log("Not Found " + refDate);
+            dayData.push(
+                {
+                    name: refDate,
+                    views: [chartData[i]?.viewAvg],
+                    streams: [chartData[i]?.channelAvg],
                 }
-            }
+            )
         };
+    };
 
-        for (let k = 0; k < apiDataNested?.length; k++) {
-            let dayName = new Date(apiDataNested[k]?.published_at).toLocaleDateString(undefined, { weekday: "short" });
+    dayData = nestedArrayAverageCalc(dayData, 'views');
+    dayData = nestedArrayAverageCalc(dayData, 'streams');
 
-            if (dayData.length > 0) {
-                let index = dayData.findIndex(object => {
-                    return object.name === dayName;
-                });
-                if (index !== -1) {
-                    dayData[index].views = dayData[index].views + 1;
-                } else {
-                    dayData.push({
-                        name: dayName,
-                        views: 1,
-                    });
-                };
-            } else {
-                dayData.push({
-                    name: dayName,
-                    views: 1,
-                });
-            };
-        }
+    console.log("dayData is");
+    console.log(dayData);
 
-        if (apiCheck === undefined) {
-            setDataList(finalList)
-            setDayDataState(dayData)
-            console.log("Regular if triggered")
-            console.log(dataList)
-            console.log("dayData is")
-            console.log(dayData)
-        } else {
-            console.log("ELSE TRIGGERED")
-            console.log(dataList)
-            console.log("dayData is")
-            console.log(dayData)
-        }
+    for (let j = 0; j < dayData?.length; j++) {
+        let avgVal: number = parseFloat((dayData[j].views / dayData[j].streams).toFixed());
+        dayChartData.push({
+            name: dayData[j].name,
+            views: avgVal,
+        })
+        totalVal += avgVal;
+    };
+    console.log("dayChartData is")
+    console.log(dayChartData)
 
-    })()
+    if (topGameVal === 0 && topGameSorted?.length > 0 && topGameValState === 0) {
+        for (let v = 0; v < topGameSorted?.length; v++) {
+            topGameVal += topGameSorted[v]?.views;
+        };
+        setTopGameValState(topGameVal);
+    };
 
+    if (dayChartFinal === undefined || dayChartFinal?.length === 0) setDayChartFinal(dayChartData);
+    if (totalValState === 0) setTotalValState(totalVal);
+    if (toolTipInfo === undefined || toolTipInfo?.length === 0) setToolTipInfo(dayData);
+
+    // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
+    if (loading === false && canMount === false) {
+        setTopGames(topGameSorted)
+        setCanMount(true);
+    };
+
+    console.log("chart data is !!!!!!!!!!!")
+    console.log(chartData)
+    console.log("topGames !!!!!!!!!!!")
+    console.log(topGames)
 
     return (
         <Box sx={{ flexGrow: 1 }} style={styles.container}>
@@ -157,14 +141,14 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                             <Typography variant={'h5'} textAlign='center' style={styles.title}
                                 width={'100%'}
                             >
-                                Recent Stream Performance
+                                Recent Game Performance
                             </Typography>
-                            {dataList === undefined || dataList?.length === 0 ?
+                            {chartData === undefined || chartData?.length === 0 ?
                                 <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                     Loading Chart...
                                 </Typography>
                                 :
-                                dataList?.length < 2 ?
+                                chartData?.length < 2 ?
                                     <>
                                         <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                             User Streams Unavailable
@@ -175,7 +159,8 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                                     </>
                                     :
                                     <BroadcasterPerformanceChart
-                                        profileData={dataList}
+                                        profileData={[{ peak: 1, avg: 1, date: now, duration: 'null', title: 'test' }]}
+                                        gameData={chartData}
                                         type={'view'}
                                     />
                             }
@@ -185,7 +170,7 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                     <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>
                         <Grid item xs={12}>
                             <Typography variant={'h4'} mb={2} mt={1} borderBottom={5} borderTop={5} borderColor={deepPurple[700]} style={styles.mainTitle}>
-                                Stream Breakdown
+                                Game Breakdown
                             </Typography>
                         </Grid>
                     </Grid>
@@ -194,14 +179,14 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                         <Typography variant={'h5'} mb={{ xs: 3, sm: 1.5 }} textAlign='center' style={styles.title}
                             width={'100%'}
                         >
-                            Days Streamed
+                            Daily Views Per Stream
                         </Typography>
-                        {dataList === undefined || dataList?.length === 0 ?
+                        {dayChartFinal === undefined || dayChartFinal?.length === 0 ?
                             <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                 Loading Chart...
                             </Typography>
                             :
-                            dataList?.length < 2 ?
+                            dayChartFinal?.length < 2 ?
                                 <>
                                     <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                         Day Breakdown Unavailable
@@ -212,9 +197,10 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                                 </>
                                 :
                                 <PieChart
-                                    dataSet={dayDataState}
-                                    totalVal={streamAmount}
-                                    type={"day"}
+                                    dataSet={dayChartFinal}
+                                    totalVal={totalValState}
+                                    type={"dayRatio"}
+                                    extraTip={toolTipInfo}
                                 />
                         }
                     </Grid>
@@ -226,12 +212,12 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                         >
                             View Comparison
                         </Typography>
-                        {dataList === undefined || dataList?.length === 0 ?
+                        {topGames === undefined || topGames?.length === 0 ?
                             <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                 Loading Chart...
                             </Typography>
                             :
-                            dataList?.length < 2 ?
+                            topGames?.length < 2 ?
                                 <>
                                     <Typography className='areaChart' variant={'h4'} textAlign='center'>
                                         Day Breakdown Unavailable
@@ -242,10 +228,10 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                                 </>
                                 :
                                 <PieChart
-                                    dataSet={streamerData}
-                                    totalVal={streamerViewTotal}
+                                    dataSet={topGames}
+                                    totalVal={topGameValState}
                                     type={"vs"}
-                                    user={{ name: props.username, views: Math.max(...dataList.map(o => o.peak)) }}
+                                    user={{ name: chartData[0]?.title, views: Math.max(...chartData.map(o => o.viewPeak)) }}
                                 />
                         }
                     </Grid>
@@ -256,4 +242,4 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
     )
 }
 
-export default ProfileStats
+export default GameStats

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 // import logo from './logo.svg';
 // import TopStats from './components/TopStats';
 import NavBar from './components/NavBar';
@@ -6,8 +6,10 @@ import NavBar from './components/NavBar';
 // import HomeCharts from './components/HomeCharts';
 // import TopClips from './components/TopClips';
 // import HomePies from './components/HomePies';
-import HomePage from './components/HomePage';
-import ProfilePage from './components/ProfilePage';
+
+// import HomePage from './components/HomePage';
+// import ProfilePage from './components/ProfilePage';
+// import GamePage from './components/GamePage';
 import {
   ApolloClient,
   InMemoryCache,
@@ -47,30 +49,47 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+const HomePage = lazy(() => import('./components/HomePage'));
+
+const ProfilePage = lazy(() => import('./components/ProfilePage'));
+
+const GamePage = lazy(() => import('./components/GamePage'));
+
 function App() {
   return (
 
     <ApolloProvider client={client}>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <NavBar />
-              <HomePage />
-            </>
-          }
-        />
-        <Route
-          path="profile/:profileId"
-          element={
-            <>
-            <NavBar />
-            <ProfilePage />
-            </>
-          }
-        />
-      </Routes>
+      <Suspense fallback={<h1>Loading!</h1>}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <NavBar />
+                <HomePage />
+              </>
+            }
+          />
+          <Route
+            path="profile/:profileId"
+            element={
+              <>
+                <NavBar />
+                <ProfilePage />
+              </>
+            }
+          />
+          <Route
+            path="game/:gameId"
+            element={
+              <>
+                <NavBar />
+                <GamePage />
+              </>
+            }
+          />
+        </Routes>
+      </Suspense>
     </ApolloProvider>
 
   );

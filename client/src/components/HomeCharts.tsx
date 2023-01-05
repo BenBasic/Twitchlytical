@@ -1,14 +1,12 @@
 import React, { useState } from 'react'
-import { useQuery } from "@apollo/client";
-import { GET_DATA_DATE } from "../utils/queries";
 import { GetTotal, WeeklyViewData } from './TypesAndInterfaces';
 import AreaChart from './AreaChart';
-import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 // Importing colors from Material UI
 import { indigo, deepPurple } from '@mui/material/colors';
+
 
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {
@@ -31,8 +29,6 @@ const styles = {
 };
 
 const now = new Date();
-
-const weekQueryDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7)
 
 
 const HomeCharts: React.FC<GetTotal> = (props) => {

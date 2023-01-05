@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
-import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 // Importing colors from Material UI
 import { indigo, deepPurple } from '@mui/material/colors';
+
+
 import PieChart from './PieChart';
-import { TopGames, PieContainerProps, Stats } from './TypesAndInterfaces';
+import { PieContainerProps, Stats } from './TypesAndInterfaces';
 import { createListData, createShortStreamerList, Comparator } from '../utils/helpers';
 
 // Object containing style properties used for the MUI implementation throughout this file

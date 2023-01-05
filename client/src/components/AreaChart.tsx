@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { select, selectAll, Selection } from 'd3-selection'
-import { scaleLinear, scaleBand, scaleTime } from 'd3-scale'
-import { extent, max } from 'd3-array'
+import { select, Selection } from 'd3-selection'
+import { scaleLinear, scaleTime } from 'd3-scale'
+import { max, extent } from 'd3-array'
 import { axisLeft, axisBottom } from 'd3-axis'
 import 'd3-transition'
-import { easeBounce, easeElastic } from 'd3-ease'
+import { easeElastic } from 'd3-ease'
 import { area } from 'd3-shape'
-import { ScaleTime } from 'd3-scale'
-import * as d3 from 'd3'
+
 import { WeeklyViewProps } from './TypesAndInterfaces'
 import { percentDifference } from '../utils/helpers'
 
@@ -29,16 +28,11 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
     // This contains all the prop data to be referenced in data visualization
     const data = assignPropData();
 
-    console.log("Data2 is")
-    console.log(data)
-
     const colorPicker = {
         view: {peak: ["#16b132", "#1de441", "#084914"], avg: ["#EB548C", "#EA7369", "#A5194D"]},
         channel: {peak: ["#176ba0", "#1ac9e6", "#142459"], avg: ["#de542c", "#d8ac2d", "#991212"]},
         game: {peak: ["#e9e427", "#e7e35e", "#de542c"], avg: ["#7D3AC1", "#AF4BCE", "#29066B"]},
     }
-    console.log("TYPE IS " + type)
-    console.log(colorPicker[type as keyof typeof colorPicker])
 
 
     const areaChart = useRef<SVGSVGElement | null>(null)
@@ -92,7 +86,7 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
     // Values and sizing referenced for the x axis
     let x = scaleTime()
     .domain(
-        d3.extent(dataState, (d) => {
+        extent(dataState, (d) => {
             return d.date
         }) as [Date, Date]
       )
@@ -134,13 +128,10 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
             oldChart.remove();
 
             // Increments the peak for the state, used to prevent enter animation re-triggering
-            console.log("Original resize is " + resizeCheckState)
             setResizeCheckState(resizeCheckState + 1)
-            console.log("NEW resize is " + resizeCheckState)
 
             // Creating a tooltip, default state is to have 0 opacity
-            const tooltip = d3
-                .select('.areaChart')
+            const tooltip = select('.areaChart')
                 .append('div')
                 .attr('class', 'tooltip')
                 .style("opacity", 0);
@@ -231,10 +222,6 @@ const AreaChart: React.FC<WeeklyViewProps> = ({ dayProps, type }) => {
                     // Assigning lets, both used for displaying percentage difference between results
                     let greatCheck: string = "";
                     let colorClass: string = "";
-                    console.log("Check this")
-                    console.log(event.pageX)
-                    console.log(event.pageY)
-                    console.log(i)
                     
 
                     /* Checks if tooltip has previous data to reference, if it does then 

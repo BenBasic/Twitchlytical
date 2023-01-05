@@ -4,10 +4,10 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import Avatar from '@mui/material/Avatar';
-import { ProfileHeaderProps, ProfileHeaderData } from './TypesAndInterfaces';
-import { numShortFormat, miniGetAverage } from '../utils/helpers';
-import { getData } from '../utils/clientFetches';
+import { GameHeaderProps, GameHeaderData, Stats } from './TypesAndInterfaces';
+import { numOrdinalFormat, miniGetAverage, createListData, Comparator, miniComparator } from '../utils/helpers';
 import { indigo, deepPurple } from '@mui/material/colors';
+
 
 
 const styles = {
@@ -41,7 +41,8 @@ const styles = {
     profilePic: {
         // width: '10rem',
         // height: '10rem',
-        border: '.5rem solid ' + indigo[300]
+        border: '.5rem solid ' + indigo[300],
+        borderRadius: '1rem',
     },
     infoContainer: {
         backgroundColor: indigo[300],
@@ -93,45 +94,61 @@ const styles = {
     },
 };
 
-function capitalizeFirstLetter(string: string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-};
+const GameProfile: React.FC<GameHeaderProps> = (props) => {
 
-const Profile: React.FC<ProfileHeaderProps> = (props) => {
+    let gameData: GameHeaderData = props.data;
 
-    let userData: ProfileHeaderData = props.data;
+    // Let of test data using an array of the Stats type, this is only used for display testing purposes for now
+    let gameRankList: Stats[] = createListData(props.gameProps).sort(Comparator);
 
-    //////
+    let gameImage: string = "";
 
-    const [apiCheck, setApiCheck] = useState<number | undefined>(undefined);
+    let gameRank: string = "";
 
-    const apiCall = async (reqUrl: string) => {
-        return await getData(process.env.REACT_APP_GET_FOLLOWS + reqUrl);
+    // Checks if game is in top game list, if so then it will set the gameImage to the matching url
+    for (let i = 0; i < gameRankList?.length; i++) {
+        if (gameData.name === gameRankList[i].name) {
+            gameRank = (i + 1) + numOrdinalFormat(i + 1);
+            if (gameRankList[i].image !== undefined) gameImage = gameRankList[i].image!;
+        };
+    };
+
+    // If the game isnt in the top game list, the name value will be checked to assign the proper url needed for the game picture
+    if (gameImage === "" && gameData.name) {
+        if (gameData.name === "Just Chatting" || gameData.name === "Music" || gameData.name === "Poker" || gameData.name === "ASMR" ||
+            gameData.name === "Art" || gameData.name === "Retro" || gameData.name === "Sports" || gameData.name === "Chess" ||
+            gameData.name === "Pools, Hot Tubs, and Beaches" || gameData.name === "Talk Shows & Podcasts" ||
+            gameData.name === "Special Events") {
+            gameImage = `https://static-cdn.jtvnw.net/ttv-boxart/${gameData.game_id}-210x280.jpg`
+        } else {
+            gameImage = `https://static-cdn.jtvnw.net/ttv-boxart/${gameData.game_id}_IGDB-210x280.jpg`
+        }
+    };
+
+    props.views.sort(miniComparator);
+    props.channels.sort(miniComparator);
+
+    // Assigning the topGames state, currently uses the Stats type and sets initial state to the values in testData
+    const [topGames, setTopGames] = useState<Stats[]>(gameRankList);
+
+    const [canMount, setCanMount] = useState<boolean>(false);
+
+    // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
+    if (topGames.length > 0 && canMount === false) {
+        setTopGames(gameRankList.sort(Comparator)) // Might not need this line, test later to check
+        // Something here to check if game name matches one in the gameRankList to see if it has a rank to show
+        setCanMount(true);
+    };
+
+    // Calculates average views a stream playing this game will get
+    function viewsPerStream(views: number, streams: number) {
+        // Getting the average value by dividing views and streams
+        let average = views / streams;
+        return parseFloat(average.toFixed());
     }
 
-    const [dataCheck, setDataCheck] = useState<number>(0);
-
-    (async () => {
-
-        if (dataCheck !== 0 && apiCheck === undefined) setApiCheck(dataCheck);
-
-        const apiData = (apiCheck === undefined ? await apiCall(`?to_id=${userData.user_id}&first=1`) : undefined);
-
-        const apiDataNested = (apiCheck === undefined ? await apiData?.total : undefined);
-
-        if (apiCheck === undefined) {
-            setDataCheck(apiDataNested)
-            console.log("Profile Component if triggered")
-            console.log(dataCheck)
-        } else {
-            console.log("Profile Component ELSE TRIGGERED")
-            console.log(dataCheck)
-        }
-    })()
-
-    console.log("TOTAL VIEWS IS " + userData.total_views)
-    console.log("View Props is")
-    console.log(props.views)
+    console.log("game rank list is")
+    console.log(gameRankList)
 
     return (
         <>
@@ -141,8 +158,8 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
                         <Grid container spacing={0} m={0} maxWidth="md" justifyContent="center" style={styles.container}>
                             {/* Profile Picture */}
                             <Grid item xs={3} alignItems='center' mt={2} sx={{ justifyContent: "center", display: { xs: "none", sm: "flex" } }}>
-                                <Avatar style={styles.profilePic} sx={{ width: { sm: "8rem", md: "10rem" }, height: { sm: "8rem", md: "10rem" } }}
-                                    src={userData.profile_image_url} />
+                                <Avatar style={styles.profilePic} sx={{ width: { sm: "7.5rem", md: "10.5rem" }, height: { sm: "10rem", md: "14rem" } }}
+                                    src={gameImage} variant="square" />
                             </Grid>
                             <Grid item xs={9} mt={2} textAlign="left">
                                 {/* Username */}
@@ -150,29 +167,28 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
                                     style={styles.mainTitle}
                                     fontSize={{ xs: '1.85rem', sm: '2.13rem' }}
                                 >
-                                    {userData.name}
+                                    {gameData.name}
                                 </Typography>
                                 <Grid container maxWidth="md" mt={2} mb={4} alignItems="left" justifyContent="left"
                                     style={styles.infoContainer}
                                 >
-                                    <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} style={styles.liveStats}
+                                    <Grid item xs={6} sm={4.95} md={4.5} mx={{ xs: 0, sm: 1 }} style={styles.liveStats}
                                         sx={{ borderRadius: styles.infoBorderLeft }}
                                     >
                                         <Typography variant={'subtitle2'} textAlign='center' style={styles.heading} fontSize={{ xs: '.6rem', sm: '.8rem' }}>
-                                            Followers
+                                            Peak Views
                                         </Typography>
-                                        <Tooltip title={apiCheck !== undefined ? apiCheck.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "Loading..."} placement="bottom" arrow disableInteractive
+                                        <Tooltip title={props.views.length > 0 ? props.views[0].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "Loading..."} placement="bottom" arrow disableInteractive
                                             enterDelay={500}
                                             TransitionProps={{ timeout: 600 }}>
                                             <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={styles.infoFonts}
                                             >
-                                                {apiCheck !== undefined ? numShortFormat(apiCheck) : 0}
-                                                {/* {apiCheck !== undefined ? apiCheck.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "Loading..."} */}
+                                                {props.views.length > 0 ? props.views[0].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : 0}
                                             </Typography>
                                         </Tooltip>
                                     </Grid>
-                                    <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} style={styles.liveStats}
-                                        sx={{ borderRadius: styles.infoBorderMid }}
+                                    <Grid item xs={6} sm={4.95} md={4.5} mx={{ xs: 0, sm: 1 }} style={styles.liveStats}
+                                        sx={{ borderRadius: styles.infoBorderRight }}
                                     >
                                         <Typography variant={'subtitle2'} textAlign='center' style={styles.heading} fontSize={{ xs: '.6rem', sm: '.8rem' }}>
                                             Average Views
@@ -181,35 +197,36 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
                                             {props.views.length > 0 ? miniGetAverage(props.views).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : 0}
                                         </Typography>
                                     </Grid>
-                                    <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} style={styles.liveStats}
-                                        sx={{ borderRadius: styles.infoBorderRight }}
-                                    >
-                                        <Typography variant={'subtitle2'} textAlign='center' style={styles.heading} fontSize={{ xs: '.6rem', sm: '.8rem' }}>
-                                            Status
-                                        </Typography>
-                                        <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={styles.infoFonts}>
-                                            {userData.broadcaster_type === "" ? "Standard" : capitalizeFirstLetter(userData.broadcaster_type)}
-                                        </Typography>
-                                    </Grid>
 
-                                    <Grid item xs={6} sm={4.95} md={4.5} mx={{ xs: 0, sm: 1 }} mt={2} style={styles.liveStats}
+
+                                    <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} mt={2} style={styles.liveStats}
                                         sx={{ borderRadius: styles.infoBorderLeft }}
                                     >
                                         <Typography variant={'subtitle2'} textAlign='center' style={styles.heading} fontSize={{ xs: '.6rem', sm: '.8rem' }}>
-                                            Channel Created
+                                            Peak Streams
                                         </Typography>
                                         <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={styles.infoFonts}>
-                                            {new Date(userData.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                                            {props.channels.length > 0 ? props.channels[0].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : 0}
                                         </Typography>
                                     </Grid>
-                                    <Grid item xs={6} sm={4.95} md={4.5} mx={{ xs: 0, sm: 1 }} mt={2} style={styles.liveStats}
+                                    <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} mt={2} style={styles.liveStats}
+                                        sx={{ borderRadius: styles.infoBorderMid }}
+                                    >
+                                        <Typography variant={'subtitle2'} textAlign='center' style={styles.heading} fontSize={{ xs: '.6rem', sm: '.8rem' }}>
+                                            Average Streams
+                                        </Typography>
+                                        <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={styles.infoFonts}>
+                                            {props.channels.length > 0 ? miniGetAverage(props.channels).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : 0}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} mt={2} style={styles.liveStats}
                                         sx={{ borderRadius: styles.infoBorderRight }}
                                     >
                                         <Typography variant={'subtitle2'} textAlign='center' style={styles.heading} fontSize={{ xs: '.6rem', sm: '.8rem' }}>
-                                            Last Live
+                                            {gameRank === "" ? 'Views Per Stream' : 'Rank'}
                                         </Typography>
                                         <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={styles.infoFonts}>
-                                            {userData.lastLive}
+                                            {gameRank === "" ? viewsPerStream(miniGetAverage(props.views), miniGetAverage(props.channels)) : gameRank}
                                         </Typography>
                                     </Grid>
                                 </Grid>
@@ -225,14 +242,14 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
                     <Grid item xs={12}>
                         <Typography variant={'h4'} mb={2} mt={1} borderBottom={5} borderTop={5} borderColor={deepPurple[700]} style={styles.allTimeTitle}>
                             {/* Broadcaster Total Views is depreciated from API, maybe include disclaimer about it being out of date */}
-                            All Time Views
+                            Current Live Views
                         </Typography>
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant={'h2'} mb={2} mt={0} style={styles.allTimeTitle}
                             fontSize={{ xs: '2rem', sm: '3rem', md: '4rem' }}
                         >
-                            {userData.total_views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                            {gameData.liveViews ? gameData.liveViews.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : 0}
                         </Typography>
                     </Grid>
                 </Grid>
@@ -241,4 +258,4 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
     )
 }
 
-export default Profile
+export default GameProfile

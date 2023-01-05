@@ -33,8 +33,11 @@
 		"d3-transition": "^3.0.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
+		"react-intersection-observer": "^9.4.1",
+		"react-responsive": "^9.0.2",
 		"react-router-dom": "^6.4.3",
 		"react-scripts": "5.0.1",
+		"tslib": "^2.4.1",
 		"typescript": "^4.8.4",
 		"web-vitals": "^2.1.4"
 	},
@@ -48,7 +51,15 @@
 		"extends": [
 			"react-app",
 			"react-app/jest"
-		]
+		],
+		"rules": {
+			"no-restricted-imports": [
+			  "error",
+			  {
+				"patterns": ["@mui/*/*/*"]
+			  }
+			]
+		  }
 	},
 	"browserslist": {
 		"production": [

@@ -13,18 +13,21 @@ import { GET_BROADCASTER_PERFORMANCE_NAME } from "../utils/queries";
 
 const ProfilePage: React.FC = () => {
 
+    // Assigns the profileId used for api and database calls (references the url of page, ex: /auronplay or /pokimane)
     const { profileId } = useParams();
     console.log("profileId is " + profileId)
 
+    // Grabs the data from the database for the specific streamer based on their profileId
     const { loading, data, error } = useQuery(GET_BROADCASTER_PERFORMANCE_NAME, {
         variables: { id: profileId }
     });
 
-
+    // Grabs the nested archive data from the above query
     const performanceData = data?.getBroadcasterPerformanceName?.archive;
 
     const [broadcasterData, setBroadcasterData] = useState<ProfileHeaderData>();
 
+    // State used to avoid premature component render, will set to true when data is ready to display
     const [canMount, setCanMount] = useState<boolean>(false);
 
     const [viewData, setViewData] = useState<number[]>([]);

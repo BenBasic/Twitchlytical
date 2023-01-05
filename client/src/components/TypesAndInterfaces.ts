@@ -90,6 +90,20 @@ export interface BroadcasterStatProps {
 
 export interface ProfileClipsProps {
     userId: string;
+    game?: boolean;
+}
+
+export type GameHeaderData = {
+    game_id: string;
+    name: string;
+    liveViews: number;
+}
+
+export interface GameHeaderProps {
+    data: GameHeaderData;
+    views: number[];
+    channels: number[];
+    gameProps: [TopGames];
 }
 
 
@@ -144,6 +158,7 @@ export interface PieProps {
     totalVal: number;
     type: string;
     user?: {name: string, views: number};
+    extraTip?: ExtraDayData[];
 }
 
 export interface ClipCollectionProps {
@@ -184,7 +199,27 @@ export type ProfileData = {
     title: string;
 };
 
+export type GameData = {
+    viewPeak: number;
+    viewAvg: number;
+    channelPeak: number;
+    channelAvg: number;
+    date: Date;
+    title: string;
+};
+
+export interface GameStatProps {
+    chartData: GameData[];
+};
+
+export type ExtraDayData = {
+    name: string;
+    views: number;
+    streams: number;
+};
+
 export interface BroadcasterLatest {
     profileData: ProfileData[] | undefined;
+    gameData?: GameData[] | undefined;
     type: string;
-}
+};

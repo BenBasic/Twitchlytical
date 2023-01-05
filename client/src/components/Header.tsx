@@ -6,8 +6,11 @@ import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import TwitchlyticalIcon from '../assets/Twitchlytical-Icon.webp'
 import { indigo } from '@mui/material/colors';
+
 import { useQuery } from "@apollo/client";
 import { GET_CURRENT_DATA } from "../utils/queries";
+
+import MediaQuery from 'react-responsive';
 
 const styles = {
   headerBox: {
@@ -76,25 +79,27 @@ const Header: React.FC = () => {
             </Typography>
           </Grid>
 
-          <Grid item xs={2} mt={3} mb={1}>
-            <Avatar src={TwitchlyticalIcon} sx={{ display: { xs: 'none', sm: 'flex' }}} variant="square" style={styles.icon} />
-          </Grid>
+          <MediaQuery minWidth={600}>
+            <Grid item xs={2} mt={3} mb={1}>
+              <Avatar src={TwitchlyticalIcon} sx={{ display: { xs: 'none', sm: 'flex' } }} variant="square" style={styles.icon} />
+            </Grid>
+          </MediaQuery>
 
           <Divider sx={{ width: '80%', my: 2 }} variant="middle" color={indigo[300]} />
 
           <Grid container maxWidth="md" mt={2} mb={4} alignItems="center" justifyContent="center"
-          sx={{ backgroundColor: { xs: indigo[500], sm: 'transparent'} }}
+            sx={{ backgroundColor: { xs: indigo[500], sm: 'transparent' } }}
           >
             {loadingState === false ?
               currentStatsState.map((stat, index) => (
                 <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} style={styles.liveStats} key={index}
                 >
-                  <Typography variant={'subtitle2'} textAlign='center' style={styles.heading} fontSize={{ xs: '.6rem', sm: '.8rem'}}>
+                  <Typography variant={'subtitle2'} textAlign='center' style={styles.heading} fontSize={{ xs: '.6rem', sm: '.8rem' }}>
                     Current Live {index === 0 ? 'Viewers' :
                       index === 1 ? 'Channels' :
                         'Games'}
                   </Typography>
-                  <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={{ xs: '1.4rem', sm: '2.1rem'}}>
+                  <Typography variant={'h4'} textAlign='center' style={styles.heading} fontSize={{ xs: '1.4rem', sm: '2.1rem' }}>
                     {stat.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                   </Typography>
                 </Grid>

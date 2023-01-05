@@ -169,3 +169,20 @@ export const GET_BROADCASTER_PERFORMANCE_NAME = gql`
         }
     }
 `;
+
+export const GET_GAME_NAME = gql`
+query Query($id: String) {
+  getGameName(_id: $id) {
+    _id
+    archive {
+      _id
+      createdAt
+      game_id
+      view_count
+      totalChannels
+    }
+    name
+    view_count
+  }
+}
+`;
