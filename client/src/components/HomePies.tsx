@@ -3,9 +3,8 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 // Importing colors from Material UI
-// import { indigo, deepPurple } from '@mui/material/colors';
-import indigo from '@mui/material/colors/indigo';
-import deepPurple from '@mui/material/colors/deepPurple';
+import { indigo, deepPurple } from '@mui/material/colors';
+
 
 import PieChart from './PieChart';
 import { PieContainerProps, Stats } from './TypesAndInterfaces';

@@ -6,7 +6,6 @@ import { axisLeft, axisBottom } from 'd3-axis'
 import 'd3-transition'
 import { easeElastic } from 'd3-ease'
 import { area } from 'd3-shape'
-import * as d3 from 'd3'
 import { BroadcasterLatest, GameData, ProfileData } from './TypesAndInterfaces'
 import { percentDifference, checkArrIsNum } from '../utils/helpers'
 
@@ -28,20 +27,6 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     // Checks if the passed in values are of the ProfileData type
     const isProfileTypeItem = (x: any, y: any): x is ProfileData => y.includes(x);
 
-    // // Function that creates the array containing all peak, avg, and date data for the last week (from dayProps)
-    // function assignPropData() {
-    //     let propArray = [];
-    //     for (let i = 1; i < Object.keys(dayProps).length + 1; i++) {
-    //         let propData = dayProps[`day${i}` as keyof typeof dayProps]
-    //         // Checks if data exists for peak and avg keys, adds to array if it does. If not then it doesnt add it, this avoids visualization errors
-    //         if (isFinite(propData.peak) && isNaN(propData.avg) === false) {
-    //             propArray.push({date: propData.date, peak: propData.peak, avg: propData.avg})
-    //         }
-    //     };
-    //     return propArray;
-    // };
-    // This contains all the prop data to be referenced in data visualization
-    // const data = profileData;
     console.log("-------------------- Profile Data Is --------------------")
     console.log(profileData)
 
@@ -101,11 +86,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
     // Assigning maxValue to the maximum result from the data, used for sizing and axis labels
     const maxValueBar = (dataState === undefined ? 0 : isProfileType(dataState, [profileData]) ? max(dataState, d => parseInt(d.duration.replace(/[^0-9\.]+/g, ''))!) : max(dataState, d => d.channelPeak))
-    console.log("maxValueBar is")
-    console.log("maxValueBar test is " + isProfileType(dataState, [profileData]))
-    console.log(dataState)
-    console.log(profileData)
-    console.log(maxValueBar)
+
     // Values and sizing referenced for the y axis
     let y = scaleLinear()
         .domain([0, maxValue!])
@@ -208,8 +189,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                 console.log("NEW resize is " + resizeCheckState)
 
                 // Creating a tooltip, default state is to have 0 opacity
-                const tooltip = d3
-                    .select('.areaChart')
+                const tooltip = select('.areaChart')
                     .append('div')
                     .attr('class', 'tooltip')
                     .style("opacity", 0);
@@ -230,32 +210,19 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
                     // If the chart is for a streamer's profile page, bar height will be based on stream duration
                     if (isProfileTypeItem(d, profileData)) {
-                        console.log("yuck1")
                         let durationArr: any[] = d.duration.split(/[hms]+/gi, 3);
-                        console.log("yuck durationArr is")
-                        console.log(durationArr)
 
                         for (let k = 0; k < durationArr.length; k++) {
                             durationArr[k] = parseInt(durationArr[k], 10);
                         };
                         checkArrIsNum(durationArr, 0);
-                        console.log("checkArrIsNum check")
-                        console.log(durationArr)
-                        console.log("yuck g " + yBar(((durationArr[0] * 3600) + (durationArr[1] * 60) + durationArr[2]) * 1.2))
-                        console.log("yuck g check")
-                        console.log(yBar(((durationArr[0] * 3600) + (durationArr[1] * 60) + durationArr[2]) * 1.2))
                         return yBar(((durationArr[0] * 3600) + (durationArr[1] * 60) + durationArr[2]) * 1.2)
                     }
-                    console.log("yuck2")
-                    console.log("yuck " + isProfileTypeItem(d, profileData))
 
                     // If the chart is for a game's profile page, bar height will be based on channel peak
                     if (!isProfileTypeItem(d, profileData)) {
-                        console.log("yuck3")
-                        console.log("yuck f " + yBar(d.channelPeak * 1.2))
                         return yBar(d.channelPeak * 1.2)
                     }
-                    console.log("yuck4")
 
                     return yBar(0)
 
@@ -343,21 +310,6 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                     .attr("height", (d) => dimensions.height! - (dimensions.height! / 8 * 1.2) - barHeightCalc(d))
 
 
-                // // Bar Chart labels
-                // bar.append("text")
-                //     .attr("dy", "1.3em")
-                //     .attr("x", function (d) { return x(d.date)! + x.bandwidth() / 2; })
-                //     .attr("y", function (d) { return yBar(parseInt(d.duration.replace(/[^0-9\.]+/g, ''))! - d.peak)!; })
-                //     .attr("text-anchor", "middle")
-                //     .attr("font-family", "sans-serif")
-                //     .style("font-size", Math.round(dimensions.height! / 20 / 3 + (dimensions.height! / 20)))
-                //     .attr('transform', `translate(${dimensions.width! / 15}, 0)`)
-                //     .attr("fill", "black")
-                //     .text(function (d) {
-                //         return d.duration;
-                //     });
-
-
                 // Visual and placement settings for X axis
                 const xAxisGroup = selectionState
                     .append('g')
@@ -393,10 +345,6 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                         // Assigning lets, both used for displaying percentage difference between results
 
                         let plurals: string[] = ["hours", "minutes", "seconds"];
-                        console.log("Check this")
-                        console.log(event.pageX)
-                        console.log(event.pageY)
-                        console.log(i)
 
                         let peakVal: number = 0;
                         let avgVal: number = 0;
@@ -437,7 +385,6 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                         or lower than the previous data
                         */
                         if (i > 0) {
-                            console.log("tool check " + isProfileType(dataState, [profileData]) + " " + isProfileTypeItem(d, profileData))
 
                             if (isProfileType(dataState, [profileData]) && isProfileTypeItem(d, profileData)) {
 
@@ -446,7 +393,6 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                                 currentDuration = d.duration.split(/[hms]+/gi, 3);
                                 prevDuration = dataState[i - 1].duration.split(/[hms]+/gi, 3);
                             };
-                            console.log("tool check 2 is " + peakVal)
 
                             if (!isProfileType(dataState, [profileData]) && !isProfileTypeItem(d, profileData)) {
                                 peakVal = d.viewPeak;

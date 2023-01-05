@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-// import * as d3 from 'd3';
 
 import { PieArcDatum, arc, pie } from 'd3-shape';
 import { select, Selection } from 'd3-selection'
@@ -88,26 +87,13 @@ const PieChart: React.FC<PieProps> = (props) => {
             const oldChart = selectionState.selectAll("*");
             oldChart.remove();
 
-            console.log("OLD CHART IS")
-            console.log(oldChart)
-
             // Increments the peak for the state, used to prevent enter animation re-triggering
-            console.log("Original resize is " + resizeCheckState)
             setResizeCheckState(resizeCheckState + 1)
-            console.log("NEW resize is " + resizeCheckState)
 
             // Get positions for each data object
             const piedata = pie<Stats>().value(d => d.views)(dataFinal)
             // Define arcs for graphing 
             const arcdata = arc<PieArcDatum<Stats>>().innerRadius(0).outerRadius(dimensions.width! / 3.7)
-
-            console.log("DIMENTIONS PIE CHART")
-            console.log("DIMENTIONS PIE CHART")
-            console.log("DIMENTIONS PIE CHART")
-            console.log("DIMENTIONS PIE CHART")
-            console.log("DIMENTIONS PIE CHART")
-            console.log("DIMENTION W " + dimensions.width)
-            console.log("DIMENTION H " + dimensions.height)
 
             // Define the size and position of svg
             let svg = selectionState
@@ -141,16 +127,11 @@ const PieChart: React.FC<PieProps> = (props) => {
                 })
 
                 .on('mouseover', (e, d) => {
-                    console.log('WHY ---------------------------')
-                    console.log(d.data)
-                    console.log(d.index)
 
                     let findDayIndex:number = 0
                     if (props?.extraTip !== undefined) {
                         findDayIndex = indexKeyVal(props.extraTip, 'name', d.data.name);
-                        console.log("Found dayIndex as " + findDayIndex);
                     }
-                    console.log(props?.extraTip?.[findDayIndex])
 
                     tooltip.transition()
                         .duration(200)

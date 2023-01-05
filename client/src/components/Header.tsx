@@ -5,8 +5,8 @@ import Grid from '@mui/material/Grid'
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import TwitchlyticalIcon from '../assets/Twitchlytical-Icon.webp'
-// import { indigo } from '@mui/material/colors';
-import indigo from '@mui/material/colors/indigo';
+import { indigo } from '@mui/material/colors';
+
 import { useQuery } from "@apollo/client";
 import { GET_CURRENT_DATA } from "../utils/queries";
 

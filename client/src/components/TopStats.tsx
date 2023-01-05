@@ -12,14 +12,8 @@ import { Stats, TopProps } from './TypesAndInterfaces';
 import RankCard from './RankCard';
 
 // Importing colors from Material UI
-// import { amber, orange, deepPurple, blue, green, indigo, cyan } from '@mui/material/colors';
+import { amber, orange, deepPurple, blue, green, indigo } from '@mui/material/colors';
 
-import amber from '@mui/material/colors/amber';
-import orange from '@mui/material/colors/orange';
-import indigo from '@mui/material/colors/indigo';
-import deepPurple from '@mui/material/colors/deepPurple';
-import blue from '@mui/material/colors/blue';
-import green from '@mui/material/colors/green';
 
 import { InView } from 'react-intersection-observer';
 

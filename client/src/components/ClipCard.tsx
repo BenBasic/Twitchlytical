@@ -11,8 +11,8 @@ import CardMedia from '@mui/material/CardMedia';
 import Tooltip from '@mui/material/Tooltip';
 import { ClipModalProps } from './TypesAndInterfaces';
 // Importing colors from Material UI
-// import { indigo, deepPurple } from '@mui/material/colors';
-import indigo from '@mui/material/colors/indigo';
+import { indigo } from '@mui/material/colors';
+
 
 const styles = {
     card: {

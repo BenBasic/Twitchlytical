@@ -13,8 +13,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 // Importing colors from Material UI
-// import { indigo } from '@mui/material/colors';
-import indigo from '@mui/material/colors/indigo';
+import { indigo } from '@mui/material/colors';
+
 
 
 const styles = {
@@ -80,7 +80,7 @@ const NavBar: React.FC = () => {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static" sx={{ backgroundColor: indigo[900] }}>
                 <Toolbar>
-                    <LogoButton variant="contained" startIcon={<Avatar src={AppLogo} variant="square" />} disableElevation
+                    <LogoButton variant="contained" startIcon={<Avatar src={AppLogo} variant="square" alt='Homepage Logo' />} disableElevation
                     href="/"
                     >
                         <Typography

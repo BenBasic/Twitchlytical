@@ -11,9 +11,8 @@ import { useQuery } from "@apollo/client";
 import { GET_TOP_GAME_WEEK } from "../utils/queries";
 
 // Importing colors from Material UI
-// import { indigo, deepPurple } from '@mui/material/colors';
-import indigo from '@mui/material/colors/indigo';
-import deepPurple from '@mui/material/colors/deepPurple';
+import { indigo, deepPurple } from '@mui/material/colors';
+
 
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {

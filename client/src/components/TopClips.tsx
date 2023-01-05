@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import ClipCard from './ClipCard';
-// import { indigo, deepPurple } from '@mui/material/colors';
-import indigo from '@mui/material/colors/indigo';
+//import ClipCard from './ClipCard';
+import { indigo } from '@mui/material/colors';
+
 import { ClipCollectionProps } from './TypesAndInterfaces';
 import { InView } from 'react-intersection-observer';
+
+const ClipCard = lazy(() => import('./ClipCard'));
 
 const styles = {
     container: {
@@ -54,16 +56,18 @@ const TopClips: React.FC<ClipCollectionProps> = (props) => {
                     {props.loading === false && isInView === true ?
                         props.data.map((clip: any, index: any) => (
                             <Grid item xs={index === 0 ? 10 : 4} sm={2.4} py={2} px={1} key={index}>
-                                <ClipCard
-                                    key={index}
-                                    title={clip.title}
-                                    broadcasterName={clip.broadcaster_name}
-                                    url={clip.embed_url}
-                                    thumbnail={clip.thumbnail_url}
-                                    createdAt={clip.created_at}
-                                    views={clip.view_count}
-                                    home={props.home}
-                                />
+                                <Suspense fallback={<h1>Loading!</h1>}>
+                                    <ClipCard
+                                        key={index}
+                                        title={clip.title}
+                                        broadcasterName={clip.broadcaster_name}
+                                        url={clip.embed_url}
+                                        thumbnail={clip.thumbnail_url}
+                                        createdAt={clip.created_at}
+                                        views={clip.view_count}
+                                        home={props.home}
+                                    />
+                                </Suspense>
                             </Grid>
 
                         )) :

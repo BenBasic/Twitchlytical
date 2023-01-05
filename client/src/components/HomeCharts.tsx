@@ -5,9 +5,8 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 // Importing colors from Material UI
-//import { indigo, deepPurple } from '@mui/material/colors';
-import indigo from '@mui/material/colors/indigo';
-import deepPurple from '@mui/material/colors/deepPurple';
+import { indigo, deepPurple } from '@mui/material/colors';
+
 
 // Object containing style properties used for the MUI implementation throughout this file
 const styles = {
@@ -30,8 +29,6 @@ const styles = {
 };
 
 const now = new Date();
-
-const weekQueryDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7)
 
 
 const HomeCharts: React.FC<GetTotal> = (props) => {

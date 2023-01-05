@@ -6,9 +6,8 @@ import Tooltip from '@mui/material/Tooltip';
 import Avatar from '@mui/material/Avatar';
 import { GameHeaderProps, GameHeaderData, Stats } from './TypesAndInterfaces';
 import { numOrdinalFormat, miniGetAverage, createListData, Comparator, miniComparator } from '../utils/helpers';
-// import { indigo, deepPurple } from '@mui/material/colors';
-import indigo from '@mui/material/colors/indigo';
-import deepPurple from '@mui/material/colors/deepPurple';
+import { indigo, deepPurple } from '@mui/material/colors';
+
 
 
 const styles = {
