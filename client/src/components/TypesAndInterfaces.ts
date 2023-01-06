@@ -225,8 +225,11 @@ export interface BroadcasterLatest {
 };
 
 export interface PageProps {
-    array: any[];
+    arrayCaster: any[];
+    arrayGame: any[];
     queryHook: URLSearchParams;
     querySearch: string | null;
     perPageAmount: number;
-}
+    cast: string;
+    game: string;
+};
