@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -76,12 +77,33 @@ const LogoButton = styled(Button)(({ theme }) => ({
 const pages = ['Channels', 'Games', 'Clips', 'Global'];
 
 const NavBar: React.FC = () => {
+
+    const [searchVal, setSearchVal] = useState<string>("")
+    const navigate = useNavigate();
+    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        // Prevents page reloading
+        e.preventDefault();
+        // If nothing is typed into search, do nothing
+        if (searchVal === "") return;
+        navigate(`/search?query=${searchVal}`);
+        // If something has been typed into search, clear the field and send to the appropriate page
+        setSearchVal("");
+        console.log("SEARCH IS: " + searchVal)
+    };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Prevents page reloading
+        e.preventDefault();
+        // Sets the search value to what is currently typed into the search field
+        setSearchVal(e.target.value);
+        console.log("SEARCH IS: " + searchVal)
+    };
+
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static" sx={{ backgroundColor: indigo[900] }}>
                 <Toolbar>
                     <LogoButton variant="contained" startIcon={<Avatar src={AppLogo} variant="square" alt='Homepage Logo' />} disableElevation
-                    href="/"
+                        href="/"
                     >
                         <Typography
                             variant="h6"
@@ -113,10 +135,14 @@ const NavBar: React.FC = () => {
                         <SearchIconWrapper>
                             <SearchIcon />
                         </SearchIconWrapper>
-                        <StyledInputBase
-                            placeholder="Search…"
-                            inputProps={{ 'aria-label': 'search' }}
-                        />
+                        <form onSubmit={onSubmit}>
+                            <StyledInputBase
+                                placeholder="Search…"
+                                inputProps={{ 'aria-label': 'search' }}
+                                onChange={handleChange}
+                                value={searchVal}
+                            />
+                        </form>
                     </Search>
 
                     <IconButton sx={{ display: { xs: 'inline-flex', sm: 'none' } }}
@@ -129,7 +155,7 @@ const NavBar: React.FC = () => {
                     >
                         <MenuIcon />
                     </IconButton>
-                    
+
                 </Toolbar>
             </AppBar>
         </Box>

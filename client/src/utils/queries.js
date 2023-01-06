@@ -186,3 +186,20 @@ query Query($id: String) {
   }
 }
 `;
+
+export const SEARCH_BROADCASTER = gql`
+query GetBroadcasterName($name: [String]) {
+  getBroadcasterName(name: $name) {
+    name
+    profile_image_url
+  }
+}
+`;
+
+export const SEARCH_GAME = gql`
+query GetGameSearch($name: [String]) {
+  getGameSearch(name: $name) {
+    name
+  }
+}
+`;

@@ -223,3 +223,10 @@ export interface BroadcasterLatest {
     gameData?: GameData[] | undefined;
     type: string;
 };
+
+export interface PageProps {
+    array: any[];
+    queryHook: URLSearchParams;
+    querySearch: string | null;
+    perPageAmount: number;
+}

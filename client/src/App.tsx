@@ -55,6 +55,10 @@ const ProfilePage = lazy(() => import('./components/ProfilePage'));
 
 const GamePage = lazy(() => import('./components/GamePage'));
 
+const SearchPage = lazy(() => import('./components/SearchPage'));
+
+console.log("MAIN APP HAS RELOADED")
+
 function App() {
   return (
 
@@ -85,6 +89,15 @@ function App() {
               <>
                 <NavBar />
                 <GamePage />
+              </>
+            }
+          />
+          <Route
+            path="/search/*"
+            element={
+              <>
+                <NavBar />
+                <SearchPage />
               </>
             }
           />

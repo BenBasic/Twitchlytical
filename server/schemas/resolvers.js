@@ -16,6 +16,9 @@ const resolvers = {
 		getBroadcaster: async (parent, { _id }) => {
 			return Broadcaster.find({ user_id: _id });
 		},
+		getBroadcasterName: async (parent, { name }) => {
+			return Broadcaster.find({ name: {$regex: new RegExp(name, 'i')} });
+		},
 		getBroadcasterPerformance: async (parent, { _id }) => {
 			const streamer = await Broadcaster.findOne({ user_id: _id })
 			.populate({
@@ -60,6 +63,9 @@ const resolvers = {
 			} else {
 				return game;
 			};
+		},
+		getGameSearch: async (parent, { name }) => {
+			return Game.find({ name: {$regex: new RegExp(name, 'i')} });
 		},
 		Clips: async () => {
 			return Clips.find();
