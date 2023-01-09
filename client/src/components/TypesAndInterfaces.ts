@@ -242,5 +242,6 @@ export interface SearchCardProps {
 };
 
 export interface SearchHeaderProps {
-    search: string;
+    header: "Browsing"|"Searching for";
+    search: string|undefined;
 };

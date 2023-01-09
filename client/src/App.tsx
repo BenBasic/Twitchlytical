@@ -57,6 +57,8 @@ const GamePage = lazy(() => import('./components/GamePage'));
 
 const SearchPage = lazy(() => import('./components/SearchPage'));
 
+const BrowsePage = lazy(() => import('./components/BrowsePage'));
+
 console.log("MAIN APP HAS RELOADED")
 
 function App() {
@@ -98,6 +100,15 @@ function App() {
               <>
                 <NavBar />
                 <SearchPage />
+              </>
+            }
+          />
+          <Route
+            path="/browse/:type"
+            element={
+              <>
+                <NavBar />
+                <BrowsePage />
               </>
             }
           />

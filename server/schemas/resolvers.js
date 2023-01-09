@@ -17,14 +17,14 @@ const resolvers = {
 			return Broadcaster.find({ user_id: _id });
 		},
 		getBroadcasterName: async (parent, { name }) => {
-			return Broadcaster.find({ name: {$regex: new RegExp(name, 'i')} });
+			return Broadcaster.find({ name: { $regex: new RegExp(name, 'i') } });
 		},
 		getBroadcasterPerformance: async (parent, { _id }) => {
 			const streamer = await Broadcaster.findOne({ user_id: _id })
-			.populate({
-				path: 'archive',
-				model: 'ArchiveData',
-			})
+				.populate({
+					path: 'archive',
+					model: 'ArchiveData',
+				})
 
 			if (!streamer) {
 				console.log("No Streamer was found")
@@ -34,16 +34,24 @@ const resolvers = {
 		},
 		getBroadcasterPerformanceName: async (parent, { _id }) => {
 			const streamer = await Broadcaster.findOne({ name: _id })
-			.populate({
-				path: 'archive',
-				model: 'ArchiveData',
-			})
+				.populate({
+					path: 'archive',
+					model: 'ArchiveData',
+				})
 
 			if (!streamer) {
 				console.log("No Streamer was found")
 			} else {
 				return streamer;
 			};
+		},
+		sortBroadcasterViews: async (root, { skip }, context, info) => {
+			const broadcasters = await Broadcaster.aggregate([
+				{ $sort: { view_count: -1 } },
+				{ $skip: skip },
+				{ $limit: 200 }
+			]).exec();
+			return broadcasters;
 		},
 		Games: async () => {
 			return Game.find();
@@ -53,10 +61,10 @@ const resolvers = {
 		},
 		getGameName: async (parent, { _id }) => {
 			const game = await Game.findOne({ name: _id })
-			.populate({
-				path: 'archive',
-				model: 'ArchiveData',
-			})
+				.populate({
+					path: 'archive',
+					model: 'ArchiveData',
+				})
 
 			if (!game) {
 				console.log("No Game was found")
@@ -65,7 +73,15 @@ const resolvers = {
 			};
 		},
 		getGameSearch: async (parent, { name }) => {
-			return Game.find({ name: {$regex: new RegExp(name, 'i')} });
+			return Game.find({ name: { $regex: new RegExp(name, 'i') } });
+		},
+		sortGameViews: async (root, { skip }, context, info) => {
+			const games = await Game.aggregate([
+				{ $sort: { view_count: -1 } },
+				{ $skip: skip },
+				{ $limit: 200 }
+			]).exec();
+			return games;
 		},
 		Clips: async () => {
 			return Clips.find();
@@ -74,9 +90,9 @@ const resolvers = {
 			return Stream.find();
 		},
 		getTotalData: async (parent, { date }) => {
-            const totalData = await TotalData.find({}).populate("archive");
+			const totalData = await TotalData.find({}).populate("archive");
 
-            if (!totalData) {
+			if (!totalData) {
 				console.log("No data was found")
 			};
 
@@ -92,7 +108,7 @@ const resolvers = {
 				totalData[0].archive = archives
 				return totalData;
 			}
-        },
+		},
 		getCurrentData: async (parent, args) => {
 			const totalData = await TotalData.find({});
 
@@ -104,15 +120,15 @@ const resolvers = {
 		},
 		getTopGames: async (parent, args) => {
 			const topGames = await TotalData.find({})
-			.populate({
-				path: 'topGames',
-				model: 'Game',
-				populate: {
-					path: 'archive',
-					model: 'ArchiveData'
-				}
-			})
-			
+				.populate({
+					path: 'topGames',
+					model: 'Game',
+					populate: {
+						path: 'archive',
+						model: 'ArchiveData'
+					}
+				})
+
 			// console.log("TOP GAMES IS")
 			// console.log(topGames[0].topGames[0].archive)
 
@@ -124,10 +140,10 @@ const resolvers = {
 		},
 		getTopStreams: async (parent, args) => {
 			const topStreams = await TotalData.find({})
-			.populate({
-				path: 'topStreams',
-				model: 'Stream',
-			})
+				.populate({
+					path: 'topStreams',
+					model: 'Stream',
+				})
 
 			if (!topStreams) {
 				console.log("No Total Data!")
@@ -137,10 +153,10 @@ const resolvers = {
 		},
 		getTopClips: async (parent, args) => {
 			const topClips = await TotalData.find({})
-			.populate({
-				path: 'topClips',
-				model: 'Clips',
-			})
+				.populate({
+					path: 'topClips',
+					model: 'Clips',
+				})
 
 			if (!topClips) {
 				console.log("No Total Data!")
@@ -151,10 +167,10 @@ const resolvers = {
 	},
 	Mutation: {
 
-        addGame: async (parent, { gameData }) => {
-            const game = await Game.findOne({ _id: gameData._id });
+		addGame: async (parent, { gameData }) => {
+			const game = await Game.findOne({ _id: gameData._id });
 
-            if (!game) {
+			if (!game) {
 				const newGame = await Game.create(gameData);
 				return newGame;
 			} else {
@@ -162,16 +178,16 @@ const resolvers = {
 				return game;
 			};
 
-        },
+		},
 
 		addStream: async (parent, { streamData }) => {
-            const stream = await Stream.findOne({ _id: streamData._id });
+			const stream = await Stream.findOne({ _id: streamData._id });
 
 			const topStreams = await TotalData.find({})
-			.populate({
-				path: 'topStreams',
-				model: 'Stream',
-			})
+				.populate({
+					path: 'topStreams',
+					model: 'Stream',
+				})
 
 			const lastWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6)
 
@@ -196,8 +212,8 @@ const resolvers = {
 						topStreams[0].topStreams[i]._id !== streamData._id &&
 						topStreams[0].topStreams[i].user_id !== streamData.user_id) ||
 						(topStreams[0].topStreams[i]._id !== streamData._id &&
-						topStreams[0].topStreams[i].user_id !== streamData.user_id &&
-						topStreams[0].topStreams.length < 10)) {
+							topStreams[0].topStreams[i].user_id !== streamData.user_id &&
+							topStreams[0].topStreams.length < 10)) {
 						higherPeak = true;
 					};
 				} else {
@@ -223,7 +239,7 @@ const resolvers = {
 				}, { new: true });
 			}
 
-            if (!stream) {
+			if (!stream) {
 				console.log("Here1")
 				const newStream = await Stream.create(streamData);
 				return newStream;
@@ -243,7 +259,7 @@ const resolvers = {
 				return stream;
 			};
 
-        },
+		},
 
 		addClip: async (parent, { clipData }) => {
 			// Deletes previously stored clips
@@ -260,22 +276,22 @@ const resolvers = {
 			};
 			// Finds and populates the topClips
 			const total = await TotalData.find({})
-			.populate({
-				path: 'topClips',
-				model: 'Clips',
-			})
+				.populate({
+					path: 'topClips',
+					model: 'Clips',
+				})
 			// Updates topClips with the ids of the current top 10 clips from api call
 			await total[0].update({
 				topClips: idArray
 			}, { new: true });
 
 			return clip;
-        },
+		},
 
 		addBroadcasterData: async (parent, { broadcasterData }) => {
-            const broadcaster = await Broadcaster.findOne({ user_id: broadcasterData.user_id });
+			const broadcaster = await Broadcaster.findOne({ user_id: broadcasterData.user_id });
 
-            if (!broadcaster) {
+			if (!broadcaster) {
 				const newBroadcaster = await Broadcaster.create(broadcasterData);
 				return newBroadcaster;
 			} else {
@@ -327,13 +343,13 @@ const resolvers = {
 
 		updateTotalData: async (parent, { totalData, date }) => {
 			const total = await TotalData.findOne({ _id: totalData._id })
-			.populate({
-				path: 'archive',
-				model: 'ArchiveData',
-			})
+				.populate({
+					path: 'archive',
+					model: 'ArchiveData',
+				})
 
 			// If there is no TotalData, create a new TotalData document
-            if (!total) {
+			if (!total) {
 				const newTotal = await TotalData.create(totalData);
 				return newTotal;
 			} else {
@@ -388,9 +404,9 @@ const resolvers = {
 					const viewAvg = await getAverage(totalArchive, dateFormat, "view_count", totalData.totalViewers);
 
 					const channelAvg = await getAverage(totalArchive, dateFormat, "totalChannels", totalData.totalChannels);
-	
+
 					const gameAvg = await getAverage(totalArchive, dateFormat, "totalGames", totalData.totalGames);
-	
+
 					const totalAverages = {
 						avgViews: viewAvg,
 						avgChannels: channelAvg,
@@ -427,10 +443,10 @@ const resolvers = {
 		// Updates top game list
 		updateTopGames: async (parent, { _id, games }) => {
 			const total = await TotalData.findOne({ _id: _id })
-			.populate({
-				path: 'topGames',
-				model: 'Game',
-			})
+				.populate({
+					path: 'topGames',
+					model: 'Game',
+				})
 
 			await total.update({
 				topGames: games
@@ -441,10 +457,10 @@ const resolvers = {
 		// Updates top stream list
 		updateTopStreams: async (parent, { _id }) => {
 			const total = await TotalData.findOne({ _id: _id })
-			.populate({
-				path: 'topStreams',
-				model: 'Stream',
-			})
+				.populate({
+					path: 'topStreams',
+					model: 'Stream',
+				})
 
 			console.log("TOP STREAM TOTAL")
 			console.log(total)
@@ -457,10 +473,10 @@ const resolvers = {
 			const counts = topStreamArray.reduce((a, { user_id }) => {
 				a[user_id] = (a[user_id] || 0) + 1;
 				return a;
-			  }, {});
-			  
-			  let filArr = topStreamArray.filter(({ user_id }) => counts[user_id] > 1);
-			  let uniqueArr = topStreamArray.filter(({ user_id }) => counts[user_id] === 1);
+			}, {});
+
+			let filArr = topStreamArray.filter(({ user_id }) => counts[user_id] > 1);
+			let uniqueArr = topStreamArray.filter(({ user_id }) => counts[user_id] === 1);
 
 			// Comparator function which will sort streams by peak_views highest to lowest
 			function Comparator(a, b) {

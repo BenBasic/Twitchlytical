@@ -74,7 +74,7 @@ const LogoButton = styled(Button)(({ theme }) => ({
     },
 })) as typeof Button;
 
-const pages = ['Channels', 'Games', 'Clips', 'Global'];
+const pages = ['Streamers', 'Games', 'Clips', 'Global'];
 
 const NavBar: React.FC = () => {
 
@@ -123,6 +123,7 @@ const NavBar: React.FC = () => {
                         {pages.map((page) => (
                             <LogoButton
                                 key={page}
+                                href={`/browse/${page}/`}
                                 sx={{ my: 2, color: 'white', display: 'block' }}
                                 style={styles.appTitle}
                             >

@@ -138,7 +138,7 @@ const SearchPage: React.FC = () => {
 
     return (
         <>
-            <SearchHeader search={searchQuery} />
+            <SearchHeader header={"Searching for"} search={searchQuery} />
             <Routes>
                 <Route path="*"
                     element={<PaginationHandler

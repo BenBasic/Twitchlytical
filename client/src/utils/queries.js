@@ -204,3 +204,21 @@ query GetGameSearch($name: [String]) {
   }
 }
 `;
+
+export const FILTER_BROADCASTER_VIEWS = gql`
+query Query($skip: Int!) {
+  sortBroadcasterViews(skip: $skip) {
+    name
+    profile_image_url
+  }
+}
+`;
+
+export const FILTER_GAME_VIEWS = gql`
+query Query($skip: Int!) {
+  sortGameViews(skip: $skip) {
+    _id
+    name
+  }
+}
+`;

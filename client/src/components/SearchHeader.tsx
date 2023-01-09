@@ -26,7 +26,7 @@ const styles = {
     },
 }
 
-const SearchHeader: React.FC<SearchHeaderProps> = ( {search} ) => {
+const SearchHeader: React.FC<SearchHeaderProps> = ({ header, search }) => {
     return (
         <Box sx={{ flexGrow: 1 }} style={styles.headerBox} mb={2}>
             <Grid container alignItems="center" justifyContent="center">
@@ -34,11 +34,19 @@ const SearchHeader: React.FC<SearchHeaderProps> = ( {search} ) => {
 
                     <Grid item xs={8} mt={3} mb={1} >
                         <Typography variant={'h4'} textAlign='left' pr={2} style={styles.heading}>
-                            Searching for
+                            {header}
                         </Typography>
                         <Divider sx={{ width: '80%', my: 2 }} color={indigo[300]} />
-                        <Typography variant={'h3'} textAlign='left' pr={2} style={styles.heading}>
-                            {search}
+                        <Typography variant={'h3'} pr={2} style={styles.heading}
+                            sx={{
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textAlign: "left",
+                                display: "block"
+                            }}
+                        >
+                            {search ? search : "Nothing"}
                         </Typography>
                     </Grid>
 
