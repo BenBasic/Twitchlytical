@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import { useLazyQuery } from '@apollo/client';
 import { SEARCH_BROADCASTER, SEARCH_GAME } from "../utils/queries";
 
+import SearchHeader from './SearchHeader';
 import PaginationHandler from "./PaginationHandler";
 
 
@@ -13,7 +14,9 @@ const SearchPage: React.FC = () => {
     // States for the final lists for games and broadcasters to be passed into PaginationHandler
     const [casters, setCasters] = useState<any[]>([]);
     const [games, setGames] = useState<any[]>([]);
-
+    // State tracks previous searches, used to help update new lists if new searches are made
+    const [prevSearch, setPrevSearch] = useState<string | null>(null);
+    // States track if there is data grabbed for broadcasters and games, used to prevent errors related to loading
     const [isCasterData, setIsCasterData] = useState<boolean>(false);
     const [isGameData, setIsGameData] = useState<boolean>(false);
 
@@ -30,6 +33,7 @@ const SearchPage: React.FC = () => {
     const query = new URLSearchParams(location.search);
     // Grabbing user's search query (ex: url of ?query=call will return 'call')
     const searchQuery = query.get('query');
+    console.log("Search in page is " + searchQuery)
 
 
     //vvvvvvvvvvvvvvv LAZY QUERIES (not activated until called in useEffect) vvvvvvvvvvvvvvv//
@@ -61,12 +65,32 @@ const SearchPage: React.FC = () => {
         if (!gameData && games?.length === 0) {
             searchGame({ variables: { name: searchQuery } })
             console.log("inside GAME useEffect")
-        }
+        };
 
     }, [searchGame]);
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^//
 
+    //vvvvvvvvvvv SEARCH HANDLING (if more searches are made after first search) vvvvvvvvvv//
+
+    // If this is the first load of the search page, set previous search to the current search query
+    if (prevSearch === null && searchQuery) setPrevSearch(searchQuery);
+
+
+    // If there has been a previous search, and the query is now different, requery data with the new search query
+    // This makes it so that if a user searches something new while on the search page, new lists will appear
+    // Without this, lists would not update when new searches were made after the initial search
+    if (prevSearch !== null && prevSearch !== searchQuery) {
+        setCasters([]);
+        setGames([])
+        searchBroadcaster({ variables: { name: searchQuery } });
+        searchGame({ variables: { name: searchQuery } });
+        setIsCasterData(false);
+        setIsGameData(false);
+        setPrevSearch(searchQuery);
+    };
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^//
 
     // If there is no query, return error screen
     if (!searchQuery) return <h1>Nothing was searched!!!</h1>
@@ -77,8 +101,6 @@ const SearchPage: React.FC = () => {
     if (isCasterData === false && casterData && casterData?.getBroadcasterName?.length > 0) setIsCasterData(true);
     if (isGameData === false && gameData && gameData?.getGameSearch?.length > 0) setIsGameData(true);
 
-    console.log("casterData is ")
-    console.log(casterData)
 
     // Assigning empty arrays, will be sorted if exact match is found
     let broadcasterArray: any[] = [];
@@ -115,18 +137,21 @@ const SearchPage: React.FC = () => {
     console.log("End of SearchPage");
 
     return (
-        <Routes>
-            <Route path="*"
-                element={<PaginationHandler
-                    arrayCaster={broadcasterArray}
-                    arrayGame={gameArray}
-                    queryHook={query}
-                    querySearch={searchQuery}
-                    perPageAmount={resultsPerPage}
-                    cast={castPage}
-                    game={gamePage}
-                />} />
-        </Routes>
+        <>
+            <SearchHeader search={searchQuery} />
+            <Routes>
+                <Route path="*"
+                    element={<PaginationHandler
+                        arrayCaster={broadcasterArray}
+                        arrayGame={gameArray}
+                        queryHook={query}
+                        querySearch={searchQuery}
+                        perPageAmount={resultsPerPage}
+                        cast={castPage}
+                        game={gamePage}
+                    />} />
+            </Routes>
+        </>
     )
 }
 

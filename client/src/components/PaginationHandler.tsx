@@ -4,6 +4,44 @@ import Pagination from '@mui/material/Pagination';
 import PaginationItem from '@mui/material/PaginationItem';
 import { PageProps } from './TypesAndInterfaces';
 
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+
+import SearchCard from './SearchCard';
+
+import { indigo } from '@mui/material/colors';
+
+// Object containing style properties used for the MUI implementation throughout this file
+const styles = {
+    container: {
+        backgroundColor: indigo[200],
+        borderRadius: '.5rem .5rem .5rem .5rem',
+        paddingBottom: '2rem',
+        marginTop: '2rem',
+    },
+    mainTitle: {
+        display: 'inline-block',
+        paddingLeft: '1.5rem',
+        paddingRight: '1.5rem',
+        fontFamily: 'Outfit, sans-serif',
+        fontWeight: 700,
+        color: 'white',
+        backgroundColor: indigo[700],
+        borderRadius: '1rem'
+    },
+    title: {
+        display: 'inline-block',
+        fontFamily: 'Outfit, sans-serif',
+        fontWeight: 700,
+    },
+    pageNums: {
+        justifyContent:"center",
+        display:'flex',
+        marginTop: '1rem',
+    }
+};
+
 const PaginationHandler: React.FC<PageProps> = ({ arrayCaster, arrayGame, queryHook, querySearch, perPageAmount, cast, game }) => {
 
     // Helper creates amount of pages for passed in array based on how many results display per page
@@ -61,52 +99,99 @@ const PaginationHandler: React.FC<PageProps> = ({ arrayCaster, arrayGame, queryH
     };
 
     console.log("NESTED RELOAD");
+    console.log(currentGameList)
 
     return (
         <>
-            {currentGameList === undefined ?
-                <h1>Games are undefined</h1> :
-                <>
-                    <ul>
-                        {currentGameList.map((game: any, index: number) => (
-                            <li key={game.name + index}>{game.name}</li>
-                        ))}
-                    </ul>
-                    <Pagination
-                        page={gamePage}
-                        count={gamePageCount}
-                        renderItem={(item) => (
-                            <PaginationItem
-                                component={Link}
-                                to={`/search?query=${querySearch}${item.page === 1 ? '' : `&${game}=${item.page}`}${castPage === 1 ? '' : `&${cast}=${castPage}`}`}
-                                {...item}
-                            />
-                        )}
-                    />
-                </>
-            }
+            <Container maxWidth="md" style={styles.container} className="topStatsContainer">
 
-            {currentBroadcasterList === undefined ?
-                <h1>Streamers are undefined</h1> :
-                <>
-                    <ul>
-                        {currentBroadcasterList.map((streamer: any, index: number) => (
-                            <li key={streamer.name + index}>{streamer.name}</li>
-                        ))}
-                    </ul>
-                    <Pagination
-                        page={castPage}
-                        count={castPageCount}
-                        renderItem={(item) => (
-                            <PaginationItem
-                                component={Link}
-                                to={`/search?query=${querySearch}${gamePage === 1 ? '' : `&${game}=${gamePage}`}${item.page === 1 ? '' : `&${cast}=${item.page}`}`}
-                                {...item}
-                            />
-                        )}
-                    />
-                </>
-            }
+                <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                        <Grid item xs={12} textAlign="center">
+                            <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={indigo[700]} textAlign='center'
+                                style={styles.title}
+                                fontSize={{ xs: '1.35rem', sm: '2.1rem' }}
+                            >
+                                Games
+                            </Typography>
+                        </Grid>
+
+                        {currentGameList === undefined ?
+                            <h1>Games are undefined</h1> :
+                            <>
+
+                                {currentGameList.map((game: any, index: number) => (
+                                    // <li key={game.name + index}>{game.name}</li>
+                                    <SearchCard
+                                        key={game.name + index}
+                                        type={"game"}
+                                        name={game.name}
+                                        id={game._id}
+                                    />
+                                ))}
+
+                                <Pagination
+                                    style={styles.pageNums}
+                                    color='primary'
+                                    page={gamePage}
+                                    count={gamePageCount}
+                                    renderItem={(item) => (
+                                        <PaginationItem
+                                            component={Link}
+                                            to={`/search?query=${querySearch}${item.page === 1 ? '' : `&${game}=${item.page}`}${castPage === 1 ? '' : `&${cast}=${castPage}`}`}
+                                            {...item}
+                                        />
+                                    )}
+                                />
+                            </>
+                        }
+                    </Grid>
+
+                    <Grid item xs={6}>
+                        <Grid item xs={12} textAlign="center">
+                            <Typography variant={'h4'} mt={1} borderBottom={5} borderColor={indigo[700]} textAlign='center'
+                                style={styles.title}
+                                fontSize={{ xs: '1.35rem', sm: '2.1rem' }}
+                            >
+                                Streamers
+                            </Typography>
+                        </Grid>
+
+                        {currentBroadcasterList === undefined ?
+                            <h1>Streamers are undefined</h1> :
+                            <>
+                                {currentBroadcasterList.map((streamer: any, index: number) => (
+                                    // <li key={streamer.name + index}>{streamer.name}</li>
+                                    <SearchCard
+                                        key={streamer.name + index}
+                                        type={"broadcaster"}
+                                        name={streamer.name}
+                                        imgUrl={streamer.profile_image_url}
+                                    />
+                                ))}
+                                <Pagination
+                                    style={styles.pageNums}
+                                    color='primary'
+                                    page={castPage}
+                                    count={castPageCount}
+                                    renderItem={(item) => (
+                                        <PaginationItem
+                                            component={Link}
+                                            to={`/search?query=${querySearch}${gamePage === 1 ? '' : `&${game}=${gamePage}`}${item.page === 1 ? '' : `&${cast}=${item.page}`}`}
+                                            {...item}
+                                        />
+                                    )}
+                                />
+                            </>
+                        }
+                    </Grid>
+
+                </Grid>
+
+            </Container>
+
+
+
 
         </>
     );

@@ -57,9 +57,13 @@ const GamePage: React.FC = () => {
             let totalChannelArray: number[] = [];
             let gameValArray: any[] = [];
             let count: number = -1;
+            let iterateTo: number = gameArchive?.length;
+
+            // If gameArchive is longer than 30, set the max to 30 to iterate through
+            if (gameArchive?.length > 30) iterateTo = 30;
             // Adds the most recent view_count values (max of 30) to the recentViewArray for later use to calculate
             // the broadcasters recent average view_count in the Profile component
-            for (let i = 0; i < gameArchive?.length && i < 30; i++) {
+            for (let i = 0; i < iterateTo; i++) {
                 recentViewArray.push(gameArchive[(gameArchive.length - 1) - i]?.view_count);
             };
             setViewData(recentViewArray);
@@ -112,6 +116,8 @@ const GamePage: React.FC = () => {
         // Setting mount state to true, this tells the component that its ready to load
         setCanMount(true);
     };
+    console.log("GAMEPAGE chartData is")
+    console.log(gameChartData)
 
     return (
         <>

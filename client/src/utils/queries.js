@@ -200,6 +200,7 @@ export const SEARCH_GAME = gql`
 query GetGameSearch($name: [String]) {
   getGameSearch(name: $name) {
     name
+    _id
   }
 }
 `;

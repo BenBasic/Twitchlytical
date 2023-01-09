@@ -233,3 +233,14 @@ export interface PageProps {
     cast: string;
     game: string;
 };
+
+export interface SearchCardProps {
+    type: "game"|"broadcaster";
+    name: string;
+    id?: string;
+    imgUrl?: string;
+};
+
+export interface SearchHeaderProps {
+    search: string;
+};
