@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Routes, useLocation, useParams, useNavigate } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import SearchHeader from './SearchHeader';
 import { useLazyQuery } from '@apollo/client';
 import { DocumentNode } from 'graphql';
@@ -89,29 +89,45 @@ const BrowsePage: React.FC = () => {
     const lastIndex = (page: number, resAmount: number) => page * resAmount;
     const firstIndex = (lastIndex: number, resAmount: number) => lastIndex - resAmount;
 
+    // Values for multiplication and subtraction used to fix errors caused by navigation without using back or next buttons
+    let reloadFixMult: number = 1;
+    let reloadFixSub: number = 0;
+    if (currentPage !== 1) {
+        reloadFixMult = 2;
+        reloadFixSub = 1;
+    }
+
     // States used for the first and last indexes of the currently displaying list
-    const [leftLastIndex, setLeftLastIndex] = useState(lastIndex((currentPage % 10 || 10), resPerPage));
+    const [leftLastIndex, setLeftLastIndex] = useState(lastIndex(((currentPage % 10 || 10) * reloadFixMult) - reloadFixSub, resPerPage));
     const [leftFirstIndex, setLeftFirstIndex] = useState(firstIndex(leftLastIndex, resPerPage));
-    const [rightLastIndex, setRightLastIndex] = useState(lastIndex(((currentPage % 10 || 10) + 1), resPerPage));
+    const [rightLastIndex, setRightLastIndex] = useState(lastIndex((((currentPage % 10 || 10) * reloadFixMult) + 1) - reloadFixSub, resPerPage));
     const [rightFirstIndex, setRightFirstIndex] = useState(firstIndex(rightLastIndex, resPerPage));
+
 
     // Grabs the data from the database for the list of games or streamers based on their view_count value
     const [filterBroadcaster, { loading: listLoading, data: listData, error: listError }] = useLazyQuery(typeFilter!, {
         variables: { skip: 0 },
     });
 
-    useEffect(() => {
+    // Calculates how many items in the database to skip fetching based on page value ranges
+    const skipVal = (fetchNum: number, page: number, perPage: number) => {
+        let range = Math.floor((page - 1) / perPage) + 1
+        return (range - 1) * fetchNum;
+    };
 
+    useEffect(() => {
+        // If there is no data, and list state has not been set, fetch data
         if (!isData && list?.length === 0) {
-            filterBroadcaster({ variables: { skip: 0 } })
+            filterBroadcaster({ variables: { skip: skipVal(200, currentPage, resPerPage) } })
             console.log("inside FILTER useEffect")
         }
 
     }, [filterBroadcaster]);
 
+    // If the data is still loading, or there is an error, display the appropriate page
     if (listLoading === true) return <h1>Loading Oh Yeah</h1>
     if (listError) return <h1>Woops! An error occured</h1>
-
+    // If there is data available to populate the list, let program know to set appropriate states and stop fetching data
     if (isData === false && listData && listData?.[nestedData!]?.length > 0) setIsData(true);
 
     if (isData === true) {
@@ -122,11 +138,9 @@ const BrowsePage: React.FC = () => {
     console.log("Browse Final Data State")
     console.log(list);
 
+    // Sets appropriate indexes to display the current data based on the current page
     let leftList = list.slice(leftFirstIndex, leftLastIndex);
     let rightList = list.slice(rightFirstIndex, rightLastIndex);
-
-    console.log("LEFT || First: " + leftFirstIndex + "// Last: " + leftLastIndex)
-    console.log("RIGHT || First: " + rightFirstIndex + "// Last: " + rightLastIndex)
 
     // When back button is pressed, display the previous set of results
     const prevHandler = () => {
@@ -148,12 +162,8 @@ const BrowsePage: React.FC = () => {
             console.log("Prev Calc is " + ((currentPage - 11) * (resPerPage * 2)))
             setIsData(false);
             navigate(`/browse/${type}/${currentPage <= 2 ? '' : `?page=${currentPage - 1}`}`);
-
+            // Resets indexes to the previous page's value
             resetPrevIndexes();
-
-            console.log("INSIDE PREV HANDLER")
-            console.log("Left Indexes are: leftLast: " + leftLastIndex + " // leftFirst: " + leftFirstIndex)
-            console.log("Right Indexes are: rightLast: " + rightLastIndex + " // rightFirst: " + rightFirstIndex)
         }
     };
 
@@ -174,12 +184,8 @@ const BrowsePage: React.FC = () => {
             console.log("Next Calc is " + (currentPage * (resPerPage * 2)))
             setIsData(false);
             navigate(`/browse/${type}/?page=${currentPage + 1}`);
-
+            // Resets indexes to the next page's value
             resetNextIndexes();
-
-            console.log("INSIDE NEXT HANDLER")
-            console.log("Left Indexes are: leftLast: " + leftLastIndex + " // leftFirst: " + leftFirstIndex)
-            console.log("Right Indexes are: rightLast: " + rightLastIndex + " // rightFirst: " + rightFirstIndex)
         }
     }
 
@@ -199,8 +205,6 @@ const BrowsePage: React.FC = () => {
     };
 
     console.log("BOTTOM OF COMPONENT")
-    console.log("Left Indexes are: leftLast: " + leftLastIndex + " // leftFirst: " + leftFirstIndex)
-    console.log("Right Indexes are: rightLast: " + rightLastIndex + " // rightFirst: " + rightFirstIndex)
 
     return (
         <>
