@@ -5,6 +5,7 @@ import { select, Selection } from 'd3-selection'
 import { easeElastic } from 'd3-ease'
 import { Stats, PieProps } from './TypesAndInterfaces'
 import { indexKeyVal } from '../utils/helpers';
+import useChartResize from 'src/utils/chartResizeHook';
 
 const colorTest = ['#AF4BCE', '#1de441', '#EA7369', '#1ac9e6', '#d8ac2d', "#de542c", '#E113B4']
 const colorOutline = ["#29066B", "#084914", "#A5194D", "#142459", "#991212", "#8F2000", '#A2007E']
@@ -38,38 +39,13 @@ const PieChart: React.FC<PieProps> = (props) => {
     console.log("dataFinal is")
     console.log(dataFinal)
 
-    // if (props.type === "vs" && props.user && dataFinal[0].views > dataFinal[1].views) dataFinal.reverse();
+    const pieChart = useRef<SVGSVGElement | null>(null);
 
-    const pieChart = useRef<SVGSVGElement | null>(null)
-
-    // This is a ref for the container, which is a parent of the d3 related svg elements
-    const svgContainer = useRef<HTMLDivElement | null>(null);
-
-    // States which keep track of the updating width and height of the svgContainer
-    const [widthState, setWidthState] = useState<number>();
-    const [heightState, setHeightState] = useState<number>();
+    // Calling imported useChartResize hook to track width and height of svg container for mobile responsiveness
+    const [widthState, heightState, svgContainer] = useChartResize();
 
     // State keeping track of refreshes, used to prevent enter animation retriggering when resizing container
     const [resizeCheckState, setResizeCheckState] = useState<number>(0);
-
-
-    // Calculates the width and height of the svgContainer
-    const getSvgContainerSize = () => {
-        const newWidth = svgContainer.current?.clientWidth;
-        setWidthState(newWidth);
-
-        const newHeight = svgContainer.current?.clientHeight;
-        setHeightState(newHeight);
-    };
-
-    useEffect(() => {
-        // Detects the width and height on render (determined by container size, or window size if no container)
-        getSvgContainerSize();
-        // Listens for resize changes, and detects dimensions again when they change
-        window.addEventListener("resize", getSvgContainerSize);
-        // Cleanup the previously applied event listener
-        return () => window.removeEventListener("resize", getSvgContainerSize);
-    }, []);
 
     // State used for svg element selections, sort of like a root for all branching d3 manipulations
     const [selectionState, setSelectionState] = useState<null | Selection<SVGSVGElement | null, unknown, null, undefined>>(null)

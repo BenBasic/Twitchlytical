@@ -6,6 +6,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Avatar from '@mui/material/Avatar';
 import { GameHeaderProps, GameHeaderData, Stats } from './TypesAndInterfaces';
 import { numOrdinalFormat, miniGetAverage, createListData, Comparator, miniComparator } from '../utils/helpers';
+import useResize from '../utils/resizeHook';
 import { indigo, deepPurple } from '@mui/material/colors';
 
 
@@ -46,7 +47,7 @@ const styles = {
     },
     infoContainer: {
         backgroundColor: indigo[300],
-        borderRadius: '0rem .5rem .5rem .5rem',
+        // borderRadius: '0rem .5rem .5rem .5rem',
         marginTop: '0rem',
         padding: '1rem 1rem 1rem 1rem',
     },
@@ -95,6 +96,9 @@ const styles = {
 };
 
 const GameProfile: React.FC<GameHeaderProps> = (props) => {
+
+    // Calling imported useResize hook to track width between mainTitle and infoContainer elements
+    const [widthState, textWidth, container, textContainer] = useResize();
 
     let gameData: GameHeaderData = props.data;
 
@@ -147,6 +151,9 @@ const GameProfile: React.FC<GameHeaderProps> = (props) => {
         return parseFloat(average.toFixed());
     }
 
+    let pTopRight: number = 0.5
+    if (widthState === textWidth) pTopRight = 0;
+
     console.log("game rank list is")
     console.log(gameRankList)
 
@@ -163,14 +170,15 @@ const GameProfile: React.FC<GameHeaderProps> = (props) => {
                             </Grid>
                             <Grid item xs={9} mt={2} textAlign="left">
                                 {/* Username */}
-                                <Typography variant={'h4'} mt={2} mb={0} textAlign='center'
+                                <Typography ref={textContainer} variant={'h4'} mt={2} mb={0} textAlign='center'
                                     style={styles.mainTitle}
                                     fontSize={{ xs: '1.85rem', sm: '2.13rem' }}
                                 >
                                     {gameData.name}
                                 </Typography>
-                                <Grid container maxWidth="md" mt={2} mb={4} alignItems="left" justifyContent="left"
+                                <Grid ref={container} container maxWidth="md" mt={2} mb={4} alignItems="left" justifyContent="left"
                                     style={styles.infoContainer}
+                                    sx={{ borderRadius: `0rem ${pTopRight}rem .5rem .5rem` }}
                                 >
                                     <Grid item xs={6} sm={4.95} md={4.5} mx={{ xs: 0, sm: 1 }} style={styles.liveStats}
                                         sx={{ borderRadius: styles.infoBorderLeft }}

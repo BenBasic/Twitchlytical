@@ -1,21 +1,20 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { select, Selection } from 'd3-selection'
-import { scaleLinear, scaleBand } from 'd3-scale'
-import { max } from 'd3-array'
-import { axisLeft, axisBottom } from 'd3-axis'
-import 'd3-transition'
-import { easeElastic } from 'd3-ease'
-import { area } from 'd3-shape'
-import { BroadcasterLatest, GameData, ProfileData } from './TypesAndInterfaces'
-import { percentDifference, checkArrIsNum } from '../utils/helpers'
+import React, { useEffect, useRef, useState } from 'react';
+import { select, Selection } from 'd3-selection';
+import { scaleLinear, scaleBand } from 'd3-scale';
+import { max } from 'd3-array';
+import { axisLeft, axisBottom } from 'd3-axis';
+import 'd3-transition';
+import { easeElastic } from 'd3-ease';
+import { area } from 'd3-shape';
+import { BroadcasterLatest, GameData, ProfileData } from './TypesAndInterfaces';
+import { percentDifference, checkArrIsNum } from '../utils/helpers';
+import useChartResize from 'src/utils/chartResizeHook';
 
 // Type used for percentage calculation comparisons for the tooltip
 type percentTooltip = {
     print: string;
     class: string;
 };
-
-
 
 const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData, gameData, type }) => {
 
@@ -43,34 +42,11 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
     const areaChart = useRef<SVGSVGElement | null>(null)
 
-    // This is a ref for the container, which is a parent of the d3 related svg elements
-    const svgContainer = useRef<HTMLDivElement | null>(null);
-
-    // States which keep track of the updating width and height of the svgContainer
-    const [widthState, setWidthState] = useState<number>();
-    const [heightState, setHeightState] = useState<number>();
+    // Calling imported useChartResize hook to track width and height of svg container for mobile responsiveness
+    const [widthState, heightState, svgContainer] = useChartResize();
 
     // State keeping track of refreshes, used to prevent enter animation retriggering when resizing container
     const [resizeCheckState, setResizeCheckState] = useState<number>(0);
-
-
-    // Calculates the width and height of the svgContainer
-    const getSvgContainerSize = () => {
-        const newWidth = svgContainer.current?.clientWidth;
-        setWidthState(newWidth);
-
-        const newHeight = svgContainer.current?.clientHeight;
-        setHeightState(newHeight);
-    };
-
-    useEffect(() => {
-        // Detects the width and height on render (determined by container size, or window size if no container)
-        getSvgContainerSize();
-        // Listens for resize changes, and detects dimensions again when they change
-        window.addEventListener("resize", getSvgContainerSize);
-        // Cleanup the previously applied event listener
-        return () => window.removeEventListener("resize", getSvgContainerSize);
-    }, []);
 
     // State used for svg element selections, sort of like a root for all branching d3 manipulations
     const [selectionState, setSelectionState] = useState<null | Selection<SVGSVGElement | null, unknown, null, undefined>>(null)
@@ -166,7 +142,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
             classVal = `lower`
         };
 
-        return {print: printVal, class: classVal};
+        return { print: printVal, class: classVal };
     }
 
     useEffect(() => {
@@ -358,12 +334,12 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                         let prevDuration: any[] = ["nope"];
                         let viewPerStream: number = 0;
 
-                        let viewPeakPercent: percentTooltip = {print: '', class: ''};
-                        let viewAvgPercent: percentTooltip = {print: '', class: ''};
-                        let channelPeakPercent: percentTooltip = {print: '', class: ''};
-                        let channelAvgPercent: percentTooltip = {print: '', class: ''};
-                        let durationPercent: percentTooltip = {print: '', class: ''};
-                        let ratioPercent: percentTooltip = {print: '', class: ''};
+                        let viewPeakPercent: percentTooltip = { print: '', class: '' };
+                        let viewAvgPercent: percentTooltip = { print: '', class: '' };
+                        let channelPeakPercent: percentTooltip = { print: '', class: '' };
+                        let channelAvgPercent: percentTooltip = { print: '', class: '' };
+                        let durationPercent: percentTooltip = { print: '', class: '' };
+                        let ratioPercent: percentTooltip = { print: '', class: '' };
 
                         if (isProfileType(dataState, [profileData]) && isProfileTypeItem(d, profileData)) {
                             peakVal = d.peak;

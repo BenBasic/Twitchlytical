@@ -74,7 +74,7 @@ const LogoButton = styled(Button)(({ theme }) => ({
     },
 })) as typeof Button;
 
-const pages = ['Streamers', 'Games', 'Clips', 'Global'];
+const pages = ['Streamers', 'Games', 'About'];
 
 const NavBar: React.FC = () => {
 
