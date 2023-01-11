@@ -30,8 +30,11 @@ const styles = {
         fontWeight: 700,
         color: 'white',
         backgroundColor: indigo[700],
-        borderBottom: '1rem solid ' + indigo[300],
         borderRadius: '1rem 1rem 0rem 0rem'
+    },
+    mainTitleBorder: {
+        xs: 'none',
+        mobileXs: '1rem solid ' + indigo[300],
     },
     title: {
         fontFamily: 'Outfit, sans-serif',
@@ -48,7 +51,11 @@ const styles = {
     infoContainer: {
         backgroundColor: indigo[300],
         marginTop: '0rem',
-        padding: '1rem 1rem 1rem 1rem',
+    },
+    infoContainerPadding: {
+        xs: '1rem 0.3rem 1rem 0.3rem',
+        mobileXs: '1rem 1rem 1rem 1rem',
+        sm: '1rem 1rem 1rem 1rem',
     },
     infoBubbles: {
         display: 'inline',
@@ -162,6 +169,9 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
                                     {/* Username */}
                                     <Typography  variant={'h4'} mt={2} mb={0} textAlign='center'
                                         style={styles.mainTitle}
+                                        paddingBottom={{ xs: 0.4, mobileXs: 0}}
+                                        paddingTop={{ xs: 0.4, mobileXs: 0}}
+                                        borderBottom={styles.mainTitleBorder}
                                         fontSize={
                                             {
                                                 xs: `${fontSize.xs}rem`,
@@ -175,6 +185,7 @@ const Profile: React.FC<ProfileHeaderProps> = (props) => {
                                     </Typography>
                                     <Grid  container maxWidth="md" mt={2} mb={4} alignItems="left" justifyContent="left"
                                         style={styles.infoContainer}
+                                        padding={styles.infoContainerPadding}
                                         sx={{ borderRadius: `0rem .5rem .5rem .5rem` }}
                                     >
                                         <Grid item xs={4} sm={3.3} md={3} mx={{ xs: 0, sm: 1 }} style={styles.liveStats}

@@ -13,6 +13,7 @@ import Divider from '@mui/material/Divider';
 import SearchIcon from '@mui/icons-material/Search';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import Tooltip from '@mui/material/Tooltip';
 // Importing colors from Material UI
 import { indigo } from '@mui/material/colors';
 
@@ -78,14 +79,26 @@ const pages = ['Streamers', 'Games', 'About'];
 
 const NavBar: React.FC = () => {
 
-    const [searchVal, setSearchVal] = useState<string>("")
+    const [searchVal, setSearchVal] = useState<string>("");
+    const [open, setOpen] = useState<boolean>(false);
+
     const navigate = useNavigate();
+
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         // Prevents page reloading
         e.preventDefault();
-        // If nothing is typed into search, do nothing
-        if (searchVal === "") return;
-        navigate(`/search?query=${searchVal}`);
+        // If less than 3 characters (non whitespace) are typed into search, do nothing
+        if (searchVal.replace(/\s/g, '').length < 3) {
+            // If open state is false, set to true to display error message
+            if (open === false) {
+                setOpen(true);
+                setTimeout(function () {
+                    setOpen(false);
+                }, 2000);
+            };
+            return;
+        };
+        navigate(`/search?query=${searchVal.trim()}`);
         // If something has been typed into search, clear the field and send to the appropriate page
         setSearchVal("");
         console.log("SEARCH IS: " + searchVal)
@@ -132,19 +145,27 @@ const NavBar: React.FC = () => {
                         ))}
                     </Box>
 
-                    <Search >
-                        <SearchIconWrapper>
-                            <SearchIcon />
-                        </SearchIconWrapper>
-                        <form onSubmit={onSubmit}>
-                            <StyledInputBase
-                                placeholder="Search…"
-                                inputProps={{ 'aria-label': 'search' }}
-                                onChange={handleChange}
-                                value={searchVal}
-                            />
-                        </form>
-                    </Search>
+                    <Tooltip open={open} placement="bottom"
+                        title={
+                            <h1 style={{ width: '100%', fontSize: '1.2rem' }}>
+                                Minimum 3 characters required
+                            </h1>
+                        }
+                    >
+                        <Search >
+                            <SearchIconWrapper>
+                                <SearchIcon />
+                            </SearchIconWrapper>
+                            <form onSubmit={onSubmit}>
+                                <StyledInputBase
+                                    placeholder="Search…"
+                                    inputProps={{ 'aria-label': 'search' }}
+                                    onChange={handleChange}
+                                    value={searchVal}
+                                />
+                            </form>
+                        </Search>
+                    </Tooltip>
 
                     <IconButton sx={{ display: { xs: 'inline-flex', sm: 'none' } }}
                         size="large"
