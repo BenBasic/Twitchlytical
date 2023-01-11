@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -12,6 +12,8 @@ import AppLogo from '../assets/Twitchlytical-Logo-40x40.webp';
 import Divider from '@mui/material/Divider';
 import SearchIcon from '@mui/icons-material/Search';
 import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
 import Tooltip from '@mui/material/Tooltip';
 // Importing colors from Material UI
@@ -81,6 +83,8 @@ const NavBar: React.FC = () => {
 
     const [searchVal, setSearchVal] = useState<string>("");
     const [open, setOpen] = useState<boolean>(false);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const menuOpen = Boolean(anchorEl);
 
     const navigate = useNavigate();
 
@@ -94,7 +98,7 @@ const NavBar: React.FC = () => {
                 setOpen(true);
                 setTimeout(function () {
                     setOpen(false);
-                }, 2000);
+                }, 1200);
             };
             return;
         };
@@ -111,9 +115,17 @@ const NavBar: React.FC = () => {
         console.log("SEARCH IS: " + searchVal)
     };
 
+    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleCloseNavMenu = () => {
+        setAnchorEl(null);
+    };
+
     return (
-        <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static" sx={{ backgroundColor: indigo[900] }}>
+        <Box sx={{ display: 'flex', flexGrow: 1, justifyContent: 'center', backgroundColor: indigo[900] }}>
+            <AppBar elevation={0} position="static" sx={{ backgroundColor: indigo[900], maxWidth: '1000px' }}>
                 <Toolbar>
                     <LogoButton variant="contained" startIcon={<Avatar src={AppLogo} variant="square" alt='Homepage Logo' />} disableElevation
                         href="/"
@@ -146,6 +158,7 @@ const NavBar: React.FC = () => {
                     </Box>
 
                     <Tooltip open={open} placement="bottom"
+                        disableFocusListener disableTouchListener disableHoverListener
                         title={
                             <h1 style={{ width: '100%', fontSize: '1.2rem' }}>
                                 Minimum 3 characters required
@@ -172,11 +185,38 @@ const NavBar: React.FC = () => {
                         aria-label="account of current user"
                         aria-controls="menu-appbar"
                         aria-haspopup="true"
-                        //onClick={handleOpenNavMenu}
+                        onClick={handleOpenNavMenu}
                         color="inherit"
                     >
                         <MenuIcon />
                     </IconButton>
+
+                    <Menu
+                        id="demo-positioned-menu"
+                        aria-labelledby="demo-positioned-button"
+                        anchorEl={anchorEl}
+                        open={menuOpen}
+                        onClose={handleCloseNavMenu}
+                        disableScrollLock={true}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                    >
+                        {pages.map((page, index) => (
+                            <MenuItem
+                                key={page + index}
+                                component={Link}
+                                to={`/browse/${page}/`}
+                            >
+                                {page}
+                            </MenuItem>
+                        ))}
+                    </Menu>
 
                 </Toolbar>
             </AppBar>
