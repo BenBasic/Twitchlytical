@@ -65,51 +65,37 @@ function App() {
   return (
 
     <ApolloProvider client={client}>
+      <NavBar />
       <Suspense fallback={<h1>Loading!</h1>}>
         <Routes>
           <Route
             path="/"
             element={
-              <>
-                <NavBar />
-                <HomePage />
-              </>
+              <HomePage />
             }
           />
           <Route
             path="profile/:profileId"
             element={
-              <>
-                <NavBar />
-                <ProfilePage />
-              </>
+              <ProfilePage />
             }
           />
           <Route
             path="game/:gameId"
             element={
-              <>
-                <NavBar />
-                <GamePage />
-              </>
+              <GamePage />
             }
           />
           <Route
             path="/search/*"
             element={
-              <>
-                <NavBar />
-                <SearchPage />
-              </>
+              <SearchPage />
             }
           />
           <Route
             path="/browse/:type"
             element={
-              <>
-                <NavBar />
-                <BrowsePage />
-              </>
+              <BrowsePage />
             }
           />
         </Routes>

@@ -63,14 +63,13 @@ const BrowsePage: React.FC = () => {
     // The amount of results shown on each of the 2 columns (ex: 10 will show 20 results on a page)
     const resPerPage: number = 10;
 
-    console.log("Query is")
-    console.log(query)
-    console.log("currentPage is")
-    console.log(currentPage)
-
     const [list, setList] = useState<any[]>([]);
     // States track if there is data grabbed for broadcasters and games, used to prevent errors related to loading
     const [isData, setIsData] = useState<boolean>(false);
+
+    // States track previous and current route page history, used to prevent route related content display errors
+    const [prevPath, setPrevPath] = useState<string>("");
+    const [currPath, setCurrPath] = useState<string>(location.search);
 
     let typeFilter: DocumentNode | undefined = undefined
     let nestedData: string | undefined = undefined
@@ -85,6 +84,8 @@ const BrowsePage: React.FC = () => {
         nestedData = "sortGameViews";
     };
 
+
+
     // Helpers to display data from arrays based on their current page
     const lastIndex = (page: number, resAmount: number) => page * resAmount;
     const firstIndex = (lastIndex: number, resAmount: number) => lastIndex - resAmount;
@@ -95,13 +96,14 @@ const BrowsePage: React.FC = () => {
     if (currentPage !== 1) {
         reloadFixMult = 2;
         reloadFixSub = 1;
-    }
+    };
 
     // States used for the first and last indexes of the currently displaying list
     const [leftLastIndex, setLeftLastIndex] = useState(lastIndex(((currentPage % 10 || 10) * reloadFixMult) - reloadFixSub, resPerPage));
     const [leftFirstIndex, setLeftFirstIndex] = useState(firstIndex(leftLastIndex, resPerPage));
     const [rightLastIndex, setRightLastIndex] = useState(lastIndex((((currentPage % 10 || 10) * reloadFixMult) + 1) - reloadFixSub, resPerPage));
     const [rightFirstIndex, setRightFirstIndex] = useState(firstIndex(rightLastIndex, resPerPage));
+
 
 
     // Grabs the data from the database for the list of games or streamers based on their view_count value
@@ -115,15 +117,49 @@ const BrowsePage: React.FC = () => {
         return (range - 1) * fetchNum;
     };
 
+
+
+    // Assigns previous and current page states when '?page=' changes in the route path (needed for routing error prevention)
+    useEffect(() => {
+        if (prevPath !== location.search) {
+            console.log("prevPath triggered")
+            setPrevPath(currPath);
+            setCurrPath(location.search);
+        }
+    }, [location]);
+
+    // Handles data fetching if visiting a page with no data
     useEffect(() => {
         // If there is no data, and list state has not been set, fetch data
         if (!isData && list?.length === 0) {
             filterBroadcaster({ variables: { skip: skipVal(200, currentPage, resPerPage) } })
-            console.log("inside FILTER useEffect")
-        }
+        };
+    }, [filterBroadcaster, type, list]);
 
-    }, [filterBroadcaster]);
 
+
+    // Handles page switching between Streamers and Games browsing pages, prevents incorrect lists from displaying
+    if (list?.length > 0) {
+
+        // If user switches between Games and Streamers browsing pages, reset states to default
+        if (checkListType("Broadcaster", "Games") === true) pageSwitch();
+        if (checkListType("Game", "Streamers") === true) pageSwitch();
+
+        // If on a refetch page (1, 11, 21, etc) and the left and right list indexes arent at the correct values, reset states to default
+        if (currentPage % 10 === 1 && checkValues(currentPage, leftFirstIndex, rightFirstIndex) === false) pageSwitch();
+        
+        /*
+            List will reset to the beginning results if user selects the same page again on the NavBar menu
+            More specifically, if the user does the above action, this will prevent the list from not changing if on a refetch page (11, 21, 31, etc)
+        */
+        if (currPath === '' && prevPath.length > 0) {
+            setPrevPath("");
+            pageSwitch();
+        };
+    };
+
+
+    
     // If the data is still loading, or there is an error, display the appropriate page
     if (listLoading === true) return <h1>Loading Oh Yeah</h1>
     if (listError) return <h1>Woops! An error occured</h1>
@@ -135,8 +171,7 @@ const BrowsePage: React.FC = () => {
         if (list?.length === 0) setList(listData?.[nestedData!]);
     };
 
-    console.log("Browse Final Data State")
-    console.log(list);
+
 
     // Sets appropriate indexes to display the current data based on the current page
     let leftList = list.slice(leftFirstIndex, leftLastIndex);
@@ -186,8 +221,8 @@ const BrowsePage: React.FC = () => {
             navigate(`/browse/${type}/?page=${currentPage + 1}`);
             // Resets indexes to the next page's value
             resetNextIndexes();
-        }
-    }
+        };
+    };
 
     // Resets the indexes to default values when new set of data is fetched (ex: first index goes from 180 to 0)
     function resetNextIndexes() {
@@ -202,6 +237,41 @@ const BrowsePage: React.FC = () => {
         setLeftFirstIndex(list.length - (resPerPage * 2));
         setRightLastIndex(list.length);
         setRightFirstIndex(list.length - resPerPage);
+    };
+    // Resets the indexes to page 1 values if user navigates between games and streamers browsing pages
+    function resetTypeIndexes() {
+        setLeftLastIndex(lastIndex(1, resPerPage));
+        setLeftFirstIndex(firstIndex((1 * resPerPage), resPerPage));
+        setRightLastIndex(lastIndex((1 + 1), resPerPage));
+        setRightFirstIndex(firstIndex(((1 + 1) * resPerPage), resPerPage));
+    };
+    // Page switching logic, resets states to default and fetches first page's data from the database
+    function pageSwitch() {
+        console.log("pageSwitch skipVal is " + skipVal(200, currentPage, resPerPage))
+        setList([]);
+        setIsData(false);
+        resetTypeIndexes();
+        filterBroadcaster({ variables: { skip: skipVal(200, currentPage, resPerPage) } })
+    };
+
+    /* 
+        Checks if the current list contains data for the same page type the user is trying to load
+        This is used for checking if the user has switched pages using the NavBar while on the browse page
+    */
+    function checkListType(refType: "Broadcaster" | "Game", desiredType: "Streamers" | "Games") {
+        return list[0]?.__typename === refType && type === desiredType;
+    }
+
+    /*  
+        Checks if the left and right list indexes are the correct value in relation to the current page
+        Follows this pattern || 
+        page: 1, leftI: 0, rightI: 10 // page: 2, leftI: 20, rightI: 30 // page: 11, leftI: 0, rightI: 10
+    */
+    function checkValues(currPage: number, leftFirstIndex: number, rightFirstIndex: number): boolean {
+        const modCurrPage = currPage % 10 || 10;
+        const expectedLeftFirstIndex = (modCurrPage - 1) * 20;
+        const expectedRightFirstIndex = expectedLeftFirstIndex + 10;
+        return leftFirstIndex === expectedLeftFirstIndex && rightFirstIndex === expectedRightFirstIndex;
     };
 
     console.log("BOTTOM OF COMPONENT")
@@ -254,6 +324,7 @@ const BrowsePage: React.FC = () => {
 
                 <Stack direction="row" spacing={2} style={styles.pageNums}>
                     <Button variant="contained" startIcon={<NavigateBeforeIcon />}
+                        disabled={currentPage === 1}
                         onClick={prevHandler}
                     >
                         Back

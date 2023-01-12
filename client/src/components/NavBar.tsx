@@ -123,6 +123,9 @@ const NavBar: React.FC = () => {
         setAnchorEl(null);
     };
 
+    console.log("anchorElement is")
+    console.log(anchorEl)
+
     return (
         <Box sx={{ display: 'flex', flexGrow: 1, justifyContent: 'center', backgroundColor: indigo[900] }}>
             <AppBar elevation={0} position="static" sx={{ backgroundColor: indigo[900], maxWidth: '1000px' }}>
@@ -209,7 +212,7 @@ const NavBar: React.FC = () => {
                     >
                         {pages.map((page, index) => (
                             <MenuItem
-                                key={page + index}
+                                key={page}
                                 component={Link}
                                 to={`/browse/${page}/`}
                             >
