@@ -55,23 +55,6 @@ const HomePage: React.FC = () => {
 
     const [canMountTopData, setCanMountTopData] = useState<boolean>(false);
 
-    console.log("------------------------------------")
-    console.log("")
-    console.log("loading state is")
-    console.log(loadingState)
-    console.log("canMount is")
-    console.log(canMount)
-    console.log("topDataLoadingState is")
-    console.log(topDataLoadingState)
-    console.log("canMountTopData is")
-    console.log(canMountTopData)
-    console.log("totalObject is")
-    console.log(totalObject)
-    console.log("topGameData is")
-    console.log(topGameData)
-    console.log("")
-    console.log("------------------------------------")
-
 
     // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
     if (loading === false && loadingStream === false && loadingUser === false && loadingClips === false &&
