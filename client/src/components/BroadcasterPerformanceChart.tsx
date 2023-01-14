@@ -75,7 +75,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
     // Values and sizing referenced for the x axis
     let x = scaleBand()
-        .domain((dataState === undefined ? "" : dataState.map(d => `${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' })}`)))
+        .domain((dataState === undefined ? "" : dataState.map(d => `${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}`)))
         .range([0, dimensions.width! - (dimensions.width! / 15) * 2])
         .paddingInner(1)
         .paddingOuter(.1)
@@ -92,7 +92,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     // Placement settings for starting position of chart appearing animation
     const startAreaRef: any = area()
         .x((d: any) => {
-            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' }))
+            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }))
             if (xValue) {
                 return xValue
             } else {
@@ -105,7 +105,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     // Placement settings for dataset 1 (final position, after animation)
     const areaRef: any = area()
         .x((d: any) => {
-            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' }))
+            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }))
             if (xValue) {
                 return xValue
             } else {
@@ -118,7 +118,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     // Placement settings for dataset 2 (final position, after animation)
     const channelAreaRef: any = area()
         .x((d: any) => {
-            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' }))
+            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }))
             if (xValue) {
                 return xValue
             } else {
@@ -268,7 +268,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
                 // Bar Chart
                 bar.append("rect")
-                    .attr('x', (d) => x(`${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' })}`)!)
+                    .attr('x', (d) => x(`${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}`)!)
                     .attr('y', (d) => resizeCheckState > 0 ? barHeightCalc(d) : dimensions.height! - (dimensions.height! / 8 * 1.2))
                     .attr("height", (d) => resizeCheckState > 0 ? dimensions.height! - (dimensions.height! / 8 * 1.2) - barHeightCalc(d) : 0)
                     .attr("width", Math.round(dimensions.width! / 55 / 3 + (dimensions.width! / 55)))
@@ -312,7 +312,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                     .classed("tipArea", true)
                     .attr("width", dimensions.width! / 25)
                     .attr("height", '86%')
-                    .attr("x", function (d) { return x(`${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' })}`)!; })
+                    .attr("x", function (d) { return x(`${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}`)!; })
                     .attr("y", 0)
                     .attr('transform', `translate(${dimensions.width! / 21.3}, 0)`)
                     .on("mouseover", function (event, d) {

@@ -18,7 +18,7 @@ const styles = {
         backgroundColor: indigo[200],
         borderRadius: '.5rem .5rem .5rem .5rem',
         paddingBottom: '2rem',
-        marginTop: '2rem',
+        marginTop: '3rem',
     },
     mainTitle: {
         display: 'inline-block',

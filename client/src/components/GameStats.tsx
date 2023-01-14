@@ -160,7 +160,7 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                                     :
                                     <BroadcasterPerformanceChart
                                         profileData={[{ peak: 1, avg: 1, date: now, duration: 'null', title: 'test' }]}
-                                        gameData={chartData}
+                                        gameData={chartData.length <= 7 ? chartData : chartData.slice(chartData.length - 7, chartData.length)}
                                         type={'view'}
                                     />
                             }

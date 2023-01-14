@@ -175,7 +175,7 @@ const ProfileStats: React.FC<BroadcasterStatProps> = (props) => {
                                     </>
                                     :
                                     <BroadcasterPerformanceChart
-                                        profileData={dataList}
+                                        profileData={dataList.length <= 7 ? dataList : dataList.slice(dataList.length - 7, dataList.length)}
                                         type={'view'}
                                     />
                             }

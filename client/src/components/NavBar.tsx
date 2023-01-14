@@ -151,7 +151,8 @@ const NavBar: React.FC = () => {
                         {pages.map((page) => (
                             <LogoButton
                                 key={page}
-                                href={`/browse/${page}/`}
+                                component={Link}
+                                to={`/browse/${page}/`}
                                 sx={{ my: 2, color: 'white', display: 'block' }}
                                 style={styles.appTitle}
                             >
