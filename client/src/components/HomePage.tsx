@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import TopStats from './TopStats';
 import Header from './Header';
 import HomeCharts from './HomeCharts';

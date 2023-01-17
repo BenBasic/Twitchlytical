@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Loading from './Loading';
 import Pagination from '@mui/material/Pagination';
 import PaginationItem from '@mui/material/PaginationItem';
 import { PageProps } from './TypesAndInterfaces';
@@ -36,13 +37,13 @@ const styles = {
         fontWeight: 700,
     },
     pageNums: {
-        justifyContent:"center",
-        display:'flex',
+        justifyContent: "center",
+        display: 'flex',
         marginTop: '1rem',
     }
 };
 
-const PaginationHandler: React.FC<PageProps> = ({ arrayCaster, arrayGame, queryHook, querySearch, perPageAmount, cast, game }) => {
+const PaginationHandler: React.FC<PageProps> = ({ arrayCaster, arrayGame, queryHook, querySearch, perPageAmount, cast, game, isLoading }) => {
 
     // Helper creates amount of pages for passed in array based on how many results display per page
     // Math.ceil fits the remainder of the list on a new page if there are less than resAmount (set to 10)
@@ -116,34 +117,37 @@ const PaginationHandler: React.FC<PageProps> = ({ arrayCaster, arrayGame, queryH
                             </Typography>
                         </Grid>
 
-                        {currentGameList === undefined ?
-                            <h1>Games are undefined</h1> :
-                            <>
+                        {isLoading === true ?
+                            <Loading /> :
+                            currentGameList === undefined ?
+                                <Typography variant={'h4'} sx={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700' }} textAlign='center'>
+                                    No games found
+                                </Typography> :
+                                <>
 
-                                {currentGameList.map((game: any, index: number) => (
-                                    // <li key={game.name + index}>{game.name}</li>
-                                    <SearchCard
-                                        key={game.name + index}
-                                        type={"game"}
-                                        name={game.name}
-                                        id={game._id}
-                                    />
-                                ))}
-
-                                <Pagination
-                                    style={styles.pageNums}
-                                    color='primary'
-                                    page={gamePage}
-                                    count={gamePageCount}
-                                    renderItem={(item) => (
-                                        <PaginationItem
-                                            component={Link}
-                                            to={`/search?query=${querySearch}${item.page === 1 ? '' : `&${game}=${item.page}`}${castPage === 1 ? '' : `&${cast}=${castPage}`}`}
-                                            {...item}
+                                    {currentGameList.map((game: any, index: number) => (
+                                        <SearchCard
+                                            key={game.name + index}
+                                            type={"game"}
+                                            name={game.name}
+                                            id={game._id}
                                         />
-                                    )}
-                                />
-                            </>
+                                    ))}
+
+                                    <Pagination
+                                        style={styles.pageNums}
+                                        color='primary'
+                                        page={gamePage}
+                                        count={gamePageCount}
+                                        renderItem={(item) => (
+                                            <PaginationItem
+                                                component={Link}
+                                                to={`/search?query=${querySearch}${item.page === 1 ? '' : `&${game}=${item.page}`}${castPage === 1 ? '' : `&${cast}=${castPage}`}`}
+                                                {...item}
+                                            />
+                                        )}
+                                    />
+                                </>
                         }
                     </Grid>
 
@@ -157,32 +161,35 @@ const PaginationHandler: React.FC<PageProps> = ({ arrayCaster, arrayGame, queryH
                             </Typography>
                         </Grid>
 
-                        {currentBroadcasterList === undefined ?
-                            <h1>Streamers are undefined</h1> :
-                            <>
-                                {currentBroadcasterList.map((streamer: any, index: number) => (
-                                    // <li key={streamer.name + index}>{streamer.name}</li>
-                                    <SearchCard
-                                        key={streamer.name + index}
-                                        type={"broadcaster"}
-                                        name={streamer.name}
-                                        imgUrl={streamer.profile_image_url}
-                                    />
-                                ))}
-                                <Pagination
-                                    style={styles.pageNums}
-                                    color='primary'
-                                    page={castPage}
-                                    count={castPageCount}
-                                    renderItem={(item) => (
-                                        <PaginationItem
-                                            component={Link}
-                                            to={`/search?query=${querySearch}${gamePage === 1 ? '' : `&${game}=${gamePage}`}${item.page === 1 ? '' : `&${cast}=${item.page}`}`}
-                                            {...item}
+                        {isLoading === true ?
+                            <Loading /> :
+                            currentBroadcasterList === undefined ?
+                                <Typography variant={'h4'} sx={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700' }} textAlign='center'>
+                                    No streamers found
+                                </Typography> :
+                                <>
+                                    {currentBroadcasterList.map((streamer: any, index: number) => (
+                                        <SearchCard
+                                            key={streamer.name + index}
+                                            type={"broadcaster"}
+                                            name={streamer.name}
+                                            imgUrl={streamer.profile_image_url}
                                         />
-                                    )}
-                                />
-                            </>
+                                    ))}
+                                    <Pagination
+                                        style={styles.pageNums}
+                                        color='primary'
+                                        page={castPage}
+                                        count={castPageCount}
+                                        renderItem={(item) => (
+                                            <PaginationItem
+                                                component={Link}
+                                                to={`/search?query=${querySearch}${gamePage === 1 ? '' : `&${game}=${gamePage}`}${item.page === 1 ? '' : `&${cast}=${item.page}`}`}
+                                                {...item}
+                                            />
+                                        )}
+                                    />
+                                </>
                         }
                     </Grid>
 

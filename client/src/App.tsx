@@ -1,15 +1,6 @@
 import React, { lazy, Suspense } from 'react';
-// import logo from './logo.svg';
-// import TopStats from './components/TopStats';
+import Loading from './components/Loading';
 import NavBar from './components/NavBar';
-// import Header from './components/Header';
-// import HomeCharts from './components/HomeCharts';
-// import TopClips from './components/TopClips';
-// import HomePies from './components/HomePies';
-
-// import HomePage from './components/HomePage';
-// import ProfilePage from './components/ProfilePage';
-// import GamePage from './components/GamePage';
 import {
   ApolloClient,
   InMemoryCache,
@@ -66,7 +57,7 @@ function App() {
 
     <ApolloProvider client={client}>
       <NavBar />
-      <Suspense fallback={<h1>Loading!</h1>}>
+      <Suspense fallback={<Loading />}>
         <Routes>
           <Route
             path="/"

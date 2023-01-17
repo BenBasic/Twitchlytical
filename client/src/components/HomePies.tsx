@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
@@ -82,7 +82,7 @@ const HomePies: React.FC<PieContainerProps> = (props) => {
                             </Grid>
                         </> :
                         <Typography variant={'h4'}>
-                            Loading...
+                            Loading Charts...
                         </Typography>
                     }
                 </Grid>

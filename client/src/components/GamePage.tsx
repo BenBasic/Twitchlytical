@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import Loading from './Loading';
 import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography'
+import Typography from '@mui/material/Typography';
 import GameProfile from './GameProfile';
 import GameStats from './GameStats';
 import ProfileClips from './ProfileClips';
@@ -137,15 +138,7 @@ const GamePage: React.FC = () => {
                         game={true}
                     />
                 </> :
-                <Grid container alignItems="center" justifyContent="center">
-                    <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>
-                        <Grid item xs={12}>
-                            <Typography variant={'h4'}>
-                                Loading Stats...
-                            </Typography>
-                        </Grid>
-                    </Grid>
-                </Grid>
+                <Loading />
             }
 
         </>

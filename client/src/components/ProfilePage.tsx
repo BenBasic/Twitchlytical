@@ -1,12 +1,13 @@
-import React, { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import Loading from './Loading';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
-import Profile from './Profile'
-import ProfileStats from './ProfileStats'
+import Profile from './Profile';
+import ProfileStats from './ProfileStats';
 import ProfileClips from './ProfileClips';
-import { timeSince } from '../utils/helpers'
-import { ProfileHeaderData } from './TypesAndInterfaces'
+import { timeSince } from '../utils/helpers';
+import { ProfileHeaderData } from './TypesAndInterfaces';
 
 import { useQuery } from "@apollo/client";
 import { GET_BROADCASTER_PERFORMANCE_NAME } from "../utils/queries";
@@ -84,9 +85,7 @@ const ProfilePage: React.FC = () => {
                 <Grid container alignItems="center" justifyContent="center">
                     <Grid container maxWidth="md" alignItems="center" justifyContent="center" textAlign='center'>
                         <Grid item xs={12}>
-                            <Typography variant={'h4'}>
-                                Loading Stats...
-                            </Typography>
+                            <Loading />
                         </Grid>
                     </Grid>
                 </Grid>

@@ -20,6 +20,9 @@ const SearchPage: React.FC = () => {
     const [isCasterData, setIsCasterData] = useState<boolean>(false);
     const [isGameData, setIsGameData] = useState<boolean>(false);
 
+    // State tracks if loading was attempted during current search, used to prevent "no x here" message displaying when loading isnt finished
+    const [didLoad, setDidLoad] = useState<boolean>(false);
+
     // Page types used for url pagination
     const castPage = 'castpage';
     const gamePage = 'gamepage';
@@ -88,14 +91,17 @@ const SearchPage: React.FC = () => {
         setIsCasterData(false);
         setIsGameData(false);
         setPrevSearch(searchQuery);
+        setDidLoad(false);
     };
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^//
 
     // If there is no query, return error screen
-    if (!searchQuery) return <h1>Nothing was searched!!!</h1>
-    // If the data is still loading, or there is an error, display the appropriate page
-    if (casterLoading === true || gameLoading === true) return <h1>Loading Oh Yeah</h1>
+    if (!searchQuery) return <h1>Nothing was searched. Please search a term with 3 or more characters.</h1>
+
+    // Lets the component know that data has been loaded (this prevents displaying "no x here" before loading has finished in PaginationHandler)
+    if ((casterLoading === true || gameLoading === true) && didLoad === false) setDidLoad(true);
+
     if (casterError || gameError) return <h1>Woops! An error occured</h1>
     // If there is data available for broadcasters or games, set their isData states to true
     if (isCasterData === false && casterData && casterData?.getBroadcasterName?.length > 0) setIsCasterData(true);
@@ -134,6 +140,9 @@ const SearchPage: React.FC = () => {
         return arrCopy;
     };
 
+    // If user is searching for previously searched term when currently on a page with no results, this prevents and infinite loading state
+    if (didLoad === false && casterLoading === false && gameLoading === false && casterData?.getBroadcasterName !== undefined && gameData?.getGameSearch !== undefined) setDidLoad(true);
+
     console.log("End of SearchPage");
 
     return (
@@ -149,6 +158,7 @@ const SearchPage: React.FC = () => {
                         perPageAmount={resultsPerPage}
                         cast={castPage}
                         game={gamePage}
+                        isLoading={didLoad === true && casterLoading === false && gameLoading === false ? false : true}
                     />} />
             </Routes>
         </>

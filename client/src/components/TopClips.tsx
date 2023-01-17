@@ -1,7 +1,7 @@
 import React, { useState, lazy, Suspense } from 'react';
+import Loading from './Loading';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-//import ClipCard from './ClipCard';
 import { indigo } from '@mui/material/colors';
 
 import { ClipCollectionProps } from './TypesAndInterfaces';
@@ -56,7 +56,7 @@ const TopClips: React.FC<ClipCollectionProps> = (props) => {
                     {props.loading === false && isInView === true ?
                         props.data.map((clip: any, index: any) => (
                             <Grid item xs={index === 0 ? 10 : 4} sm={2.4} py={2} px={1} key={index}>
-                                <Suspense fallback={<h1>Loading!</h1>}>
+                                <Suspense fallback={<Loading />}>
                                     <ClipCard
                                         key={index}
                                         title={clip.title}
@@ -72,9 +72,7 @@ const TopClips: React.FC<ClipCollectionProps> = (props) => {
 
                         )) :
                         <Grid item xs={12}>
-                            <Typography variant={'h4'} textAlign='center'>
-                                Loading Clips...
-                            </Typography>
+                            <Loading />
                         </Grid>
                     }
                 </Grid>

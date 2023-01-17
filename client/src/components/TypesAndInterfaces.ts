@@ -232,6 +232,7 @@ export interface PageProps {
     perPageAmount: number;
     cast: string;
     game: string;
+    isLoading: boolean;
 };
 
 export interface SearchCardProps {

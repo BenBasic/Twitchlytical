@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import Loading from './Loading';
 import SearchHeader from './SearchHeader';
 import { useLazyQuery } from '@apollo/client';
 import { DocumentNode } from 'graphql';
@@ -161,7 +162,7 @@ const BrowsePage: React.FC = () => {
 
     
     // If the data is still loading, or there is an error, display the appropriate page
-    if (listLoading === true) return <h1>Loading Oh Yeah</h1>
+    if (listLoading === true) return <Loading />
     if (listError) return <h1>Woops! An error occured</h1>
     // If there is data available to populate the list, let program know to set appropriate states and stop fetching data
     if (isData === false && listData && listData?.[nestedData!]?.length > 0) setIsData(true);
