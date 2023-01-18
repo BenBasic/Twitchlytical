@@ -330,7 +330,6 @@ const BrowsePage: React.FC = () => {
                     >
                         Back
                     </Button>
-                    <Button variant="contained" disabled>Disabled</Button>
                     <Button variant="contained" endIcon={<NavigateNextIcon />}
                         onClick={nextHandler}
                     >

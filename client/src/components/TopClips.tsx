@@ -30,9 +30,6 @@ const styles = {
 const TopClips: React.FC<ClipCollectionProps> = (props) => {
 
     const [isInView, setIsInView] = useState<boolean>(false);
-    console.log("isInView: " + isInView)
-
-    // `${isInView}`
 
     return (
 

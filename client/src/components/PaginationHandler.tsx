@@ -136,6 +136,8 @@ const PaginationHandler: React.FC<PageProps> = ({ arrayCaster, arrayGame, queryH
 
                                     <Pagination
                                         style={styles.pageNums}
+                                        size='small'
+                                        siblingCount={0}
                                         color='primary'
                                         page={gamePage}
                                         count={gamePageCount}
@@ -178,6 +180,8 @@ const PaginationHandler: React.FC<PageProps> = ({ arrayCaster, arrayGame, queryH
                                     ))}
                                     <Pagination
                                         style={styles.pageNums}
+                                        size='small'
+                                        siblingCount={0}
                                         color='primary'
                                         page={castPage}
                                         count={castPageCount}

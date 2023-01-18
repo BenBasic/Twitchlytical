@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import Loading from './components/Loading';
 import NavBar from './components/NavBar';
+import Footer from './components/Footer';
 import {
   ApolloClient,
   InMemoryCache,
@@ -91,6 +92,7 @@ function App() {
           />
         </Routes>
       </Suspense>
+      <Footer />
     </ApolloProvider>
 
   );

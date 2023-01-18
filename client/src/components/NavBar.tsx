@@ -152,7 +152,7 @@ const NavBar: React.FC = () => {
                             <LogoButton
                                 key={page}
                                 component={Link}
-                                to={`/browse/${page}/`}
+                                to={page === "About" ? `/${page}/` : `/browse/${page}/`}
                                 sx={{ my: 2, color: 'white', display: 'block' }}
                                 style={styles.appTitle}
                             >
@@ -215,7 +215,7 @@ const NavBar: React.FC = () => {
                             <MenuItem
                                 key={page}
                                 component={Link}
-                                to={`/browse/${page}/`}
+                                to={page === "About" ? `/${page}/` : `/browse/${page}/`}
                             >
                                 {page}
                             </MenuItem>
