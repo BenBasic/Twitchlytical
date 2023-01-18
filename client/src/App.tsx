@@ -51,6 +51,8 @@ const SearchPage = lazy(() => import('./components/SearchPage'));
 
 const BrowsePage = lazy(() => import('./components/BrowsePage'));
 
+const AboutPage = lazy(() => import('./components/AboutPage'));
+
 console.log("MAIN APP HAS RELOADED")
 
 function App() {
@@ -88,6 +90,12 @@ function App() {
             path="/browse/:type"
             element={
               <BrowsePage />
+            }
+          />
+          <Route
+            path="/about/"
+            element={
+              <AboutPage />
             }
           />
         </Routes>

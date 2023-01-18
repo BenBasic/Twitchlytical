@@ -164,3 +164,27 @@ div.tooltip {
 .hiddenElem {
   display: none;
 }
+
+.aboutUrl {
+  font-weight: 700;
+}
+
+.aboutUrl:link {
+  color: #303f9f;
+  text-decoration: none;
+}
+
+.aboutUrl:visited {
+  color: #17085b;
+  text-decoration: none;
+}
+
+.aboutUrl:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.aboutUrl:active {
+  color: blue;
+  text-decoration: underline;
+}

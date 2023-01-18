@@ -43,7 +43,8 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({ header, search }) => {
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textAlign: "left",
-                                display: "block"
+                                display: "block",
+                                fontSize: {xs: '1.8rem', sm: '3rem'},
                             }}
                         >
                             {search ? search : "Nothing"}

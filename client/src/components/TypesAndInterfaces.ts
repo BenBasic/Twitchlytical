@@ -243,6 +243,6 @@ export interface SearchCardProps {
 };
 
 export interface SearchHeaderProps {
-    header: "Browsing"|"Searching for";
+    header: "Browsing"|"Searching for"|"About";
     search: string|undefined;
 };
