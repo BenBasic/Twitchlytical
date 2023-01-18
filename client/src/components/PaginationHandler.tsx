@@ -120,7 +120,7 @@ const PaginationHandler: React.FC<PageProps> = ({ arrayCaster, arrayGame, queryH
                         {isLoading === true ?
                             <Loading /> :
                             currentGameList === undefined ?
-                                <Typography variant={'h4'} sx={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700' }} textAlign='center'>
+                                <Typography variant={'h4'} sx={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700', fontSize: {xs: '1.3rem', sm: '2.125rem'} }} textAlign='center'>
                                     No games found
                                 </Typography> :
                                 <>
@@ -166,7 +166,7 @@ const PaginationHandler: React.FC<PageProps> = ({ arrayCaster, arrayGame, queryH
                         {isLoading === true ?
                             <Loading /> :
                             currentBroadcasterList === undefined ?
-                                <Typography variant={'h4'} sx={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700' }} textAlign='center'>
+                                <Typography variant={'h4'} sx={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700', fontSize: {xs: '1.3rem', sm: '2.125rem'} }} textAlign='center'>
                                     No streamers found
                                 </Typography> :
                                 <>

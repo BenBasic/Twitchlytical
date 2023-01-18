@@ -4,6 +4,11 @@
   --fontWeightBold: 700;
 }
 
+#root {
+  min-height: 100vh;
+  position: relative;
+}
+
 body {
   margin: 0;
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -187,4 +192,8 @@ div.tooltip {
 .aboutUrl:active {
   color: blue;
   text-decoration: underline;
+}
+
+.footerHelper {
+  padding-bottom: 15rem;
 }

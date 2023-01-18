@@ -100,6 +100,7 @@ function App() {
           />
         </Routes>
       </Suspense>
+      <div className='footerHelper'></div>
       <Footer />
     </ApolloProvider>
 
