@@ -151,16 +151,16 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                                 chartData?.length < 2 ?
                                     <>
                                         <Typography className='areaChart' variant={'h4'} textAlign='center'>
-                                            User Streams Unavailable
+                                            Game Performance Unavailable
                                         </Typography>
                                         <Typography className='areaChart' variant={'subtitle2'} textAlign='center'>
-                                            This is caused by the user having VODs disabled, or user hasn't streamed at least twice recently
+                                            This is caused by a lack of collected Game data
                                         </Typography>
                                     </>
                                     :
                                     <BroadcasterPerformanceChart
                                         profileData={[{ peak: 1, avg: 1, date: now, duration: 'null', title: 'test' }]}
-                                        gameData={chartData}
+                                        gameData={chartData.length <= 7 ? chartData : chartData.slice(chartData.length - 7, chartData.length)}
                                         type={'view'}
                                     />
                             }
@@ -192,7 +192,7 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                                         Day Breakdown Unavailable
                                     </Typography>
                                     <Typography className='areaChart' variant={'subtitle2'} textAlign='center'>
-                                        This is caused by the user having VODs disabled, or user hasn't streamed at least twice recently
+                                        This is caused by a lack of collected Game data
                                     </Typography>
                                 </>
                                 :
@@ -220,10 +220,10 @@ const GameStats: React.FC<GameStatProps> = (props) => {
                             topGames?.length < 2 ?
                                 <>
                                     <Typography className='areaChart' variant={'h4'} textAlign='center'>
-                                        Day Breakdown Unavailable
+                                        View Breakdown Unavailable
                                     </Typography>
                                     <Typography className='areaChart' variant={'subtitle2'} textAlign='center'>
-                                        This is caused by the user having VODs disabled, or user hasn't streamed at least twice recently
+                                        This is caused by a lack of collected Game data
                                     </Typography>
                                 </>
                                 :

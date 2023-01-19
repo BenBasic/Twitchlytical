@@ -4,6 +4,11 @@
   --fontWeightBold: 700;
 }
 
+#root {
+  min-height: 100vh;
+  position: relative;
+}
+
 body {
   margin: 0;
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -163,4 +168,32 @@ div.tooltip {
 
 .hiddenElem {
   display: none;
+}
+
+.aboutUrl {
+  font-weight: 700;
+}
+
+.aboutUrl:link {
+  color: #303f9f;
+  text-decoration: none;
+}
+
+.aboutUrl:visited {
+  color: #17085b;
+  text-decoration: none;
+}
+
+.aboutUrl:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.aboutUrl:active {
+  color: blue;
+  text-decoration: underline;
+}
+
+.footerHelper {
+  padding-bottom: 15rem;
 }

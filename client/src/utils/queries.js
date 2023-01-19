@@ -186,3 +186,39 @@ query Query($id: String) {
   }
 }
 `;
+
+export const SEARCH_BROADCASTER = gql`
+query GetBroadcasterName($name: [String]) {
+  getBroadcasterName(name: $name) {
+    name
+    profile_image_url
+  }
+}
+`;
+
+export const SEARCH_GAME = gql`
+query GetGameSearch($name: [String]) {
+  getGameSearch(name: $name) {
+    name
+    _id
+  }
+}
+`;
+
+export const FILTER_BROADCASTER_VIEWS = gql`
+query Query($skip: Int!) {
+  sortBroadcasterViews(skip: $skip) {
+    name
+    profile_image_url
+  }
+}
+`;
+
+export const FILTER_GAME_VIEWS = gql`
+query Query($skip: Int!) {
+  sortGameViews(skip: $skip) {
+    _id
+    name
+  }
+}
+`;

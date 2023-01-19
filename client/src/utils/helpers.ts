@@ -25,6 +25,28 @@ export const percentDifference = (a: number, b: number) => {
     return percent.toFixed(2).toString().replace("-", "");
 };
 
+export const specialCategories = [
+    "Just Chatting",
+    "Music",
+    "Poker",
+    "ASMR",
+    "Art",
+    "Retro",
+    "Sports",
+    "Chess",
+    "Pools, Hot Tubs, and Beaches",
+    "Talk Shows & Podcasts",
+    "Special Events"
+];
+
+export const gameUrlReturner = (arr: string[], name: string, id: string) => {
+    if (arr.includes(name)) {
+        return `https://static-cdn.jtvnw.net/ttv-boxart/${id}-210x280.jpg`;
+    } else {
+        return `https://static-cdn.jtvnw.net/ttv-boxart/${id}_IGDB-210x280.jpg`;
+    };
+};
+
 // This function will reference archives after a specified date and provide a rounded average value
 export const createListData = (array: TopGames[]) => {
 
@@ -49,14 +71,7 @@ export const createListData = (array: TopGames[]) => {
         // Rounding the average, without this the database tends to throw errors due to long decimal values
         let averageRounded: number = average.toFixed() * 1;
 
-        if (name === "Just Chatting" || name === "Music" || name === "Poker" || name === "ASMR" ||
-            name === "Art" || name === "Retro" || name === "Sports" || name === "Chess" ||
-            name === "Pools, Hot Tubs, and Beaches" || name === "Talk Shows & Podcasts" ||
-            name === "Special Events") {
-            imgUrl = `https://static-cdn.jtvnw.net/ttv-boxart/${twitchGameId}-210x280.jpg`
-        } else {
-            imgUrl = `https://static-cdn.jtvnw.net/ttv-boxart/${twitchGameId}_IGDB-210x280.jpg`
-        }
+        imgUrl = gameUrlReturner(specialCategories, name, twitchGameId);
 
         finalResult.push({
             name: name,
@@ -362,11 +377,15 @@ export function numShortFormat(num: number) {
 
 // Adds ordinal ending to numbers (ex: 1st, 2nd, 3rd, 4th)
 export function numOrdinalFormat(num: number) {
-    return["st","nd","rd"][(((num<0?-num:num)+90)%100-10)%10-1]||"th"
+    return ["st", "nd", "rd"][(((num < 0 ? -num : num) + 90) % 100 - 10) % 10 - 1] || "th"
 };
 
 // Calculates and assigns an average value of a nested array within an array of objects
 export function nestedArrayAverageCalc(arr: any[], nestedArr: string) {
+    // If there is no data in the array, or nestedArr doesnt exist, return the passed in array
+    if (arr.length === 0) return arr;
+    if (!arr[0]?.[nestedArr]) return arr;
+
     for (let k = 0; k < arr?.length; k++) {
         if (arr[k]?.[nestedArr]?.length > 1) {
             let newAvg: number = 0;

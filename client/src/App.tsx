@@ -1,15 +1,7 @@
 import React, { lazy, Suspense } from 'react';
-// import logo from './logo.svg';
-// import TopStats from './components/TopStats';
+import Loading from './components/Loading';
 import NavBar from './components/NavBar';
-// import Header from './components/Header';
-// import HomeCharts from './components/HomeCharts';
-// import TopClips from './components/TopClips';
-// import HomePies from './components/HomePies';
-
-// import HomePage from './components/HomePage';
-// import ProfilePage from './components/ProfilePage';
-// import GamePage from './components/GamePage';
+import Footer from './components/Footer';
 import {
   ApolloClient,
   InMemoryCache,
@@ -55,41 +47,61 @@ const ProfilePage = lazy(() => import('./components/ProfilePage'));
 
 const GamePage = lazy(() => import('./components/GamePage'));
 
+const SearchPage = lazy(() => import('./components/SearchPage'));
+
+const BrowsePage = lazy(() => import('./components/BrowsePage'));
+
+const AboutPage = lazy(() => import('./components/AboutPage'));
+
+console.log("MAIN APP HAS RELOADED")
+
 function App() {
   return (
 
     <ApolloProvider client={client}>
-      <Suspense fallback={<h1>Loading!</h1>}>
+      <NavBar />
+      <Suspense fallback={<Loading />}>
         <Routes>
           <Route
             path="/"
             element={
-              <>
-                <NavBar />
-                <HomePage />
-              </>
+              <HomePage />
             }
           />
           <Route
             path="profile/:profileId"
             element={
-              <>
-                <NavBar />
-                <ProfilePage />
-              </>
+              <ProfilePage />
             }
           />
           <Route
             path="game/:gameId"
             element={
-              <>
-                <NavBar />
-                <GamePage />
-              </>
+              <GamePage />
+            }
+          />
+          <Route
+            path="/search/*"
+            element={
+              <SearchPage />
+            }
+          />
+          <Route
+            path="/browse/:type"
+            element={
+              <BrowsePage />
+            }
+          />
+          <Route
+            path="/about/"
+            element={
+              <AboutPage />
             }
           />
         </Routes>
       </Suspense>
+      <div className='footerHelper'></div>
+      <Footer />
     </ApolloProvider>
 
   );

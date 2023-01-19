@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import Loading from './Loading';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
 
 import { createListData, createStreamerData, Comparator } from '../utils/helpers';
 
@@ -133,9 +134,7 @@ const TopStats: React.FC<TopProps> = (props) => {
                                     }
                                 ></RankCard>
                             )) :
-                            <Typography variant={'h4'}>
-                                Loading...
-                            </Typography>
+                            <Loading />
                         }
 
 
@@ -168,11 +167,8 @@ const TopStats: React.FC<TopProps> = (props) => {
                                     }
                                 ></RankCard>
                             )) :
-                            <Typography variant={'h4'}>
-                                Loading...
-                            </Typography>
+                            <Loading />
                         }
-
 
                     </Grid>
 

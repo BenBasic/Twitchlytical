@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import Loading from './Loading';
 import { getData } from '../utils/clientFetches';
-import Typography from '@mui/material/Typography'
 import TopClips from './TopClips';
 import { ProfileClipsProps } from './TypesAndInterfaces'
 
@@ -50,9 +50,7 @@ const ProfileClips: React.FC<ProfileClipsProps> = (props) => {
     return (
         <>
             {dataList === undefined || dataList?.length === 0 ?
-                <Typography className='areaChart' variant={'h4'} textAlign='center'>
-                    Loading Chart...
-                </Typography>
+                <Loading />
                 :
                 <TopClips
                     data={dataList}

@@ -1,21 +1,20 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { select, Selection } from 'd3-selection'
-import { scaleLinear, scaleBand } from 'd3-scale'
-import { max } from 'd3-array'
-import { axisLeft, axisBottom } from 'd3-axis'
-import 'd3-transition'
-import { easeElastic } from 'd3-ease'
-import { area } from 'd3-shape'
-import { BroadcasterLatest, GameData, ProfileData } from './TypesAndInterfaces'
-import { percentDifference, checkArrIsNum } from '../utils/helpers'
+import React, { useEffect, useRef, useState } from 'react';
+import { select, Selection } from 'd3-selection';
+import { scaleLinear, scaleBand } from 'd3-scale';
+import { max } from 'd3-array';
+import { axisLeft, axisBottom } from 'd3-axis';
+import 'd3-transition';
+import { easeElastic } from 'd3-ease';
+import { area } from 'd3-shape';
+import { BroadcasterLatest, GameData, ProfileData } from './TypesAndInterfaces';
+import { percentDifference, checkArrIsNum } from '../utils/helpers';
+import useChartResize from 'src/utils/chartResizeHook';
 
 // Type used for percentage calculation comparisons for the tooltip
 type percentTooltip = {
     print: string;
     class: string;
 };
-
-
 
 const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData, gameData, type }) => {
 
@@ -43,34 +42,11 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
     const areaChart = useRef<SVGSVGElement | null>(null)
 
-    // This is a ref for the container, which is a parent of the d3 related svg elements
-    const svgContainer = useRef<HTMLDivElement | null>(null);
-
-    // States which keep track of the updating width and height of the svgContainer
-    const [widthState, setWidthState] = useState<number>();
-    const [heightState, setHeightState] = useState<number>();
+    // Calling imported useChartResize hook to track width and height of svg container for mobile responsiveness
+    const [widthState, heightState, svgContainer] = useChartResize();
 
     // State keeping track of refreshes, used to prevent enter animation retriggering when resizing container
     const [resizeCheckState, setResizeCheckState] = useState<number>(0);
-
-
-    // Calculates the width and height of the svgContainer
-    const getSvgContainerSize = () => {
-        const newWidth = svgContainer.current?.clientWidth;
-        setWidthState(newWidth);
-
-        const newHeight = svgContainer.current?.clientHeight;
-        setHeightState(newHeight);
-    };
-
-    useEffect(() => {
-        // Detects the width and height on render (determined by container size, or window size if no container)
-        getSvgContainerSize();
-        // Listens for resize changes, and detects dimensions again when they change
-        window.addEventListener("resize", getSvgContainerSize);
-        // Cleanup the previously applied event listener
-        return () => window.removeEventListener("resize", getSvgContainerSize);
-    }, []);
 
     // State used for svg element selections, sort of like a root for all branching d3 manipulations
     const [selectionState, setSelectionState] = useState<null | Selection<SVGSVGElement | null, unknown, null, undefined>>(null)
@@ -99,7 +75,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
     // Values and sizing referenced for the x axis
     let x = scaleBand()
-        .domain((dataState === undefined ? "" : dataState.map(d => `${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' })}`)))
+        .domain((dataState === undefined ? "" : dataState.map(d => `${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}`)))
         .range([0, dimensions.width! - (dimensions.width! / 15) * 2])
         .paddingInner(1)
         .paddingOuter(.1)
@@ -116,7 +92,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     // Placement settings for starting position of chart appearing animation
     const startAreaRef: any = area()
         .x((d: any) => {
-            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' }))
+            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }))
             if (xValue) {
                 return xValue
             } else {
@@ -129,7 +105,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     // Placement settings for dataset 1 (final position, after animation)
     const areaRef: any = area()
         .x((d: any) => {
-            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' }))
+            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }))
             if (xValue) {
                 return xValue
             } else {
@@ -142,7 +118,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
     // Placement settings for dataset 2 (final position, after animation)
     const channelAreaRef: any = area()
         .x((d: any) => {
-            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' }))
+            const xValue = x(new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }))
             if (xValue) {
                 return xValue
             } else {
@@ -166,7 +142,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
             classVal = `lower`
         };
 
-        return {print: printVal, class: classVal};
+        return { print: printVal, class: classVal };
     }
 
     useEffect(() => {
@@ -292,7 +268,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
 
                 // Bar Chart
                 bar.append("rect")
-                    .attr('x', (d) => x(`${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' })}`)!)
+                    .attr('x', (d) => x(`${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}`)!)
                     .attr('y', (d) => resizeCheckState > 0 ? barHeightCalc(d) : dimensions.height! - (dimensions.height! / 8 * 1.2))
                     .attr("height", (d) => resizeCheckState > 0 ? dimensions.height! - (dimensions.height! / 8 * 1.2) - barHeightCalc(d) : 0)
                     .attr("width", Math.round(dimensions.width! / 55 / 3 + (dimensions.width! / 55)))
@@ -336,7 +312,7 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                     .classed("tipArea", true)
                     .attr("width", dimensions.width! / 25)
                     .attr("height", '86%')
-                    .attr("x", function (d) { return x(`${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' })}`)!; })
+                    .attr("x", function (d) { return x(`${new Date(d.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}`)!; })
                     .attr("y", 0)
                     .attr('transform', `translate(${dimensions.width! / 21.3}, 0)`)
                     .on("mouseover", function (event, d) {
@@ -358,12 +334,12 @@ const BroadcasterPerformanceChart: React.FC<BroadcasterLatest> = ({ profileData,
                         let prevDuration: any[] = ["nope"];
                         let viewPerStream: number = 0;
 
-                        let viewPeakPercent: percentTooltip = {print: '', class: ''};
-                        let viewAvgPercent: percentTooltip = {print: '', class: ''};
-                        let channelPeakPercent: percentTooltip = {print: '', class: ''};
-                        let channelAvgPercent: percentTooltip = {print: '', class: ''};
-                        let durationPercent: percentTooltip = {print: '', class: ''};
-                        let ratioPercent: percentTooltip = {print: '', class: ''};
+                        let viewPeakPercent: percentTooltip = { print: '', class: '' };
+                        let viewAvgPercent: percentTooltip = { print: '', class: '' };
+                        let channelPeakPercent: percentTooltip = { print: '', class: '' };
+                        let channelAvgPercent: percentTooltip = { print: '', class: '' };
+                        let durationPercent: percentTooltip = { print: '', class: '' };
+                        let ratioPercent: percentTooltip = { print: '', class: '' };
 
                         if (isProfileType(dataState, [profileData]) && isProfileTypeItem(d, profileData)) {
                             peakVal = d.peak;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import TopStats from './TopStats';
 import Header from './Header';
 import HomeCharts from './HomeCharts';
@@ -67,6 +67,12 @@ const HomePage: React.FC = () => {
     // Checks if loading is done and hasnt already had its completion state triggered, will load top games if so
     if (loadingTotals === false && topDataLoadingState === true && canMountTopData === false) {
         setTopDataLoadingState(false)
+        setCanMountTopData(true);
+    };
+
+    // If user has gone back in their browser history to access home page, set mount states to true to display cached data
+    if (canMountTopData === false && canMount === false && totalObject !== undefined && topGameData !== undefined) {
+        setCanMount(true);
         setCanMountTopData(true);
     };
 

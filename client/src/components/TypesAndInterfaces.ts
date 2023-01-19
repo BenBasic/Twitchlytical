@@ -223,3 +223,26 @@ export interface BroadcasterLatest {
     gameData?: GameData[] | undefined;
     type: string;
 };
+
+export interface PageProps {
+    arrayCaster: any[];
+    arrayGame: any[];
+    queryHook: URLSearchParams;
+    querySearch: string | null;
+    perPageAmount: number;
+    cast: string;
+    game: string;
+    isLoading: boolean;
+};
+
+export interface SearchCardProps {
+    type: "game"|"broadcaster";
+    name: string;
+    id?: string;
+    imgUrl?: string;
+};
+
+export interface SearchHeaderProps {
+    header: "Browsing"|"Searching for"|"About";
+    search: string|undefined;
+};
