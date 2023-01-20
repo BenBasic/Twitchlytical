@@ -162,7 +162,8 @@ const typeDefs = gql`
 		addGame(gameData: GameInput!): Game
 		addStream(streamData: StreamInput!): Stream
 		addClip(clipData: [ClipsInput]!): [Clips]
-		addBroadcasterData(broadcasterData: BroadcasterInput!): Broadcaster
+		addBroadcasterData(broadcasterData: [BroadcasterInput]!): String
+		addBulkArchiveData(archiveData: [ArchiveDataInput]!): String
 		addArchiveData(archiveData: ArchiveDataInput!): ArchiveData
 		updateTotalData(totalData: TotalDataInput!, date: String): TotalData
 		updateTopGames(_id: ID, games: [ID]): TotalData

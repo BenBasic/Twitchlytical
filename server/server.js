@@ -609,6 +609,9 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 		console.log("resUserData IS !!!!!!!!!!!")
 		console.log(resUserData);
 
+		let finalCasterArray = [];
+		let finalArchiveArray = [];
+
 		// Cycling through each object in the api response and adding new key value pairs to users array of objects
 		for (var key in resUserData) {
 			// Checks if the object from the response contains any properties
@@ -617,75 +620,55 @@ const getUserInfo = async (reqStreamUrl, reqUserUrl) => {
 				// Finding the matching id values between the user array and the api response
 				let findMatchingId = users.find(obj => obj.id === resUserData[key].id);
 
-				// Assigning new key value pairs to the matching user object
-				findMatchingId.displayName = resUserData[key].display_name;
-				findMatchingId.broadcasterType = resUserData[key].broadcaster_type;
-				findMatchingId.userDescription = resUserData[key].description;
-				findMatchingId.profileImage = resUserData[key].profile_image_url;
-				findMatchingId.totalViews = resUserData[key].view_count;
-				findMatchingId.creationDate = resUserData[key].created_at;
-
-
-				// Defining variables to pass in to add/update users and user related archive data
-				const variables = {
-					broadcasterData: {
-						user_id: findMatchingId.id,
-						name: findMatchingId.displayName,
-						description: findMatchingId.userDescription,
-						language: findMatchingId.language,
-						broadcaster_type: findMatchingId.broadcasterType,
-						view_count: findMatchingId.views,
-						total_views: findMatchingId.totalViews,
-						profile_image_url: findMatchingId.profileImage,
-						createdAt: findMatchingId.creationDate,
-					},
-					archiveData: {
-						user_id: findMatchingId.id,
-						stream_id: findMatchingId.stream_id,
-						view_count: findMatchingId.views,
-					},
+				let finalUserObject = {
+					user_id: findMatchingId.id,
+					name: resUserData[key].display_name,
+					description: resUserData[key].description,
+					language: findMatchingId.language,
+					broadcaster_type: resUserData[key].broadcaster_type,
+					view_count: findMatchingId.views,
+					total_views: resUserData[key].view_count,
+					profile_image_url: resUserData[key].profile_image_url,
+					createdAt: resUserData[key].created_at,
 				};
 
-				// Defining the query to pass in, this will perform the addBroadcasterData and addArchiveData mutations
-				const queryPost = `
-					mutation Mutation($broadcasterData: BroadcasterInput!, $archiveData: ArchiveDataInput!) {
-						addBroadcasterData(broadcasterData: $broadcasterData) {
-						_id
-						user_id
-						name
-						description
-						language
-						profile_image_url
-						view_count
-						total_views
-						broadcaster_type
-						createdAt
-						archive {
-							_id
-							createdAt
-							user_id
-							game_id
-							stream_id
-							view_count
-						}
-						}
-						addArchiveData(archiveData: $archiveData) {
-						_id
-						createdAt
-						user_id
-						game_id
-						stream_id
-						view_count
-						}
-					}
-				`;
+				let finalUserArchive = {
+					user_id: findMatchingId.id,
+					stream_id: findMatchingId.stream_id,
+					view_count: findMatchingId.views,
+				};
 
+				// // Assigning new key value pairs to the matching user object
+				// findMatchingId.displayName = resUserData[key].display_name;
+				// findMatchingId.broadcasterType = resUserData[key].broadcaster_type;
+				// findMatchingId.userDescription = resUserData[key].description;
+				// findMatchingId.profileImage = resUserData[key].profile_image_url;
+				// findMatchingId.totalViews = resUserData[key].view_count;
+				// findMatchingId.creationDate = resUserData[key].created_at;
 
-				// Calling postData function to add/update broadcaster and broadcaster related archive data to the MongoDB database
-				postData(`http://localhost:3001/graphql`, queryPost, variables);
+				finalCasterArray.push(finalUserObject);
+				finalArchiveArray.push(finalUserArchive);
 
 			};
 		};
+
+		// Defining variables to pass in to add/update users and user related archive data
+		const variables = {
+			broadcasterData: finalCasterArray,
+			archiveData: finalArchiveArray,
+		};
+
+		// Defining the query to pass in, this will perform the addBroadcasterData and addArchiveData mutations
+		const queryPost = `
+			mutation Mutation($broadcasterData: [BroadcasterInput]!, $archiveData: [ArchiveDataInput]!) {
+				addBroadcasterData(broadcasterData: $broadcasterData)
+				addBulkArchiveData(archiveData: $archiveData)
+		  	}
+		`;
+
+
+		// Calling postData function to add/update broadcaster and broadcaster related archive data to the MongoDB database
+		postData(`http://localhost:3001/graphql`, queryPost, variables);
 	};
 
 	// Returning the updated data for use in other functions, now with the new key value pairs for users

@@ -129,9 +129,6 @@ const resolvers = {
 					}
 				})
 
-			// console.log("TOP GAMES IS")
-			// console.log(topGames[0].topGames[0].archive)
-
 			if (!topGames) {
 				console.log("No Total Data!")
 			};
@@ -289,20 +286,40 @@ const resolvers = {
 		},
 
 		addBroadcasterData: async (parent, { broadcasterData }) => {
-			const broadcaster = await Broadcaster.findOne({ user_id: broadcasterData.user_id });
+			const bulk = Broadcaster.collection.initializeUnorderedBulkOp();
+	
+			broadcasterData.forEach((data) => {
+				bulk
+					.find({ user_id: data.user_id })
+					.upsert()
+					.update({
+						$set: {
+							description: data.description,
+							profile_image_url: data.profile_image_url,
+							view_count: data.view_count,
+							total_views: data.total_views,
+						}
+					});
+			});
+	
+			await bulk.execute();
+			return "Bulk broadcaster add/update complete";
+		},
 
-			if (!broadcaster) {
-				const newBroadcaster = await Broadcaster.create(broadcasterData);
-				return newBroadcaster;
-			} else {
-				await broadcaster.update({
-					description: broadcasterData.description,
-					profile_image_url: broadcasterData.profile_image_url,
-					view_count: broadcasterData.view_count,
-					total_views: broadcasterData.total_views,
-				}, { new: true });
-				return broadcaster;
-			};
+		addBulkArchiveData: async (parent, { archiveData }) => {
+
+			const newArchiveData = await ArchiveData.create(archiveData);
+
+			const bulk = Broadcaster.collection.initializeUnorderedBulkOp();
+	
+			newArchiveData.forEach((data) => {
+				bulk
+					.find({ user_id: data.user_id })
+					.updateOne({ $addToSet: { archive: data._id } });
+			});
+	
+			await bulk.execute();
+			return "Bulk archive complete";
 		},
 
 		addArchiveData: async (parent, { archiveData }) => {
